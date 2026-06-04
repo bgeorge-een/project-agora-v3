@@ -2,7 +2,7 @@
 // Three Golden Demo Scenarios — shared by both apps
 // ============================================================
 
-import type { Alert, Case, Campaign, Site, ExternalContextSignal, Entity } from '../types'
+import type { Alert, Case, Campaign, Site, ExternalContextSignal, Entity, AlertDetail } from '../types'
 
 // ---- Sites ----
 export const SITES: Site[] = [
@@ -224,6 +224,188 @@ export const MOCK_ALERTS: Alert[] = [
     },
   },
 ]
+
+// ---- Alert Details (correlated evidence per alert) ----
+export const ALERT_DETAILS: Record<string, AlertDetail> = {
+  'alert-001': {
+    alertId: 'alert-001',
+    person: {
+      type: 'known',
+      name: 'Marcus Webb',
+      role: 'Contractor',
+      company: 'SecureBuild LLC',
+      badgeId: 'B-4421',
+      accessLevel: 'Level 2 (General Areas)',
+      department: 'Facilities',
+      avatarInitials: 'MW',
+      avatarColor: '#DC2626', // red because high risk
+    },
+    correlatedEvents: [
+      {
+        id: 'ce-001',
+        ts: '14:21',
+        type: 'access',
+        location: 'Main Lobby — Entry A',
+        detail: 'Badge B-4421 granted. Entry logged.',
+        granted: true,
+      },
+      {
+        id: 'ce-002',
+        ts: '14:24',
+        type: 'camera',
+        location: 'Lobby Camera L1',
+        detail: 'Individual confirmed heading toward elevator bank.',
+        cameraPreview: { channel: 'L1', sceneType: 'lobby' },
+      },
+      {
+        id: 'ce-003',
+        ts: '14:27',
+        type: 'camera',
+        location: 'Floor 3 Corridor Camera C4',
+        detail: 'Individual arrived Floor 3, Server Room corridor.',
+        cameraPreview: { channel: 'C4', sceneType: 'hallway' },
+      },
+      {
+        id: 'ce-004',
+        ts: '14:34',
+        type: 'access',
+        location: 'Server Room 2B Door',
+        detail: 'Badge B-4421 DENIED. Insufficient clearance (Level 4+ required).',
+        granted: false,
+      },
+      {
+        id: 'ce-005',
+        ts: '14:34–14:38',
+        type: 'agent',
+        location: 'Server Room Corridor',
+        detail: 'AI: Individual lingered 4 min 12 sec after denial. Consistent with probing behavior.',
+        agentFlag: true,
+      },
+      {
+        id: 'ce-006',
+        ts: '14:38',
+        type: 'access',
+        location: 'Server Room 2B Door',
+        detail: 'Badge B-4421 DENIED (2nd attempt). Second denial within 4-minute window.',
+        granted: false,
+      },
+      {
+        id: 'ce-007',
+        ts: '14:39',
+        type: 'camera',
+        location: 'Floor 3 Corridor Camera C4',
+        detail: 'Individual departing corridor after 2nd denial.',
+        cameraPreview: { channel: 'C4', sceneType: 'restricted' },
+      },
+    ],
+    agentSummary: 'Badge B-4421 (Marcus Webb, Contractor) attempted access to Server Room 2B — a Level 4+ restricted zone — twice within 4 minutes. Both denied. Camera C4 confirms 4+ minute loiter. No scheduled work order for Floor 3 on this date. Pattern consistent with access probing.',
+  },
+  'alert-002': {
+    alertId: 'alert-002',
+    person: {
+      type: 'unknown',
+      label: 'Unknown — Watchlist Match',
+      watchlistCategory: 'Person of Interest',
+      confidence: 83,
+      firstSeen: '14:33',
+      cameraSightings: ['East Entry Cam E1', 'Perimeter Cam P3'],
+      vehiclePlate: null,
+      avatarColor: '#D97706',
+    },
+    correlatedEvents: [
+      {
+        id: 'ce-a1',
+        ts: '14:33',
+        type: 'camera',
+        location: 'Perimeter Camera P3',
+        detail: 'Individual approached East Entry on foot from parking lot.',
+        cameraPreview: { channel: 'P3', sceneType: 'exterior' },
+      },
+      {
+        id: 'ce-a2',
+        ts: '14:34',
+        type: 'agent',
+        location: 'East Entry Camera E1',
+        detail: 'Face match: Watchlist entry matched at 83% confidence. Active watchlist category: Person of Interest.',
+        agentFlag: true,
+      },
+      {
+        id: 'ce-a3',
+        ts: '14:35',
+        type: 'camera',
+        location: 'East Entry Camera E1',
+        detail: 'Individual paused at East Entry, did not attempt badge swipe. Appeared to survey entry point.',
+        cameraPreview: { channel: 'E1', sceneType: 'lobby' },
+      },
+      {
+        id: 'ce-a4',
+        ts: '14:35',
+        type: 'agent',
+        location: 'External Signal Correlation',
+        detail: 'Civil unrest signal active 0.8 km from site. Emergency Alert Platform severity: Medium. Time horizon: hours.',
+        agentFlag: true,
+      },
+    ],
+    agentSummary: 'Face match triggered on East Entry Camera E1 (83% confidence) against active watchlist entry. Individual observed surveying entry point without attempting access. Concurrent civil unrest signal active 0.8 km away elevates overall risk. No access attempt made yet — deterrence action recommended before escalation.',
+  },
+  'alert-004': {
+    alertId: 'alert-004',
+    person: {
+      type: 'unknown',
+      label: 'Unknown Individual',
+      watchlistCategory: null,
+      confidence: null,
+      firstSeen: '13:52',
+      cameraSightings: ['Loading Dock Cam W2', 'Warehouse Interior Cam W5'],
+      vehiclePlate: 'HXT-7291',
+      avatarColor: '#9CA3AF',
+    },
+    correlatedEvents: [
+      {
+        id: 'ce-b1',
+        ts: '13:51',
+        type: 'camera',
+        location: 'Exterior Parking Cam W1',
+        detail: 'Dark sedan (plate HXT-7291) parked near Loading Dock B entrance.',
+        cameraPreview: { channel: 'W1', sceneType: 'parking' },
+      },
+      {
+        id: 'ce-b2',
+        ts: '13:52',
+        type: 'access',
+        location: 'Loading Dock B Door',
+        detail: 'Badge W-0093 (J. Rivera, Warehouse Staff) granted access. Door held open — tailgate detected.',
+        granted: true,
+        tailgate: true,
+      },
+      {
+        id: 'ce-b3',
+        ts: '13:52',
+        type: 'camera',
+        location: 'Loading Dock Camera W2',
+        detail: 'Second individual followed credentialed employee through door without badging.',
+        cameraPreview: { channel: 'W2', sceneType: 'restricted' },
+      },
+      {
+        id: 'ce-b4',
+        ts: '13:54',
+        type: 'camera',
+        location: 'Warehouse Interior Cam W5',
+        detail: 'Unregistered individual moving through warehouse interior unescorted.',
+        cameraPreview: { channel: 'W5', sceneType: 'hallway' },
+      },
+      {
+        id: 'ce-b5',
+        ts: '13:55',
+        type: 'agent',
+        location: 'Cross-Site Correlation',
+        detail: 'AI: Vehicle HXT-7291 linked to Campaign-001. Same vehicle associated with Austin HQ contractor badge probing earlier today.',
+        agentFlag: true,
+      },
+    ],
+    agentSummary: 'Vehicle HXT-7291 parked outside Loading Dock B. Unknown individual tailgated through door behind credentialed employee. Camera W5 confirms unescorted movement inside warehouse. Vehicle plate cross-matched to Campaign-001 (multi-site activity — also linked to Austin HQ access probing incident).',
+  },
+}
 
 // ---- Campaign ----
 export const MOCK_CAMPAIGNS: Campaign[] = [

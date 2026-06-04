@@ -242,3 +242,52 @@ export interface ChatMessage {
   content: string
   citedEvidenceIds?: string[]
 }
+
+// --- Incident Detail (correlated evidence view) ---
+export type SceneType = 'parking' | 'lobby' | 'hallway' | 'elevator' | 'exterior' | 'restricted'
+
+export interface CameraPreview {
+  channel: string
+  sceneType: SceneType
+}
+
+export interface CorrelatedEvent {
+  id: string
+  ts: string
+  type: 'access' | 'camera' | 'agent'
+  location: string
+  detail: string
+  granted?: boolean
+  tailgate?: boolean
+  agentFlag?: boolean
+  cameraPreview?: CameraPreview
+}
+
+export interface PersonDetails {
+  type: 'known' | 'unknown'
+  // known
+  name?: string
+  role?: string
+  company?: string
+  badgeId?: string
+  accessLevel?: string
+  department?: string
+  email?: string
+  // unknown
+  label?: string
+  watchlistCategory?: string | null
+  confidence?: number | null
+  firstSeen?: string
+  cameraSightings?: string[]
+  vehiclePlate?: string | null
+  // shared
+  avatarInitials?: string
+  avatarColor: string
+}
+
+export interface AlertDetail {
+  alertId: string
+  person: PersonDetails
+  correlatedEvents: CorrelatedEvent[]
+  agentSummary: string
+}

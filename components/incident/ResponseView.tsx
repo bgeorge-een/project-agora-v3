@@ -3,8 +3,10 @@
 import { useMemo, useState } from 'react'
 import type { Alert, Severity } from '@/lib/types'
 import { useSimulation } from './useSimulation'
+import { ALERT_DETAILS } from '@/lib/mock-data/scenarios'
 import NBACard from './NBACard'
 import OverrideModal, { type OverrideReason } from './OverrideModal'
+import { IncidentDetailDrawer } from './IncidentDetailDrawer'
 
 // ---- helpers ----
 function formatAge(seconds: number): string {
@@ -192,6 +194,15 @@ export default function ResponseView() {
   const selectedAlert =
     alerts.find((a) => a.id === selectedId) ?? null
 
+  const drawerDetail =
+    selectedAlert && ALERT_DETAILS[selectedAlert.id]
+      ? ALERT_DETAILS[selectedAlert.id]
+      : null
+
+  // The right-column NBACard only reflects a selection that has NO rich detail
+  // (alerts without ALERT_DETAILS). Detailed alerts open in the overlay drawer.
+  const nbaCardAlert = drawerDetail ? null : selectedAlert
+
   function handleAccept(a: Alert) {
     setResolutions((prev) => ({
       ...prev,
@@ -306,11 +317,22 @@ export default function ResponseView() {
       {/* RIGHT — NBA + SOP */}
       <div className="lg:sticky lg:top-4 lg:self-start">
         <NBACard
-          alert={selectedAlert}
+          alert={nbaCardAlert}
           onAccept={handleAccept}
           onOverride={handleOverride}
         />
       </div>
+
+      {/* Detail drawer overlay — shown for alerts with correlated evidence */}
+      {selectedAlert && drawerDetail && (
+        <IncidentDetailDrawer
+          alert={selectedAlert}
+          detail={drawerDetail}
+          onClose={() => setSelectedId(null)}
+          onAccept={() => handleAccept(selectedAlert)}
+          onOverride={() => handleOverride(selectedAlert)}
+        />
+      )}
 
       {overrideTarget && (
         <OverrideModal
