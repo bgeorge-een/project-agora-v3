@@ -1,410 +1,246 @@
 import SectionHeader from '@/components/ui/SectionHeader'
 
-const FONT = 'Inter, system-ui, sans-serif'
-
-interface SvgNodeProps {
-  x: number
-  y: number
-  w: number
-  h: number
-  fill: string
-  textColor: string
-  title: string
-  subtitle?: string
-  stroke?: string
-  strokeWidth?: number
-  titleSize?: number
+interface StageRowProps {
+  stage: string
+  children: React.ReactNode
 }
 
-function SvgNode({
-  x,
-  y,
-  w,
-  h,
-  fill,
-  textColor,
-  title,
-  subtitle,
-  stroke,
-  strokeWidth,
-  titleSize = 13,
-}: SvgNodeProps) {
-  const cx = x + w / 2
-  const cy = y + h / 2
+function StageRow({ stage, children }: StageRowProps) {
   return (
-    <g filter="url(#node-shadow)">
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={6}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-      />
-      <text
-        x={cx}
-        y={subtitle ? cy - 5 : cy}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontFamily={FONT}
-        fontSize={titleSize}
-        fontWeight={700}
-        fill={textColor}
-      >
-        {title}
-      </text>
-      {subtitle && (
-        <text
-          x={cx}
-          y={cy + 11}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontFamily={FONT}
-          fontSize={10}
-          fontWeight={500}
-          fill={textColor}
-          opacity={0.85}
-        >
-          {subtitle}
-        </text>
-      )}
-    </g>
+    <div className="flex items-stretch gap-4">
+      <div className="flex w-20 shrink-0 items-center justify-end pt-1">
+        <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#9CA3AF]">
+          {stage}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
   )
 }
 
-interface LegendItem {
-  color: string
-  label: string
+interface NodeCardProps {
+  borderColor: string
+  background: string
+  title: string
+  subtitle?: string
+  dashed?: boolean
+  textColor?: string
 }
 
-const LEGEND: LegendItem[] = [
-  { color: '#374151', label: 'Signal Normalizer' },
-  { color: '#1D4ED8', label: 'Enrichment (Claude tool use)' },
+function NodeCard({
+  borderColor,
+  background,
+  title,
+  subtitle,
+  dashed = false,
+  textColor = '#111827',
+}: NodeCardProps) {
+  const borderStyle: React.CSSProperties = dashed
+    ? {
+        border: `2px dashed ${borderColor}`,
+        borderLeft: `4px solid ${borderColor}`,
+      }
+    : { borderLeft: `4px solid ${borderColor}` }
+  return (
+    <div
+      style={{
+        ...borderStyle,
+        background,
+        borderRadius: 8,
+        padding: '10px 16px',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+      }}
+    >
+      <div style={{ fontWeight: 700, fontSize: 14, color: textColor }}>
+        {title}
+      </div>
+      {subtitle && (
+        <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
+          {subtitle}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DownArrow() {
+  return (
+    <div className="flex w-20 shrink-0 items-center justify-end pr-4">
+      <span style={{ color: '#9CA3AF', fontSize: 20, lineHeight: 1 }}>↓</span>
+    </div>
+  )
+}
+
+function StageGap() {
+  return (
+    <div className="flex items-center" style={{ margin: '4px 0' }}>
+      <DownArrow />
+      <div className="flex-1" />
+    </div>
+  )
+}
+
+const TOOLS = ['entity_resolver', 'evidence_gatherer', 'case_linker']
+
+const LEGEND = [
+  { color: '#6B7280', label: 'No AI (normalize)' },
+  { color: '#1D4ED8', label: 'Claude tool use (enrichment)' },
   { color: '#7C3AED', label: 'Analysis' },
-  { color: '#15803D', label: 'Recommendation + Explanation' },
+  { color: '#15803D', label: 'Output agents (recommend / explain)' },
 ]
 
 export default function AgentPipelineDiagram() {
   return (
     <section className="bg-white px-12 py-20">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-5xl">
         <SectionHeader
           label="The AI core"
           title="Agentic Enrichment Pipeline"
-          subtitle="Every signal passes through five agents before any human sees it. Partial results stream to the app UI as each completes."
+          subtitle="Every signal passes through the agent stack before any human sees it. Partial results stream to the app UI as each stage completes."
         />
 
-        <div className="mt-12 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4 sm:p-6">
-          <svg
-            viewBox="0 0 900 420"
-            width="100%"
-            role="img"
-            aria-label="Agentic enrichment pipeline flow diagram"
-            style={{ display: 'block' }}
-          >
-            <defs>
-              <marker
-                id="ap-arrow-gray"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#6B7280" />
-              </marker>
-              <marker
-                id="ap-arrow-blue"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#1D4ED8" />
-              </marker>
-              <marker
-                id="ap-arrow-purple"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#7C3AED" />
-              </marker>
-              <marker
-                id="ap-arrow-green"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#15803D" />
-              </marker>
-              <marker
-                id="ap-arrow-teal"
-                markerWidth="9"
-                markerHeight="7"
-                refX="8"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon points="0 0, 9 3.5, 0 7" fill="#0E7490" />
-              </marker>
-              <filter
-                id="node-shadow"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="160%"
-              >
-                <feDropShadow
-                  dx="0"
-                  dy="1"
-                  stdDeviation="2"
-                  floodOpacity="0.15"
-                />
-              </filter>
-            </defs>
-
-            <rect x="0" y="0" width="900" height="420" fill="#F9FAFB" />
-
-            {/*
-              Vertical centerline of the main pipeline row = y 175 (nodes 150-200).
-              Columns:
-                Raw Signal       x 8   w 96
-                Normalizer       x 128 w 150
-                Enrichment       x 300 w 150
-                Tools            x 480 w 140 (three rows: y 80 / 157 / 234)
-                Analysis         x 660 w 150
-              Parallel agents (right edge):
-                Recommendation   x 660 w 200 y 60
-                Explanation      x 660 w 200 y 300
-              Human Review UI    x 300 w 180 y 350
-            */}
-
-            {/* Raw Signal -> Normalizer */}
-            <line
-              x1="104"
-              y1="175"
-              x2="124"
-              y2="175"
-              stroke="#6B7280"
-              strokeWidth={2}
-              markerEnd="url(#ap-arrow-gray)"
-            />
-            {/* Normalizer -> Enrichment */}
-            <line
-              x1="278"
-              y1="175"
-              x2="296"
-              y2="175"
-              stroke="#6B7280"
-              strokeWidth={2}
-              markerEnd="url(#ap-arrow-gray)"
-            />
-
-            {/* Enrichment -> three tools (fan out) */}
-            <path
-              d="M450 168 C 466 168, 466 98, 476 98"
-              fill="none"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-            <line
-              x1="450"
-              y1="175"
-              x2="476"
-              y2="175"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-            <path
-              d="M450 182 C 466 182, 466 252, 476 252"
-              fill="none"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-
-            {/* three tools -> Analysis (fan in) */}
-            <path
-              d="M620 98 C 640 98, 640 168, 656 168"
-              fill="none"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-            <line
-              x1="620"
-              y1="175"
-              x2="656"
-              y2="175"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-            <path
-              d="M620 252 C 640 252, 640 182, 656 182"
-              fill="none"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-blue)"
-            />
-
-            {/* Analysis -> Recommendation (up) */}
-            <path
-              d="M735 150 C 735 120, 745 86, 656 86"
-              fill="none"
-              stroke="#7C3AED"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-purple)"
-            />
-            {/* Analysis -> Explanation (down) */}
-            <path
-              d="M735 200 C 735 260, 745 326, 656 326"
-              fill="none"
-              stroke="#7C3AED"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-purple)"
-            />
-
-            {/* Recommendation -> Human Review UI */}
-            <path
-              d="M656 86 C 420 86, 400 350, 392 350"
-              fill="none"
-              stroke="#15803D"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-green)"
-            />
-            {/* Explanation -> Human Review UI */}
-            <path
-              d="M656 326 C 470 326, 470 375, 484 375"
-              fill="none"
-              stroke="#0E7490"
-              strokeWidth={1.75}
-              markerEnd="url(#ap-arrow-teal)"
-            />
-
-            {/* ---- Nodes ---- */}
-            <SvgNode
-              x={8}
-              y={150}
-              w={96}
-              h={50}
-              fill="#F3F4F6"
-              textColor="#374151"
+        <div className="mt-12 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-5 sm:p-8">
+          {/* STAGE 1 */}
+          <StageRow stage="Stage 1">
+            <NodeCard
+              borderColor="#6B7280"
+              background="#F9FAFB"
               title="Raw Signal"
-              stroke="#D1D5DB"
-              strokeWidth={1.5}
-              titleSize={12}
+              subtitle="Line cross · motion · access event · sensor"
             />
-            <SvgNode
-              x={128}
-              y={150}
-              w={150}
-              h={50}
-              fill="#374151"
-              textColor="#FFFFFF"
+          </StageRow>
+
+          <StageGap />
+
+          {/* STAGE 2 */}
+          <StageRow stage="Stage 2">
+            <NodeCard
+              borderColor="#374151"
+              background="#F3F4F6"
               title="Signal Normalizer"
-              subtitle="Sync · <100ms"
+              subtitle="Sync · <100ms · No AI"
             />
-            <SvgNode
-              x={300}
-              y={150}
-              w={150}
-              h={50}
-              fill="#1D4ED8"
-              textColor="#FFFFFF"
-              title="Enrichment Agent"
-              subtitle="Async · Claude tool use"
-            />
+          </StageRow>
 
-            {/* tools */}
-            <SvgNode
-              x={476}
-              y={80}
-              w={140}
-              h={36}
-              fill="#1D4ED8"
-              textColor="#FFFFFF"
-              title="entity_resolver"
-              titleSize={12}
-            />
-            <SvgNode
-              x={476}
-              y={157}
-              w={140}
-              h={36}
-              fill="#1D4ED8"
-              textColor="#FFFFFF"
-              title="evidence_gatherer"
-              titleSize={12}
-            />
-            <SvgNode
-              x={476}
-              y={234}
-              w={140}
-              h={36}
-              fill="#1D4ED8"
-              textColor="#FFFFFF"
-              title="case_linker"
-              titleSize={12}
-            />
+          <StageGap />
 
-            <SvgNode
-              x={660}
-              y={150}
-              w={150}
-              h={50}
-              fill="#7C3AED"
-              textColor="#FFFFFF"
+          {/* STAGE 3 — Enrichment with parallel fan-out */}
+          <StageRow stage="Stage 3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div className="lg:w-[280px] lg:shrink-0">
+                <NodeCard
+                  borderColor="#1D4ED8"
+                  background="#EFF6FF"
+                  title="Enrichment Agent"
+                  subtitle="Async · Claude tool use · parallel fan-out"
+                />
+              </div>
+              <div className="hidden self-center px-1 text-xl text-[#9CA3AF] lg:block">
+                →
+              </div>
+              <div
+                className="flex-1 rounded-lg border p-3"
+                style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  {TOOLS.map((tool, i) => (
+                    <div key={tool} className="flex items-center gap-2">
+                      <span
+                        className="rounded-md px-3 py-1.5 font-mono text-xs font-semibold"
+                        style={{ background: '#1D4ED8', color: '#FFFFFF' }}
+                      >
+                        {tool}
+                      </span>
+                      {i < TOOLS.length - 1 && (
+                        <span className="text-base text-[#60A5FA]">→</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 text-[11px] text-[#6B7280]">
+                  Parallel tool calls — results merge back into the enrichment
+                  context
+                </div>
+              </div>
+            </div>
+          </StageRow>
+
+          <StageGap />
+
+          {/* STAGE 4 */}
+          <StageRow stage="Stage 4">
+            <NodeCard
+              borderColor="#7C3AED"
+              background="#F5F3FF"
               title="Analysis Agent"
-              subtitle="Async · after enrichment"
+              subtitle="Async · runs after enrichment · campaign / pattern detection"
             />
+          </StageRow>
 
-            {/* parallel agents */}
-            <SvgNode
-              x={656}
-              y={60}
-              w={204}
-              h={52}
-              fill="#15803D"
-              textColor="#FFFFFF"
-              title="Recommendation Agent"
-              subtitle="NBA + 2 alternatives · sonnet-4-6"
-            />
-            <SvgNode
-              x={656}
-              y={300}
-              w={204}
-              h={52}
-              fill="#0E7490"
-              textColor="#FFFFFF"
-              title="Explanation Agent"
-              subtitle="Why this fired · sonnet-4-6"
-            />
+          {/* split arrow into two parallel outputs */}
+          <div className="flex items-center" style={{ margin: '4px 0' }}>
+            <DownArrow />
+            <div className="flex-1 text-xs italic text-[#9CA3AF]">
+              splits into two parallel outputs
+            </div>
+          </div>
 
-            {/* Human Review UI */}
-            <SvgNode
-              x={300}
-              y={350}
-              w={184}
-              h={52}
-              fill="#FFFFFF"
+          {/* STAGE 5 — two parallel cards */}
+          <StageRow stage="Stage 5">
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex-1">
+                <NodeCard
+                  borderColor="#15803D"
+                  background="#F0FDF4"
+                  title="Recommendation Agent"
+                  subtitle="Next best action + 2 alternatives"
+                />
+              </div>
+              <div className="flex-1">
+                <NodeCard
+                  borderColor="#0E7490"
+                  background="#ECFEFF"
+                  title="Explanation Agent"
+                  subtitle="Why this fired · claude-sonnet-4-6"
+                />
+              </div>
+            </div>
+          </StageRow>
+
+          {/* U-bracket joining the two parallel cards back to one arrow */}
+          <div className="flex items-stretch">
+            <div className="w-20 shrink-0" />
+            <div className="flex-1">
+              <div
+                style={{
+                  height: 16,
+                  margin: '0 12.5%',
+                  borderBottom: '2px solid #CBD5E1',
+                  borderLeft: '2px solid #CBD5E1',
+                  borderRight: '2px solid #CBD5E1',
+                  borderBottomLeftRadius: 8,
+                  borderBottomRightRadius: 8,
+                }}
+              />
+              <div className="flex justify-center">
+                <span style={{ color: '#9CA3AF', fontSize: 20, lineHeight: 1 }}>
+                  ↓
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* STAGE 6 */}
+          <StageRow stage="Stage 6">
+            <NodeCard
+              borderColor="#2563EB"
+              background="#EFF6FF"
+              title="Human Review UI — Streaming"
+              subtitle="Partial results render as each agent completes"
+              dashed
               textColor="#1D4ED8"
-              title="Human Review UI"
-              subtitle="Streaming to UI"
-              stroke="#1D4ED8"
-              strokeWidth={1.75}
             />
-          </svg>
+          </StageRow>
         </div>
 
         {/* Legend */}
