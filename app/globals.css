@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  /* === EEN VMS Design Tokens === */
+
+  /* Sidebar */
+  --color-sidebar: #172130;
+  --color-sidebar-active: #1E2D42;
+  --color-sidebar-text: #CBD5E0;
+  --color-sidebar-text-muted: #718096;
+  --color-sidebar-accent: #38BDF8;
+
+  /* Core */
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-light: #EFF6FF;
+
+  /* Backgrounds */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F9FAFB;
+  --color-report-header: #EEF2F7;
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-disabled: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+
+  /* Borders */
+  --color-border: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+
+  /* Status */
+  --color-success: #22C55E;
+  --color-success-bg: #F0FDF4;
+  --color-error: #EF4444;
+  --color-error-bg: #FEF2F2;
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FFFBEB;
+  --color-info: #3B82F6;
+  --color-info-bg: #EFF6FF;
+
+  /* Severity */
+  --color-critical: #EF4444;
+  --color-critical-bg: #FEF2F2;
+  --color-high: #F97316;
+  --color-high-bg: #FFF7ED;
+  --color-medium: #F59E0B;
+  --color-medium-bg: #FFFBEB;
+  --color-low: #9CA3AF;
+  --color-low-bg: #F9FAFB;
+
+  /* Alert types */
+  --color-reactive: #EF4444;
+  --color-deterrent: #D97706;
+  --color-deterrent-bg: #FFFBEB;
+
+  /* Platform sections */
+  --color-platform-bg: #172130;
+  --color-incident-accent: #2563EB;
+  --color-case-accent: #7C3AED;
+
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
