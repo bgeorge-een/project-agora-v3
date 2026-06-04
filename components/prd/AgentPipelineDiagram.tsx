@@ -1,92 +1,90 @@
 import SectionHeader from '@/components/ui/SectionHeader'
 
-interface Agent {
-  name: string
-  runs: string
-  io: string
-  color: string
-  tint: string
+const FONT = 'Inter, system-ui, sans-serif'
+
+interface SvgNodeProps {
+  x: number
+  y: number
+  w: number
+  h: number
+  fill: string
   textColor: string
+  title: string
+  subtitle?: string
+  stroke?: string
+  strokeWidth?: number
+  titleSize?: number
 }
 
-const AGENTS: Agent[] = [
-  {
-    name: 'Signal Normalizer',
-    runs: 'Sync · <100ms · No AI',
-    io: 'Raw signal → canonical Signal',
-    color: '#6B7280',
-    tint: '#F3F4F6',
-    textColor: '#374151',
-  },
-  {
-    name: 'Enrichment Agent',
-    runs: 'Async · Claude tool use',
-    io: 'Signal → resolved entities + evidence + case links',
-    color: '#2563EB',
-    tint: '#EFF6FF',
-    textColor: '#1E40AF',
-  },
-  {
-    name: 'Analysis Agent',
-    runs: 'Async · after enrichment',
-    io: 'Enriched signal → severity, type, scored Alert',
-    color: '#7C3AED',
-    tint: '#F5F3FF',
-    textColor: '#5B21B6',
-  },
-]
-
-const PARALLEL: Agent[] = [
-  {
-    name: 'Recommendation Agent',
-    runs: 'Async · consumes Analysis output',
-    io: 'Analysis → Next Best Action + alternatives',
-    color: '#16A34A',
-    tint: '#F0FDF4',
-    textColor: '#15803D',
-  },
-  {
-    name: 'Explanation Agent',
-    runs: 'Async · consumes Analysis output',
-    io: 'Analysis → human-readable rationale',
-    color: '#16A34A',
-    tint: '#F0FDF4',
-    textColor: '#15803D',
-  },
-]
-
-const ENRICHMENT_TOOLS = ['entity_resolver', 'evidence_gatherer', 'case_linker']
-
-function AgentCard({ agent }: { agent: Agent }) {
+function SvgNode({
+  x,
+  y,
+  w,
+  h,
+  fill,
+  textColor,
+  title,
+  subtitle,
+  stroke,
+  strokeWidth,
+  titleSize = 13,
+}: SvgNodeProps) {
+  const cx = x + w / 2
+  const cy = y + h / 2
   return (
-    <div
-      className="flex h-full flex-col rounded-lg bg-white p-5"
-      style={{
-        borderTop: `4px solid ${agent.color}`,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      }}
-    >
-      <h3 className="text-sm font-bold leading-snug text-[#111827]">
-        {agent.name}
-      </h3>
-      <span
-        className="mt-2 inline-flex w-fit rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide"
-        style={{ backgroundColor: agent.tint, color: agent.textColor }}
+    <g filter="url(#node-shadow)">
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={6}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+      />
+      <text
+        x={cx}
+        y={subtitle ? cy - 5 : cy}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontFamily={FONT}
+        fontSize={titleSize}
+        fontWeight={700}
+        fill={textColor}
       >
-        {agent.runs}
-      </span>
-      <p className="mt-3 text-xs leading-relaxed text-[#6B7280]">{agent.io}</p>
-    </div>
+        {title}
+      </text>
+      {subtitle && (
+        <text
+          x={cx}
+          y={cy + 11}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontFamily={FONT}
+          fontSize={10}
+          fontWeight={500}
+          fill={textColor}
+          opacity={0.85}
+        >
+          {subtitle}
+        </text>
+      )}
+    </g>
   )
 }
 
-function Arrow() {
-  return (
-    <div className="flex items-center justify-center text-2xl font-bold text-[#9CA3AF] lg:px-1">
-      →
-    </div>
-  )
+interface LegendItem {
+  color: string
+  label: string
 }
+
+const LEGEND: LegendItem[] = [
+  { color: '#374151', label: 'Signal Normalizer' },
+  { color: '#1D4ED8', label: 'Enrichment (Claude tool use)' },
+  { color: '#7C3AED', label: 'Analysis' },
+  { color: '#15803D', label: 'Recommendation + Explanation' },
+]
 
 export default function AgentPipelineDiagram() {
   return (
@@ -98,63 +96,336 @@ export default function AgentPipelineDiagram() {
           subtitle="Every signal passes through five agents before any human sees it. Partial results stream to the app UI as each completes."
         />
 
-        <div className="mt-12 rounded-2xl bg-[#F9FAFB] p-6 sm:p-8">
-          {/* Raw signal + first three agents */}
-          <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-[auto_1fr_auto_1fr_auto_1fr]">
-            <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-[#D1D5DB] bg-white px-5 py-4 text-center text-sm font-bold text-[#374151]">
-              Raw Signal
-            </div>
-            <Arrow />
-            <AgentCard agent={AGENTS[0]} />
-            <Arrow />
-            <AgentCard agent={AGENTS[1]} />
-            <Arrow />
-            <AgentCard agent={AGENTS[2]} />
-          </div>
+        <div className="mt-12 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4 sm:p-6">
+          <svg
+            viewBox="0 0 900 420"
+            width="100%"
+            role="img"
+            aria-label="Agentic enrichment pipeline flow diagram"
+            style={{ display: 'block' }}
+          >
+            <defs>
+              <marker
+                id="ap-arrow-gray"
+                markerWidth="9"
+                markerHeight="7"
+                refX="8"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 9 3.5, 0 7" fill="#6B7280" />
+              </marker>
+              <marker
+                id="ap-arrow-blue"
+                markerWidth="9"
+                markerHeight="7"
+                refX="8"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 9 3.5, 0 7" fill="#1D4ED8" />
+              </marker>
+              <marker
+                id="ap-arrow-purple"
+                markerWidth="9"
+                markerHeight="7"
+                refX="8"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 9 3.5, 0 7" fill="#7C3AED" />
+              </marker>
+              <marker
+                id="ap-arrow-green"
+                markerWidth="9"
+                markerHeight="7"
+                refX="8"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 9 3.5, 0 7" fill="#15803D" />
+              </marker>
+              <marker
+                id="ap-arrow-teal"
+                markerWidth="9"
+                markerHeight="7"
+                refX="8"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 9 3.5, 0 7" fill="#0E7490" />
+              </marker>
+              <filter
+                id="node-shadow"
+                x="-20%"
+                y="-20%"
+                width="140%"
+                height="160%"
+              >
+                <feDropShadow
+                  dx="0"
+                  dy="1"
+                  stdDeviation="2"
+                  floodOpacity="0.15"
+                />
+              </filter>
+            </defs>
 
-          {/* Enrichment tools fan-out */}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[#2563EB]">
-              Enrichment Agent tools (parallel fan-out)
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {ENRICHMENT_TOOLS.map((tool) => (
-                <span
-                  key={tool}
-                  className="rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-1 font-mono text-xs text-[#1E40AF]"
-                >
-                  {tool}
-                </span>
-              ))}
-            </div>
-          </div>
+            <rect x="0" y="0" width="900" height="420" fill="#F9FAFB" />
 
-          {/* Analysis fans out to parallel rec + explanation */}
-          <div className="mt-6 flex items-center gap-2">
-            <span className="text-2xl font-bold text-[#9CA3AF]">↓</span>
-            <span className="text-xs font-semibold text-[#6B7280]">
-              Analysis output fans out to two agents running in parallel
-            </span>
-          </div>
+            {/*
+              Vertical centerline of the main pipeline row = y 175 (nodes 150-200).
+              Columns:
+                Raw Signal       x 8   w 96
+                Normalizer       x 128 w 150
+                Enrichment       x 300 w 150
+                Tools            x 480 w 140 (three rows: y 80 / 157 / 234)
+                Analysis         x 660 w 150
+              Parallel agents (right edge):
+                Recommendation   x 660 w 200 y 60
+                Explanation      x 660 w 200 y 300
+              Human Review UI    x 300 w 180 y 350
+            */}
 
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {PARALLEL.map((agent) => (
-              <AgentCard key={agent.name} agent={agent} />
-            ))}
-          </div>
+            {/* Raw Signal -> Normalizer */}
+            <line
+              x1="104"
+              y1="175"
+              x2="124"
+              y2="175"
+              stroke="#6B7280"
+              strokeWidth={2}
+              markerEnd="url(#ap-arrow-gray)"
+            />
+            {/* Normalizer -> Enrichment */}
+            <line
+              x1="278"
+              y1="175"
+              x2="296"
+              y2="175"
+              stroke="#6B7280"
+              strokeWidth={2}
+              markerEnd="url(#ap-arrow-gray)"
+            />
 
-          {/* To human */}
-          <div className="mt-4 flex items-center gap-3">
-            <span className="text-2xl font-bold text-[#9CA3AF]">→</span>
-            <div className="rounded-lg border-2 border-[#172130] bg-white px-5 py-3 text-sm font-bold text-[#172130]">
-              Human Review UI
-            </div>
-          </div>
+            {/* Enrichment -> three tools (fan out) */}
+            <path
+              d="M450 168 C 466 168, 466 98, 476 98"
+              fill="none"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+            <line
+              x1="450"
+              y1="175"
+              x2="476"
+              y2="175"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+            <path
+              d="M450 182 C 466 182, 466 252, 476 252"
+              fill="none"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+
+            {/* three tools -> Analysis (fan in) */}
+            <path
+              d="M620 98 C 640 98, 640 168, 656 168"
+              fill="none"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+            <line
+              x1="620"
+              y1="175"
+              x2="656"
+              y2="175"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+            <path
+              d="M620 252 C 640 252, 640 182, 656 182"
+              fill="none"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-blue)"
+            />
+
+            {/* Analysis -> Recommendation (up) */}
+            <path
+              d="M735 150 C 735 120, 745 86, 656 86"
+              fill="none"
+              stroke="#7C3AED"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-purple)"
+            />
+            {/* Analysis -> Explanation (down) */}
+            <path
+              d="M735 200 C 735 260, 745 326, 656 326"
+              fill="none"
+              stroke="#7C3AED"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-purple)"
+            />
+
+            {/* Recommendation -> Human Review UI */}
+            <path
+              d="M656 86 C 420 86, 400 350, 392 350"
+              fill="none"
+              stroke="#15803D"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-green)"
+            />
+            {/* Explanation -> Human Review UI */}
+            <path
+              d="M656 326 C 470 326, 470 375, 484 375"
+              fill="none"
+              stroke="#0E7490"
+              strokeWidth={1.75}
+              markerEnd="url(#ap-arrow-teal)"
+            />
+
+            {/* ---- Nodes ---- */}
+            <SvgNode
+              x={8}
+              y={150}
+              w={96}
+              h={50}
+              fill="#F3F4F6"
+              textColor="#374151"
+              title="Raw Signal"
+              stroke="#D1D5DB"
+              strokeWidth={1.5}
+              titleSize={12}
+            />
+            <SvgNode
+              x={128}
+              y={150}
+              w={150}
+              h={50}
+              fill="#374151"
+              textColor="#FFFFFF"
+              title="Signal Normalizer"
+              subtitle="Sync · <100ms"
+            />
+            <SvgNode
+              x={300}
+              y={150}
+              w={150}
+              h={50}
+              fill="#1D4ED8"
+              textColor="#FFFFFF"
+              title="Enrichment Agent"
+              subtitle="Async · Claude tool use"
+            />
+
+            {/* tools */}
+            <SvgNode
+              x={476}
+              y={80}
+              w={140}
+              h={36}
+              fill="#1D4ED8"
+              textColor="#FFFFFF"
+              title="entity_resolver"
+              titleSize={12}
+            />
+            <SvgNode
+              x={476}
+              y={157}
+              w={140}
+              h={36}
+              fill="#1D4ED8"
+              textColor="#FFFFFF"
+              title="evidence_gatherer"
+              titleSize={12}
+            />
+            <SvgNode
+              x={476}
+              y={234}
+              w={140}
+              h={36}
+              fill="#1D4ED8"
+              textColor="#FFFFFF"
+              title="case_linker"
+              titleSize={12}
+            />
+
+            <SvgNode
+              x={660}
+              y={150}
+              w={150}
+              h={50}
+              fill="#7C3AED"
+              textColor="#FFFFFF"
+              title="Analysis Agent"
+              subtitle="Async · after enrichment"
+            />
+
+            {/* parallel agents */}
+            <SvgNode
+              x={656}
+              y={60}
+              w={204}
+              h={52}
+              fill="#15803D"
+              textColor="#FFFFFF"
+              title="Recommendation Agent"
+              subtitle="NBA + 2 alternatives · sonnet-4-6"
+            />
+            <SvgNode
+              x={656}
+              y={300}
+              w={204}
+              h={52}
+              fill="#0E7490"
+              textColor="#FFFFFF"
+              title="Explanation Agent"
+              subtitle="Why this fired · sonnet-4-6"
+            />
+
+            {/* Human Review UI */}
+            <SvgNode
+              x={300}
+              y={350}
+              w={184}
+              h={52}
+              fill="#FFFFFF"
+              textColor="#1D4ED8"
+              title="Human Review UI"
+              subtitle="Streaming to UI"
+              stroke="#1D4ED8"
+              strokeWidth={1.75}
+            />
+          </svg>
         </div>
 
-        <p className="mt-6 max-w-3xl rounded-lg border-l-4 border-[#16A34A] bg-[#F0FDF4] px-4 py-3 text-sm leading-relaxed text-[#15803D]">
+        {/* Legend */}
+        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+          {LEGEND.map((item) => (
+            <div key={item.label} className="flex items-center gap-2">
+              <span
+                className="inline-block h-3.5 w-3.5 rounded-sm"
+                style={{ backgroundColor: item.color }}
+                aria-hidden
+              />
+              <span className="text-xs font-medium text-[#374151]">
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-6 max-w-3xl rounded-lg border-l-4 border-[#15803D] bg-[#F0FDF4] px-4 py-3 text-sm leading-relaxed text-[#15803D]">
           Recommendation and Explanation agents run in parallel — both consume
-          the Analysis output.
+          the Analysis Agent output.
         </p>
       </div>
     </section>
