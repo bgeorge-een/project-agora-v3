@@ -468,6 +468,7 @@ export const MOCK_CASES: Case[] = [
         entityRefs: [{ id: 'ent-cam-c4', type: 'camera', label: 'Camera C4' }],
         evidenceRefs: ['ev-002'],
         isAIGenerated: true,
+        cameraPreview: { channel: 'C4', sceneType: 'hallway' },
       },
       {
         id: 'tl-003',
@@ -512,6 +513,17 @@ export const MOCK_CASES: Case[] = [
         evidenceRefs: [],
         isAIGenerated: false,
       },
+      {
+        id: 'tl-007',
+        timestamp: '2026-06-04T14:39:00Z',
+        type: 'camera',
+        title: 'Camera C4 — departing Server Room corridor',
+        detail: 'Individual captured by Camera C4 leaving the Server Room 2B corridor after the second denial.',
+        entityRefs: [{ id: 'ent-cam-c4', type: 'camera', label: 'Camera C4' }],
+        evidenceRefs: ['ev-004'],
+        isAIGenerated: true,
+        cameraPreview: { channel: 'C4', sceneType: 'restricted' },
+      },
     ],
     campaignId: 'campaign-001',
     openQuestions: [
@@ -520,5 +532,16 @@ export const MOCK_CASES: Case[] = [
       'Has this badge been used for access probing at other sites?',
     ],
     tags: ['unauthorized-access', 'contractor', 'server-room', 'campaign-001'],
+    person: {
+      type: 'known' as const,
+      name: 'Marcus Webb',
+      role: 'Contractor',
+      company: 'SecureBuild LLC',
+      badgeId: 'B-4421',
+      accessLevel: 'Level 2 (General Areas)',
+      department: 'Facilities',
+      avatarInitials: 'MW',
+      avatarColor: '#DC2626',
+    },
   },
 ]

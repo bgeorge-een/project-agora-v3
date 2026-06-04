@@ -12,6 +12,9 @@ import { MOCK_CASES, ENTITIES, MOCK_CAMPAIGNS } from '@/lib/mock-data/scenarios'
 import EntityGraph from '@/components/case/EntityGraph'
 import AIAssistant from '@/components/case/AIAssistant'
 import NarrativeReport from '@/components/case/NarrativeReport'
+import { PersonCard } from '@/components/case/PersonCard'
+import { CameraStill } from '@/components/incident/CameraStill'
+import { CameraClipModal } from '@/components/incident/CameraClipModal'
 
 const baseCase = MOCK_CASES[0]
 
@@ -308,6 +311,9 @@ export default function CaseWorkspace() {
 
         {/* ===================== RIGHT COLUMN ===================== */}
         <div className="space-y-5">
+          {/* Person profile */}
+          {baseCase.person && <PersonCard person={baseCase.person} />}
+
           {/* Open Questions */}
           <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
             <div className="border-b border-[#2D3748] px-5 py-3">
@@ -468,6 +474,7 @@ function TimelineTab({
     detail: '',
     source: '',
   })
+  const [playingClip, setPlayingClip] = useState<TimelineEvent | null>(null)
 
   function handleAdd() {
     if (!form.title.trim()) return
@@ -637,57 +644,85 @@ function TimelineTab({
               </div>
               {/* Card */}
               <div className={`min-w-0 flex-1 rounded-lg p-3 ${cardCls}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
-                    {ev.flagged && (
-                      <Icon
-                        name="warning"
-                        size={16}
-                        className="mt-0.5 shrink-0 text-[#EF4444]"
-                      />
-                    )}
-                    {!ev.flagged && (
-                      <Icon
-                        name={TYPE_ICON[ev.type]}
-                        size={16}
-                        className="mt-0.5 shrink-0"
-                      />
-                    )}
-                    <span>{ev.title}</span>
-                  </p>
-                  <div className="flex shrink-0 gap-1">
-                    {ev.isAIGenerated && (
-                      <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
-                        AI
-                      </span>
-                    )}
-                    {ev.isManual && (
-                      <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
-                        Manual Evidence
-                      </span>
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
+                        {ev.flagged && (
+                          <Icon
+                            name="warning"
+                            size={16}
+                            className="mt-0.5 shrink-0 text-[#EF4444]"
+                          />
+                        )}
+                        {!ev.flagged && (
+                          <Icon
+                            name={TYPE_ICON[ev.type]}
+                            size={16}
+                            className="mt-0.5 shrink-0"
+                          />
+                        )}
+                        <span>{ev.title}</span>
+                      </p>
+                      <div className="flex shrink-0 gap-1">
+                        {ev.isAIGenerated && (
+                          <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
+                            AI
+                          </span>
+                        )}
+                        {ev.isManual && (
+                          <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
+                            Manual Evidence
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
+                      {ev.detail}
+                    </p>
+                    {ev.entityRefs.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {ev.entityRefs.map((e) => (
+                          <span
+                            key={e.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
+                          >
+                            <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
+
+                  {/* Inline camera still */}
+                  {ev.cameraPreview && (
+                    <div className="w-[100px] shrink-0">
+                      <CameraStill
+                        channel={ev.cameraPreview.channel}
+                        sceneType={ev.cameraPreview.sceneType}
+                        location={ev.title}
+                        timestamp={fmtTime(ev.timestamp)}
+                        onClick={() => setPlayingClip(ev)}
+                      />
+                    </div>
+                  )}
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
-                  {ev.detail}
-                </p>
-                {ev.entityRefs.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {ev.entityRefs.map((e) => (
-                      <span
-                        key={e.id}
-                        className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
-                      >
-                        <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </li>
           )
         })}
       </ol>
+
+      {playingClip && playingClip.cameraPreview && (
+        <CameraClipModal
+          channel={playingClip.cameraPreview.channel}
+          sceneType={playingClip.cameraPreview.sceneType}
+          location={playingClip.title}
+          timestamp={fmtTime(playingClip.timestamp)}
+          detail={playingClip.detail}
+          onClose={() => setPlayingClip(null)}
+        />
+      )}
     </div>
   )
 }

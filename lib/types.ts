@@ -133,6 +133,7 @@ export interface TimelineEvent {
   isAIGenerated: boolean
   isManual?: boolean
   flagged?: boolean
+  cameraPreview?: CameraPreview
 }
 
 // --- Case ---
@@ -154,6 +155,7 @@ export interface Case {
   campaignId?: string
   openQuestions: string[]
   tags: string[]
+  person?: PersonDetails
 }
 
 // --- Violation ---
