@@ -50,10 +50,12 @@ function AlertCard({
 
   return (
     <div
-      className={`rounded-lg bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)] transition-all ${
-        selected ? 'ring-2 ring-[#2563EB]/40' : ''
+      className={`rounded-lg border p-4 transition-colors ${
+        selected
+          ? 'border-[#2D3748] border-l-4 border-l-[#2563EB] bg-[#243048]'
+          : 'border-[#2D3748] bg-[#1A1F2E] hover:bg-[#243048]'
       }`}
-      style={{ borderLeft: `4px solid ${borderColor}` }}
+      style={selected ? undefined : { borderLeft: `4px solid ${borderColor}` }}
     >
       {/* Row 1 */}
       <div className="flex items-start gap-2">
@@ -62,21 +64,27 @@ function AlertCard({
           style={{ backgroundColor: dotColor }}
         />
         <span
-          className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+          className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
           style={{
-            backgroundColor: isDeterrent ? '#FFFBEB' : '#FEF2F2',
-            color: isDeterrent ? '#D97706' : '#DC2626',
+            backgroundColor: isDeterrent ? '#78350F' : '#7F1D1D',
+            color: isDeterrent ? '#FDE68A' : '#FCA5A5',
           }}
         >
-          {isDeterrent ? '🛡 Deterrent' : '⚡ Reactive'}
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '14px', lineHeight: 1 }}
+          >
+            {isDeterrent ? 'shield' : 'bolt'}
+          </span>
+          {isDeterrent ? 'Deterrent' : 'Reactive'}
         </span>
-        <h4 className="min-w-0 flex-1 text-sm font-semibold leading-snug text-[#111827]">
+        <h4 className="min-w-0 flex-1 text-sm font-medium leading-snug text-white">
           {alert.title}
         </h4>
       </div>
 
       {/* Row 2 */}
-      <p className="mt-1.5 pl-4 text-xs text-[#6B7280]">
+      <p className="mt-1.5 pl-4 text-xs text-[#9CA3AF]">
         {alert.location} · {formatAge(alert.ageSeconds)}
       </p>
 
@@ -85,7 +93,7 @@ function AlertCard({
         {alert.sources.map((s) => (
           <span
             key={s}
-            className="rounded border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-0.5 text-[10px] font-medium text-[#6B7280]"
+            className="rounded bg-[#2D3748] px-2 py-0.5 text-xs font-medium text-[#CBD5E0]"
           >
             {s}
           </span>
@@ -95,13 +103,23 @@ function AlertCard({
       {/* Row 4 — status / NBA */}
       <div className="mt-2.5 pl-4">
         {alert.status === 'enriching' ? (
-          <div className="flex items-center gap-2 text-xs font-medium text-[#6B7280]">
-            <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#D1D5DB] border-t-[#2563EB]" />
+          <div className="flex items-center gap-1.5 text-xs font-medium text-[#9CA3AF]">
+            <span
+              className="material-symbols-outlined animate-spin"
+              style={{ fontSize: '16px', lineHeight: 1 }}
+            >
+              sync
+            </span>
             Enriching…
           </div>
         ) : alert.nba ? (
-          <div className="flex items-start gap-1.5 rounded-md bg-[#F0FDFA] px-2.5 py-1.5 text-xs font-medium text-[#0F766E]">
-            <span>🤖</span>
+          <div className="flex items-start gap-1.5 text-xs font-medium text-[#38BDF8]">
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '16px', lineHeight: 1 }}
+            >
+              smart_toy
+            </span>
             <span className="min-w-0 flex-1">
               {alert.nba.recommendedAction.length > 48
                 ? `${alert.nba.recommendedAction.slice(0, 48)}…`
@@ -114,32 +132,56 @@ function AlertCard({
 
       {/* Resolution banner */}
       {resolution && (
-        <div className="mt-2.5 ml-4 rounded-md bg-[#EFF6FF] px-2.5 py-1.5 text-xs font-medium text-[#2563EB]">
+        <div className="mt-2.5 ml-4 flex items-center gap-1.5 rounded-md bg-[#0C2714] px-2.5 py-1.5 text-xs font-medium text-[#34D399]">
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '16px', lineHeight: 1 }}
+          >
+            check_circle
+          </span>
           {resolution}
         </div>
       )}
 
       {/* Row 5 — buttons */}
       {!resolution && (
-        <div className="mt-3 flex flex-wrap gap-2 pl-4">
+        <div className="mt-3 flex flex-wrap items-center gap-2 pl-4">
           <button
             onClick={() => onAccept(alert)}
             disabled={alert.status === 'enriching' || !alert.nba}
-            className="rounded-md bg-[#2563EB] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-md bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-40"
           >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '16px', lineHeight: 1 }}
+            >
+              check_circle
+            </span>
             Accept AI Recommendation
           </button>
           <button
             onClick={() => onReview(alert)}
-            className="rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]"
+            className="flex items-center gap-1.5 rounded-md border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]"
           >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '16px', lineHeight: 1 }}
+            >
+              folder_open
+            </span>
             Review Detail
           </button>
           <button
             onClick={() => onOverride(alert)}
             disabled={!alert.nba}
-            className="rounded-md px-3 py-1.5 text-xs font-medium text-[#6B7280] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '16px', lineHeight: 1 }}
+            >
+              edit_note
+            </span>
             Override
           </button>
         </div>
@@ -152,12 +194,12 @@ function AlertCard({
 const SEVERITY_ORDER: Severity[] = ['critical', 'high', 'medium', 'low']
 const GROUP_META: Record<
   Severity,
-  { label: string; headerBg: string; headerText: string }
+  { label: string; headerText: string }
 > = {
-  critical: { label: 'CRITICAL', headerBg: '#FEF2F2', headerText: '#DC2626' },
-  high: { label: 'HIGH', headerBg: '#FFF7ED', headerText: '#EA580C' },
-  medium: { label: 'MEDIUM', headerBg: '#FFFBEB', headerText: '#D97706' },
-  low: { label: 'LOW', headerBg: '#F1F5F9', headerText: '#64748B' },
+  critical: { label: 'CRITICAL', headerText: '#FCA5A5' },
+  high: { label: 'HIGH', headerText: '#FDBA74' },
+  medium: { label: 'MEDIUM', headerText: '#FCD34D' },
+  low: { label: 'LOW', headerText: '#9CA3AF' },
 }
 
 const REASON_LABELS: Record<OverrideReason, string> = {
@@ -206,7 +248,7 @@ export default function ResponseView() {
   function handleAccept(a: Alert) {
     setResolutions((prev) => ({
       ...prev,
-      [a.id]: `✓ Accepted — ${a.nba?.recommendedAction ?? 'recommendation applied'}`,
+      [a.id]: `Accepted — ${a.nba?.recommendedAction ?? 'recommendation applied'}`,
     }))
     if (selectedId === a.id) setSelectedId(null)
   }
@@ -224,21 +266,21 @@ export default function ResponseView() {
     const note = notes.trim() ? ` (${notes.trim()})` : ''
     setResolutions((prev) => ({
       ...prev,
-      [overrideTarget.id]: `⤺ Overridden — ${REASON_LABELS[reason]}${note}`,
+      [overrideTarget.id]: `Overridden — ${REASON_LABELS[reason]}${note}`,
     }))
     if (selectedId === overrideTarget.id) setSelectedId(null)
     setOverrideTarget(null)
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[60%_40%]">
+    <div className="grid grid-cols-1 gap-5 bg-[#0F1117] lg:grid-cols-[60%_40%]">
       {/* LEFT — Alert Queue */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-[#374151]">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-white">
             Alert Queue
           </h2>
-          <span className="text-xs font-medium text-[#6B7280]">
+          <span className="text-xs font-medium text-[#9CA3AF]">
             {alerts.length} active
           </span>
         </div>
@@ -257,31 +299,26 @@ export default function ResponseView() {
                   setExpanded((prev) => ({ ...prev, [sev]: !prev[sev] }))
                 }
                 disabled={isCritical}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-colors"
-                style={{ backgroundColor: meta.headerBg }}
+                className="flex w-full items-center justify-between rounded-lg border-b border-[#2D3748] bg-[#1A1F2E] px-3 py-2 text-left transition-colors"
               >
                 <span
-                  className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
+                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide"
                   style={{ color: meta.headerText }}
                 >
                   {!isCritical && (
                     <span
-                      className={`inline-block transition-transform ${
-                        isOpen ? 'rotate-90' : ''
-                      }`}
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '18px', lineHeight: 1 }}
                     >
-                      ▶
+                      {isOpen ? 'expand_more' : 'chevron_right'}
                     </span>
                   )}
                   {meta.label} ({list.length})
                 </span>
                 {list.length > 0 && (
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.7)',
-                      color: meta.headerText,
-                    }}
+                    className="rounded-full bg-[#2D3748] px-2 py-0.5 text-[10px] font-bold"
+                    style={{ color: meta.headerText }}
                   >
                     {list.length}
                   </span>
@@ -291,7 +328,7 @@ export default function ResponseView() {
               {(isCritical || isOpen) && (
                 <div className="mt-2 space-y-2.5">
                   {list.length === 0 ? (
-                    <p className="px-3 py-2 text-xs text-[#9CA3AF]">
+                    <p className="px-3 py-2 text-xs text-[#6B7280]">
                       No {meta.label.toLowerCase()} alerts.
                     </p>
                   ) : (
@@ -315,7 +352,7 @@ export default function ResponseView() {
       </div>
 
       {/* RIGHT — NBA + SOP */}
-      <div className="lg:sticky lg:top-4 lg:self-start">
+      <div className="bg-[#0F1117] lg:sticky lg:top-4 lg:self-start">
         <NBACard
           alert={nbaCardAlert}
           onAccept={handleAccept}

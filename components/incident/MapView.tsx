@@ -37,25 +37,25 @@ export default function MapView() {
   const totalOpen = SITES.reduce((n, s) => n + s.openIncidents, 0)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-[#0F1117]">
       {/* Top stats bar */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg bg-white px-4 py-3 text-sm shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-        <span className="font-semibold text-[#111827]">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-4 py-3 text-sm">
+        <span className="font-semibold text-white">
           {SITES.length} Sites
         </span>
-        <span className="text-[#9CA3AF]">·</span>
-        <span className="text-[#374151]">
-          <span className="font-semibold text-[#EF4444]">{totalOpen}</span> Open
+        <span className="text-[#6B7280]">·</span>
+        <span className="text-[#CBD5E0]">
+          <span className="font-semibold text-[#F87171]">{totalOpen}</span> Open
           Incidents
         </span>
-        <span className="text-[#9CA3AF]">·</span>
-        <span className="text-[#374151]">
-          <span className="font-semibold text-[#D97706]">
+        <span className="text-[#6B7280]">·</span>
+        <span className="text-[#CBD5E0]">
+          <span className="font-semibold text-[#FBBF24]">
             {EXTERNAL_SIGNALS.length}
           </span>{' '}
           External Signals Active
         </span>
-        <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs font-medium text-[#374151]">
+        <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs font-medium text-[#CBD5E0]">
           <input
             type="checkbox"
             checked={showSignals}
@@ -219,69 +219,69 @@ export default function MapView() {
         {/* Site detail panel */}
         <div className="space-y-3">
           {selected ? (
-            <div className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
+            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-[#111827]">
+                <h3 className="text-sm font-bold text-white">
                   {selected.name}
                 </h3>
                 <span
                   className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
                   style={{
-                    backgroundColor: `${RISK_COLOR[selected.riskLevel]}1A`,
+                    backgroundColor: `${RISK_COLOR[selected.riskLevel]}33`,
                     color: RISK_COLOR[selected.riskLevel],
                   }}
                 >
                   {selected.riskLevel} risk
                 </span>
               </div>
-              <p className="mt-0.5 text-xs text-[#6B7280]">
+              <p className="mt-0.5 text-xs text-[#9CA3AF]">
                 {selected.city}, {selected.state}
               </p>
               <dl className="mt-3 grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-lg bg-[#F9FAFB] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                <div className="rounded-lg bg-[#0F1117] py-2">
+                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                     Open Incidents
                   </dt>
-                  <dd className="text-lg font-bold text-[#EF4444]">
+                  <dd className="text-lg font-bold text-[#F87171]">
                     {selected.openIncidents}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#F9FAFB] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                <div className="rounded-lg bg-[#0F1117] py-2">
+                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                     Active Alerts
                   </dt>
-                  <dd className="text-lg font-bold text-[#D97706]">
+                  <dd className="text-lg font-bold text-[#FBBF24]">
                     {selected.activeAlerts}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#F9FAFB] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                <div className="rounded-lg bg-[#0F1117] py-2">
+                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                     Offline Devices
                   </dt>
-                  <dd className="text-lg font-bold text-[#111827]">
+                  <dd className="text-lg font-bold text-white">
                     {selected.offlineDevices}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#F9FAFB] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                <div className="rounded-lg bg-[#0F1117] py-2">
+                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                     Ext. Signals
                   </dt>
-                  <dd className="text-lg font-bold text-[#7C3AED]">
+                  <dd className="text-lg font-bold text-[#A78BFA]">
                     {selected.externalSignals}
                   </dd>
                 </div>
               </dl>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-[#D1D5DB] bg-white/60 p-4 text-center text-xs text-[#6B7280]">
+            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4 text-center text-xs text-[#9CA3AF]">
               Click a site pin to view details.
             </div>
           )}
 
           {/* Active signals affecting selected site */}
           {selected && (
-            <div className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-[#374151]">
+            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4">
+              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-white">
                 External Signals
               </h4>
               <div className="space-y-2">
@@ -290,17 +290,17 @@ export default function MapView() {
                 ).map((sig) => (
                   <div
                     key={sig.id}
-                    className="rounded-lg border border-[#F3F4F6] p-2"
+                    className="rounded-lg border border-[#2D3748] bg-[#111827] p-2"
                     style={{
                       borderLeft: `3px solid ${
                         sig.severity === 'high' ? '#EF4444' : '#F59E0B'
                       }`,
                     }}
                   >
-                    <p className="text-xs font-semibold text-[#111827]">
+                    <p className="text-xs font-semibold text-white">
                       {sig.title}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-[#6B7280]">
+                    <p className="mt-0.5 text-[11px] text-[#9CA3AF]">
                       {sig.source} · {sig.timeHorizon}
                     </p>
                   </div>
@@ -308,7 +308,7 @@ export default function MapView() {
                 {EXTERNAL_SIGNALS.filter((s) =>
                   s.affectedSiteIds.includes(selected.id)
                 ).length === 0 && (
-                  <p className="text-xs text-[#9CA3AF]">
+                  <p className="text-xs text-[#6B7280]">
                     No active external signals.
                   </p>
                 )}

@@ -21,15 +21,18 @@ const DEVICES: Device[] = [
 ]
 
 const KIND_ICON: Record<DeviceKind, string> = {
-  camera: '📹',
-  access: '🚪',
-  sensor: '📡',
+  camera: 'videocam',
+  access: 'door_front',
+  sensor: 'sensors',
 }
 
-const STATUS_STYLE: Record<DeviceStatus, { bg: string; text: string; dot: string; label: string }> = {
-  online: { bg: '#F0FDF4', text: '#16A34A', dot: '#22C55E', label: 'Online' },
-  offline: { bg: '#FEF2F2', text: '#DC2626', dot: '#EF4444', label: 'Offline' },
-  degraded: { bg: '#FFFBEB', text: '#D97706', dot: '#F59E0B', label: 'Degraded' },
+const STATUS_STYLE: Record<
+  DeviceStatus,
+  { bg: string; text: string; icon: string; label: string }
+> = {
+  online: { bg: '#0C2714', text: '#34D399', icon: 'check_circle', label: 'Online' },
+  offline: { bg: '#2D1515', text: '#FCA5A5', icon: 'cancel', label: 'Offline' },
+  degraded: { bg: '#3A2A0A', text: '#FCD34D', icon: 'warning', label: 'Degraded' },
 }
 
 interface MosaicTile {
@@ -47,10 +50,10 @@ const MOSAIC: MosaicTile[] = [
 
 export default function MonitorView() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[#0F1117]">
       {/* Devices */}
       <section>
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#374151]">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
           Devices ({DEVICES.length})
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -59,7 +62,7 @@ export default function MonitorView() {
             return (
               <div
                 key={d.id}
-                className="rounded-lg bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]"
+                className="rounded-lg border border-[#2D3748] bg-[#1A1F2E] p-4"
                 style={
                   d.status === 'offline'
                     ? { borderLeft: '4px solid #EF4444' }
@@ -68,55 +71,60 @@ export default function MonitorView() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-start gap-2.5">
-                    <span className="text-xl leading-none">
+                    <span
+                      className="material-symbols-outlined leading-none text-[#9CA3AF]"
+                      style={{ fontSize: '22px', lineHeight: 1 }}
+                    >
                       {KIND_ICON[d.kind]}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#111827]">
+                      <p className="truncate text-sm font-semibold text-white">
                         {d.name}
                       </p>
-                      <p className="truncate text-xs text-[#6B7280]">{d.zone}</p>
+                      <p className="truncate text-xs text-[#9CA3AF]">{d.zone}</p>
                     </div>
                   </div>
                   <span
-                    className="flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
                     style={{ backgroundColor: s.bg, color: s.text }}
                   >
                     <span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: s.dot }}
-                    />
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '14px', lineHeight: 1 }}
+                    >
+                      {s.icon}
+                    </span>
                     {s.label}
                   </span>
                 </div>
 
-                <div className="mt-3 flex gap-2 border-t border-[#F3F4F6] pt-3">
+                <div className="mt-3 flex gap-2 border-t border-[#2D3748] pt-3">
                   {d.kind === 'access' ? (
                     <>
-                      <button className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]">
+                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
                         Lock
                       </button>
-                      <button className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]">
+                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
                         Unlock
                       </button>
-                      <button className="rounded-md bg-[#2563EB] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#1D4ED8]">
+                      <button className="rounded-md bg-[#1D4ED8] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]">
                         Grant Access
                       </button>
                     </>
                   ) : d.kind === 'camera' ? (
                     <>
-                      <button className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]">
+                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
                         View Feed
                       </button>
                       <button
                         disabled={d.status === 'offline'}
-                        className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Reboot
                       </button>
                     </>
                   ) : (
-                    <button className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]">
+                    <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
                       Test Sensor
                     </button>
                   )}
@@ -129,7 +137,7 @@ export default function MonitorView() {
 
       {/* Video Mosaic */}
       <section>
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#374151]">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
           Video Mosaic
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -164,9 +172,15 @@ export default function MonitorView() {
                 </span>
               )}
               {!tile.active && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center gap-1.5">
+                  <span
+                    className="material-symbols-outlined text-[#6B7280]"
+                    style={{ fontSize: '18px', lineHeight: 1 }}
+                  >
+                    warning
+                  </span>
                   <span className="text-xs font-medium text-[#6B7280]">
-                    ⚠ Camera offline
+                    Camera offline
                   </span>
                 </div>
               )}

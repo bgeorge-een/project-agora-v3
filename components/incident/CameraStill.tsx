@@ -53,7 +53,13 @@ export function CameraStill({ channel, sceneType, location, timestamp, onClick, 
       {/* HUD top bar */}
       <div className="relative z-10 flex items-center justify-between px-1.5 py-1 bg-black/40">
         <span className="text-[9px] font-mono text-red-400 flex items-center gap-1">
-          <span className="animate-pulse">●</span> REC
+          <span
+            className="material-symbols-outlined animate-pulse"
+            style={{ fontSize: '10px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
+          >
+            fiber_manual_record
+          </span>
+          REC
         </span>
         <span className="text-[9px] font-mono text-gray-400">{channel}</span>
       </div>
@@ -62,7 +68,12 @@ export function CameraStill({ channel, sceneType, location, timestamp, onClick, 
       <div className="relative z-10 h-16 flex items-center justify-center">
         {hovered && (
           <div className="bg-black/60 rounded-full w-8 h-8 flex items-center justify-center">
-            <span className="text-white text-sm ml-0.5">▶</span>
+            <span
+              className="material-symbols-outlined text-white"
+              style={{ fontSize: '18px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
+            >
+              play_arrow
+            </span>
           </div>
         )}
         {sceneType === 'restricted' && !hovered && (

@@ -26,7 +26,7 @@ function ConfidenceRing({ value }: { value: number }) {
   const radius = 26
   const circumference = 2 * Math.PI * radius
   const offset = circumference * (1 - value)
-  const color = value >= 0.85 ? '#22C55E' : value >= 0.7 ? '#3B82F6' : '#D97706'
+  const color = value >= 0.8 ? '#22C55E' : value >= 0.6 ? '#FBBF24' : '#EF4444'
 
   return (
     <div className="relative h-16 w-16 shrink-0">
@@ -59,7 +59,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
   if (person.type === 'known') {
     const isHighRisk = person.avatarColor === '#DC2626'
     return (
-      <div className="rounded-lg border border-gray-700 bg-gray-900 p-4">
+      <div className="rounded-lg border border-[#2D3748] bg-[#1A1F2E] p-4">
         <div className="flex items-start gap-3">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
@@ -71,8 +71,14 @@ function PersonCard({ person }: { person: PersonDetails }) {
             <div className="flex items-center gap-2">
               <h4 className="text-base font-bold text-white">{person.name}</h4>
               {isHighRisk && (
-                <span className="rounded-full bg-red-950 px-2 py-0.5 text-[10px] font-bold text-red-400">
-                  ⚠️ High Risk
+                <span className="flex items-center gap-1 rounded-full bg-red-950 px-2 py-0.5 text-[10px] font-bold text-red-400">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '14px', lineHeight: 1 }}
+                  >
+                    warning
+                  </span>
+                  High Risk
                 </span>
               )}
             </div>
@@ -84,8 +90,8 @@ function PersonCard({ person }: { person: PersonDetails }) {
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <Field label="Badge ID" value={person.badgeId} mono />
-          <Field label="Access Level" value={person.accessLevel} />
+          <Field label="Badge ID" value={person.badgeId} mono icon="badge" />
+          <Field label="Access Level" value={person.accessLevel} icon="security" />
           <Field label="Department" value={person.department} />
         </div>
         {person.email && (
@@ -99,17 +105,28 @@ function PersonCard({ person }: { person: PersonDetails }) {
 
   // Unknown person — red-tinted card
   return (
-    <div className="rounded-lg border border-red-900/60 bg-red-950/30 p-4">
+    <div className="rounded-lg border border-[#7F1D1D] bg-[#1C0A0A] p-4">
       <div className="flex items-start gap-3">
         <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl text-white"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white"
           style={{ backgroundColor: person.avatarColor }}
         >
-          ?
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '28px', lineHeight: 1 }}
+          >
+            person_off
+          </span>
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="flex items-center gap-1.5 text-base font-bold text-red-300">
-            <span>⚠</span> {person.label ?? 'Unknown Individual'}
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '18px', lineHeight: 1 }}
+            >
+              person_off
+            </span>
+            {person.label ?? 'Unknown Individual'}
           </h4>
           {person.watchlistCategory && (
             <span className="mt-1 inline-block rounded-full bg-red-900/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-300">
@@ -150,9 +167,15 @@ function PersonCard({ person }: { person: PersonDetails }) {
               {person.cameraSightings.map((c) => (
                 <span
                   key={c}
-                  className="rounded border border-gray-700 bg-gray-900 px-2 py-0.5 text-[10px] font-medium text-gray-300"
+                  className="flex items-center gap-1 rounded border border-[#2D3748] bg-[#1A1F2E] px-2 py-0.5 text-[10px] font-medium text-gray-300"
                 >
-                  📷 {c}
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '13px', lineHeight: 1 }}
+                  >
+                    videocam
+                  </span>
+                  {c}
                 </span>
               ))}
             </div>
@@ -176,9 +199,17 @@ function PersonCard({ person }: { person: PersonDetails }) {
                     setTimeout(() => setCopied(false), 1500)
                   }
                 }}
-                className="rounded border border-gray-700 px-2 py-1 text-[10px] font-medium text-gray-400 transition-colors hover:border-gray-500 hover:text-gray-200"
+                className="flex items-center gap-1 rounded border border-gray-700 px-2 py-1 text-[10px] font-medium text-gray-400 transition-colors hover:border-gray-500 hover:text-gray-200"
               >
-                {copied ? '✓ Copied' : 'Copy'}
+                {copied && (
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '13px', lineHeight: 1 }}
+                  >
+                    check
+                  </span>
+                )}
+                {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
           </div>
@@ -188,10 +219,30 @@ function PersonCard({ person }: { person: PersonDetails }) {
   )
 }
 
-function Field({ label, value, mono }: { label: string; value?: string; mono?: boolean }) {
+function Field({
+  label,
+  value,
+  mono,
+  icon,
+}: {
+  label: string
+  value?: string
+  mono?: boolean
+  icon?: string
+}) {
   return (
     <div>
-      <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</p>
+      <p className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {icon && (
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '12px', lineHeight: 1 }}
+          >
+            {icon}
+          </span>
+        )}
+        {label}
+      </p>
       <p className={`text-xs text-gray-200 ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
     </div>
   )
@@ -199,9 +250,9 @@ function Field({ label, value, mono }: { label: string; value?: string; mono?: b
 
 // ---- Timeline ----
 const EVENT_ICON: Record<CorrelatedEvent['type'], string> = {
-  access: '🔑',
-  camera: '📷',
-  agent: '🤖',
+  access: 'key',
+  camera: 'videocam',
+  agent: 'psychology',
 }
 
 function TimelineRow({
@@ -221,8 +272,22 @@ function TimelineRow({
     : event.type === 'access'
       ? '#22C55E'
       : isAgent
-        ? '#14B8A6'
-        : '#64748B'
+        ? '#2DD4BF'
+        : '#3B82F6'
+
+  // Material icon + color for the event row
+  const iconName = denied
+    ? 'cancel'
+    : event.type === 'access'
+      ? 'check_circle'
+      : EVENT_ICON[event.type]
+  const iconColor = denied
+    ? '#EF4444'
+    : event.type === 'access'
+      ? '#22C55E'
+      : event.type === 'camera'
+        ? '#3B82F6'
+        : '#2DD4BF'
 
   return (
     <div className="flex gap-3">
@@ -245,14 +310,19 @@ function TimelineRow({
         <div
           className={`rounded-lg border p-3 ${
             denied
-              ? 'border-red-900/70 bg-red-950/40'
+              ? 'border-[#7F1D1D] bg-[#1C0A0A]'
               : isAgent
-                ? 'border-l-2 border-l-teal-500 border-gray-700 bg-[#0f1929]'
-                : 'border-gray-700 bg-gray-900'
+                ? 'border-l-2 border-l-teal-500 border-[#2D3748] bg-[#0A1F1F]'
+                : 'border-[#2D3748] bg-[#1A1F2E]'
           }`}
         >
           <div className="flex items-start gap-2">
-            <span className="text-base leading-none">{EVENT_ICON[event.type]}</span>
+            <span
+              className="material-symbols-outlined leading-none"
+              style={{ fontSize: '18px', lineHeight: 1, color: iconColor }}
+            >
+              {iconName}
+            </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-xs font-semibold text-gray-100">{event.location}</span>
@@ -272,8 +342,14 @@ function TimelineRow({
                   </span>
                 )}
                 {event.tailgate && (
-                  <span className="rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-300">
-                    ⚠️ Tailgate
+                  <span className="flex items-center gap-1 rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-300">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '12px', lineHeight: 1 }}
+                    >
+                      warning
+                    </span>
+                    Tailgate
                   </span>
                 )}
               </div>
@@ -310,41 +386,57 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="flex h-full w-[80vw] max-w-[1400px] flex-col bg-[#111827] shadow-2xl"
+        className="flex h-full w-[80vw] max-w-[1400px] flex-col bg-[#0F1117] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[#2D3748] px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <span
-              className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
               style={{ backgroundColor: sevBadge.bg, color: sevBadge.text }}
             >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: sevBadge.text }}
+              />
               {sevBadge.label}
             </span>
             <span
-              className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+              className="flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
               style={{
                 backgroundColor: isDeterrent ? '#78350F' : '#7F1D1D',
-                color: isDeterrent ? '#FCD34D' : '#FCA5A5',
+                color: isDeterrent ? '#FDE68A' : '#FCA5A5',
               }}
             >
-              {isDeterrent ? '🛡 Deterrent' : '⚡ Reactive'}
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '14px', lineHeight: 1 }}
+              >
+                {isDeterrent ? 'shield' : 'bolt'}
+              </span>
+              {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
             <h2 className="truncate text-base font-bold text-white">{alert.title}</h2>
           </div>
           <button
             onClick={onClose}
-            className="ml-4 shrink-0 rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+            className="ml-4 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 transition-colors hover:bg-[#1F2937] hover:text-white"
           >
-            ✕ Close
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '18px', lineHeight: 1 }}
+            >
+              close
+            </span>
+            Close
           </button>
         </div>
 
         {/* Body */}
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[60%_40%]">
           {/* LEFT — Evidence */}
-          <div className="min-h-0 overflow-y-auto border-r border-gray-800 p-6">
+          <div className="min-h-0 overflow-y-auto border-r border-[#2D3748] p-6">
             <p className="mb-1 text-xs text-gray-500">
               {alert.location} · {alert.siteName}
             </p>
@@ -357,7 +449,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 <h3 className="text-sm font-bold uppercase tracking-wide text-gray-300">
                   Correlated Evidence
                 </h3>
-                <span className="rounded-full bg-gray-800 px-2 py-0.5 text-[10px] font-bold text-gray-400">
+                <span className="rounded-full bg-[#2D3748] px-2 py-0.5 text-[10px] font-bold text-gray-400">
                   {detail.correlatedEvents.length} events
                 </span>
               </div>
@@ -375,23 +467,33 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
             </div>
 
             {/* Agent Summary */}
-            <div className="mt-2 rounded-lg border border-teal-900/60 bg-[#0d1b26] p-4">
+            <div className="mt-2 rounded-lg border border-[#1E3A5F] bg-[#0A1525] p-4">
               <div className="flex items-center gap-2">
-                <span className="text-lg">🧠</span>
-                <h4 className="text-xs font-bold uppercase tracking-wide text-teal-300">
+                <span
+                  className="material-symbols-outlined text-[#38BDF8]"
+                  style={{ fontSize: '20px', lineHeight: 1 }}
+                >
+                  psychology
+                </span>
+                <h4 className="text-xs font-bold uppercase tracking-wide text-[#38BDF8]">
                   Agent Analysis
                 </h4>
               </div>
               <p className="mt-2 text-sm leading-relaxed text-gray-300">{detail.agentSummary}</p>
 
               {alert.explanation && (
-                <div className="mt-3 border-t border-teal-900/40 pt-3">
+                <div className="mt-3 border-t border-[#1E3A5F] pt-3">
                   <button
                     onClick={() => setWhyOpen((v) => !v)}
-                    className="flex w-full items-center justify-between text-xs font-semibold text-teal-400 transition-colors hover:text-teal-300"
+                    className="flex w-full items-center justify-between text-xs font-semibold text-[#38BDF8] transition-colors hover:text-[#7DD3FC]"
                   >
                     <span>Why this fired</span>
-                    <span className={`transition-transform ${whyOpen ? 'rotate-90' : ''}`}>▶</span>
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '18px', lineHeight: 1 }}
+                    >
+                      {whyOpen ? 'unfold_less' : 'unfold_more'}
+                    </span>
                   </button>
                   {whyOpen && (
                     <p className="mt-2 text-xs leading-relaxed text-gray-400">{alert.explanation}</p>
@@ -406,12 +508,17 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
             {nba ? (
               <div className="space-y-5">
                 {/* NBA header */}
-                <div className="flex items-start gap-4 border-b border-gray-800 pb-5">
+                <div className="flex items-start gap-4 border-b border-[#2D3748] pb-5">
                   <ConfidenceRing value={nba.confidence} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">🤖</span>
-                      <h3 className="text-sm font-bold uppercase tracking-wide text-violet-400">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="material-symbols-outlined text-[#38BDF8]"
+                        style={{ fontSize: '18px', lineHeight: 1 }}
+                      >
+                        smart_toy
+                      </span>
+                      <h3 className="text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                         Next Best Action
                       </h3>
                     </div>
@@ -460,17 +567,23 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
                 {/* SOP */}
                 {sop && (
-                  <div className="border-t border-gray-800 pt-5">
-                    <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-400">
-                      <span>📋</span> Per {sop.title}:
+                  <div className="rounded-lg border border-[#2D3748] bg-[#0F1117] p-4">
+                    <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#FCD34D]">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: '18px', lineHeight: 1 }}
+                      >
+                        checklist
+                      </span>
+                      Per {sop.title}:
                     </p>
                     <ol className="space-y-1.5">
                       {sop.steps.map((s) => (
                         <li
                           key={s.step}
-                          className="flex gap-2.5 rounded-md bg-amber-950/30 px-3 py-2 text-xs leading-relaxed text-gray-300"
+                          className="flex gap-2.5 rounded-md bg-[#1A1F2E] px-3 py-2 text-xs leading-relaxed text-[#CBD5E0]"
                         >
-                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white">
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#78350F] text-[10px] font-bold text-[#FDE68A]">
                             {s.step}
                           </span>
                           <span>{s.instruction}</span>
@@ -481,17 +594,27 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 )}
 
                 {/* Two-tier execution */}
-                <div className="grid grid-cols-1 gap-3 border-t border-gray-800 pt-5">
+                <div className="grid grid-cols-1 gap-3">
                   {nba.autoExecuteActions.length > 0 && (
-                    <div className="rounded-lg bg-green-950/30 p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-green-400">
-                        <span className="h-2 w-2 rounded-full bg-green-500" />
+                    <div className="rounded-lg border border-[#166534] bg-[#0C2714] p-3">
+                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#34D399]">
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: '16px', lineHeight: 1 }}
+                        >
+                          check_circle
+                        </span>
                         Auto-executes on accept:
                       </p>
                       <ul className="space-y-1">
                         {nba.autoExecuteActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-xs text-green-300">
-                            <span className="text-green-500">✓</span>
+                          <li key={a} className="flex items-center gap-2 text-xs text-[#86EFAC]">
+                            <span
+                              className="material-symbols-outlined text-[#22C55E]"
+                              style={{ fontSize: '16px', lineHeight: 1 }}
+                            >
+                              check_circle
+                            </span>
                             {a}
                           </li>
                         ))}
@@ -500,15 +623,25 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   )}
 
                   {nba.gatedActions.length > 0 && (
-                    <div className="rounded-lg bg-orange-950/30 p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-orange-400">
-                        <span className="h-2 w-2 rounded-full bg-orange-500" />
+                    <div className="rounded-lg border border-[#7F1D1D] bg-[#2D1515] p-3">
+                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#FCA5A5]">
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: '16px', lineHeight: 1 }}
+                        >
+                          lock
+                        </span>
                         Requires your approval:
                       </p>
                       <ul className="space-y-1">
                         {nba.gatedActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-xs text-orange-300">
-                            <span className="text-orange-500">🔒</span>
+                          <li key={a} className="flex items-center gap-2 text-xs text-[#FCA5A5]">
+                            <span
+                              className="material-symbols-outlined text-[#EF4444]"
+                              style={{ fontSize: '16px', lineHeight: 1 }}
+                            >
+                              lock
+                            </span>
                             {a}
                           </li>
                         ))}
@@ -518,17 +651,29 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 </div>
 
                 {/* Action footer */}
-                <div className="border-t border-gray-800 pt-5">
+                <div className="border-t border-[#2D3748] pt-5">
                   <button
                     onClick={onAccept}
-                    className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
                   >
-                    ✓ Accept AI Recommendation
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '18px', lineHeight: 1 }}
+                    >
+                      check_circle
+                    </span>
+                    Accept AI Recommendation
                   </button>
                   <button
                     onClick={onOverride}
-                    className="mt-2 w-full rounded-lg border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white"
                   >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '18px', lineHeight: 1 }}
+                    >
+                      edit_note
+                    </span>
                     Override with Reason
                   </button>
                   <p className="mt-3 text-center text-[11px] text-gray-500">
@@ -538,7 +683,12 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
               </div>
             ) : (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-3 text-3xl">🤖</div>
+                <span
+                  className="material-symbols-outlined mb-3 text-[#6B7280]"
+                  style={{ fontSize: '40px', lineHeight: 1 }}
+                >
+                  smart_toy
+                </span>
                 <p className="text-sm font-semibold text-gray-300">No recommendation available</p>
                 <p className="mt-1 max-w-[220px] text-xs text-gray-500">
                   This alert is still being enriched.

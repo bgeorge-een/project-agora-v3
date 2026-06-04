@@ -43,13 +43,13 @@ export default function OverrideModal({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-md rounded-xl bg-white p-6 shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)]"
+        className="w-full max-w-md rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-bold text-[#111827]">Override Reason</h3>
-        <p className="mt-1 text-sm text-[#6B7280]">
+        <h3 className="text-lg font-bold text-white">Override Reason</h3>
+        <p className="mt-1 text-sm text-[#9CA3AF]">
           Overriding AI recommendation for{' '}
-          <span className="font-semibold text-[#374151]">{alertTitle}</span>
+          <span className="font-semibold text-[#CBD5E0]">{alertTitle}</span>
         </p>
 
         <div className="mt-4 space-y-2">
@@ -60,14 +60,14 @@ export default function OverrideModal({
                 key={opt.value}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
                   selected
-                    ? 'border-[#2563EB] bg-[#EFF6FF]'
-                    : 'border-[#E5E7EB] hover:border-[#D1D5DB]'
+                    ? 'border-[#2563EB] bg-[#243048]'
+                    : 'border-[#374151] hover:border-[#4B5563]'
                 }`}
               >
                 <span
                   className="flex h-4 w-4 items-center justify-center rounded-full border-2"
                   style={{
-                    borderColor: selected ? '#2563EB' : '#D1D5DB',
+                    borderColor: selected ? '#2563EB' : '#4B5563',
                   }}
                 >
                   {selected && (
@@ -84,8 +84,8 @@ export default function OverrideModal({
                 <span
                   className={
                     selected
-                      ? 'font-medium text-[#111827]'
-                      : 'text-[#374151]'
+                      ? 'font-medium text-white'
+                      : 'text-[#CBD5E0]'
                   }
                 >
                   {opt.label}
@@ -96,7 +96,7 @@ export default function OverrideModal({
         </div>
 
         <div className="mt-4">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
             Notes
           </label>
           <textarea
@@ -104,14 +104,14 @@ export default function OverrideModal({
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             placeholder="Add context for this override (optional)…"
-            className="w-full resize-none rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm text-[#111827] outline-none placeholder:text-[#9CA3AF] focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
+            className="w-full resize-none rounded-lg border border-[#374151] bg-[#0F1117] px-3 py-2 text-sm text-white outline-none placeholder:text-[#6B7280] focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
           />
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]"
+            className="rounded-lg border border-[#374151] px-4 py-2 text-sm font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
           >
             Cancel
           </button>

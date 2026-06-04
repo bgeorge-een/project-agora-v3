@@ -53,7 +53,13 @@ export function CameraClipModal({ channel, sceneType, location, timestamp, detai
           {/* HUD */}
           <div className="absolute top-2 left-3 right-3 flex justify-between">
             <span className="text-[10px] font-mono text-red-400 flex items-center gap-1">
-              <span className={playing ? 'animate-pulse' : ''}>●</span> {playing ? 'REC' : 'PAUSED'}
+              <span
+                className={`material-symbols-outlined ${playing ? 'animate-pulse' : ''}`}
+                style={{ fontSize: '11px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
+              >
+                fiber_manual_record
+              </span>
+              {playing ? 'REC' : 'PAUSED'}
             </span>
             <span className="text-[10px] font-mono text-gray-400">{channel} · {timestamp}</span>
           </div>
@@ -63,7 +69,12 @@ export function CameraClipModal({ channel, sceneType, location, timestamp, detai
             onClick={() => { setPlaying(p => !p); if (progress >= 100) setProgress(0) }}
           >
             <div className="bg-black/50 rounded-full w-14 h-14 flex items-center justify-center hover:bg-black/70 transition-colors">
-              <span className="text-white text-2xl ml-1">{playing ? '⏸' : '▶'}</span>
+              <span
+                className="material-symbols-outlined text-white"
+                style={{ fontSize: '32px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
+              >
+                {playing ? 'pause' : 'play_arrow'}
+              </span>
             </div>
           </button>
           {/* Location overlay */}
