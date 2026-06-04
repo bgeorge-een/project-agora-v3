@@ -27,18 +27,19 @@ const TERMS: Term[] = [
   },
   {
     term: 'Incident',
-    definition: 'An accepted Alert — the unit of operational work.',
-    createdBy: 'Operator',
-    ownedBy: 'Operator / reviewer',
-    becomes: 'Case (on promote)',
+    definition:
+      'A confirmed, active situation requiring real-time operational response. Covers the full live lifecycle: deterrence actions, containment, recovery, and handoff. An Incident is time-sensitive and action-oriented — it is open while the threat is active and closes when the threat is neutralized, handed off, or resolved. Incidents can be correlated into a Campaign when a pattern is detected across multiple active situations.',
+    createdBy: 'Operator (on Alert accept)',
+    ownedBy: 'Operator / Shift Supervisor',
+    becomes: 'Resolved (threat neutralized) or Promoted → Case',
   },
   {
     term: 'Case',
     definition:
-      'Investigation container: evidence, timeline, entities, tasks, narrative.',
-    createdBy: 'Investigator',
-    ownedBy: 'Investigator',
-    becomes: 'Report / Campaign / model feedback',
+      'A post-incident forensic investigation. Created when one or more resolved Incidents — or a Campaign of correlated Incidents — require deep investigation beyond real-time response. A Case owns the full chain of custody: evidence with provenance, timeline reconstruction, entity graph traversal, AI-assisted narrative, tasks, external collaborator access, corrective actions, and audit trail. Cases answer what happened, why, who was involved, and what must change.',
+    createdBy: 'Investigator (promotes from Incident)',
+    ownedBy: 'Investigator / Case Supervisor',
+    becomes: 'Closed → Report + audit pack + model feedback',
   },
   {
     term: 'Violation',
@@ -170,7 +171,40 @@ export default function DataModelTable() {
           </table>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
+        {/* Incident vs Case boundary callout */}
+        <div
+          className="mt-8 rounded-xl bg-white p-6"
+          style={{ border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >
+          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Key distinction</p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="rounded-lg p-4" style={{ background: '#EFF6FF', borderLeft: '4px solid #2563EB' }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="rounded bg-[#2563EB] px-2 py-0.5 text-xs font-bold text-white">INCIDENT</span>
+                <span className="text-xs font-semibold text-[#1D4ED8]">Real-time Incident Management app</span>
+              </div>
+              <p className="text-sm text-[#1E40AF] leading-relaxed">
+                <strong>Stop the threat.</strong> The Incident is live and time-sensitive. Operators deter, contain, and recover — following AI-recommended actions and SOPs. An Incident closes when the threat is neutralized, not when the paperwork is done.
+              </p>
+              <p className="mt-2 text-xs text-[#3B82F6]">Owned by: Operator → Shift Supervisor</p>
+            </div>
+            <div className="rounded-lg p-4" style={{ background: '#F5F3FF', borderLeft: '4px solid #7C3AED' }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="rounded bg-[#7C3AED] px-2 py-0.5 text-xs font-bold text-white">CASE</span>
+                <span className="text-xs font-semibold text-[#6D28D9]">Case Management app</span>
+              </div>
+              <p className="text-sm text-[#4C1D95] leading-relaxed">
+                <strong>Understand what happened.</strong> Once the threat is resolved, a Case is opened to investigate root cause, assemble evidence with chain of custody, reconstruct the timeline, and drive corrective actions. A Case may contain one Incident or a correlated Campaign of multiple Incidents.
+              </p>
+              <p className="mt-2 text-xs text-[#7C3AED]">Owned by: Investigator → Case Supervisor</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs text-[#9CA3AF] border-t border-[#F3F4F6] pt-4">
+            <strong className="text-[#6B7280]">The handoff:</strong> An Incident is promoted to a Case by the Investigator once the operator declares the live threat resolved. The Case inherits all evidence, timeline events, and entity references from the Incident. Multiple correlated Incidents (a Campaign) can be grouped into a single master Case for unified investigation.
+          </p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div
             className="rounded-lg bg-white p-6"
             style={{
