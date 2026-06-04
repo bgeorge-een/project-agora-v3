@@ -9,30 +9,45 @@ const PRODUCTS: ProductCard[] = [
   {
     icon: '⚙️',
     title: 'Agora Platform',
-    subtitle: 'Shared intelligence fabric · Not user-facing',
+    subtitle: 'Shared intelligence fabric · APIs consumed by both apps',
     variant: 'platform',
   },
   {
     icon: '⚡',
-    title: 'Real-time Incident Mgmt',
-    subtitle: 'L1–L5 · Site to enterprise',
+    title: 'Real-time Incident Management',
+    subtitle: 'Live SOC operations · L1 Operator → L5 Global Director',
     variant: 'incident',
   },
   {
     icon: '🔍',
     title: 'Case Management',
-    subtitle: 'L1–L5 · Post-incident forensics',
+    subtitle: 'Post-incident forensics · L1 Investigator → L5 Global Director',
     variant: 'case',
   },
 ]
 
 const CARD_STYLE: Record<
   ProductCard['variant'],
-  { bg: string; ring: string; accent: string }
+  { border: string; iconBg: string; iconColor: string; badge: string }
 > = {
-  platform: { bg: '#1E2D42', ring: '#2A3B54', accent: '#94A3B8' },
-  incident: { bg: '#13294D', ring: '#2563EB', accent: '#60A5FA' },
-  case: { bg: '#231640', ring: '#7C3AED', accent: '#A78BFA' },
+  platform: {
+    border: '#172130',
+    iconBg: '#F3F4F6',
+    iconColor: '#172130',
+    badge: '#172130',
+  },
+  incident: {
+    border: '#2563EB',
+    iconBg: '#EFF6FF',
+    iconColor: '#2563EB',
+    badge: '#2563EB',
+  },
+  case: {
+    border: '#7C3AED',
+    iconBg: '#F5F3FF',
+    iconColor: '#7C3AED',
+    badge: '#7C3AED',
+  },
 }
 
 export default function HeroSection() {
@@ -41,28 +56,19 @@ export default function HeroSection() {
       className="relative overflow-hidden px-12 pb-20 pt-20"
       style={{
         background:
-          'linear-gradient(135deg, #172130 0%, #15263e 55%, #1a3a5c 100%)',
+          'linear-gradient(160deg, #FFFFFF 0%, #F8FAFC 45%, #EFF6FF 100%)',
       }}
     >
-      {/* subtle grid glow */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 80% 10%, rgba(56,189,248,0.18), transparent 45%), radial-gradient(circle at 15% 90%, rgba(124,58,237,0.14), transparent 45%)',
-        }}
-      />
-
       <div className="relative mx-auto max-w-6xl">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#38BDF8]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#2563EB]">
           Project Agora V3
         </p>
-        <h1 className="mt-4 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight text-white">
+        <h1 className="mt-4 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight text-[#111827]">
           Physical Intelligence Platform
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#94A3B8]">
-          The vendor-agnostic intelligence fabric for enterprise security. Two
-          licensable apps. One shared platform.
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#6B7280]">
+          The vendor-agnostic intelligence fabric for enterprise security — two
+          licensable apps, one shared platform.
         </p>
 
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -71,29 +77,24 @@ export default function HeroSection() {
             return (
               <div
                 key={p.title}
-                className="group relative rounded-2xl p-6 transition-transform duration-200 hover:-translate-y-1"
+                className="group flex flex-col rounded-lg bg-white p-6 transition-transform duration-200 hover:-translate-y-1"
                 style={{
-                  backgroundColor: s.bg,
-                  boxShadow: `inset 0 0 0 1px ${s.ring}`,
+                  borderLeft: `4px solid ${s.border}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 }}
               >
                 <div
                   className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+                  style={{ backgroundColor: s.iconBg, color: s.iconColor }}
                 >
                   {p.icon}
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-white">{p.title}</h3>
-                <p
-                  className="mt-1.5 text-sm leading-snug"
-                  style={{ color: s.accent }}
-                >
+                <h3 className="mt-4 text-lg font-bold leading-snug text-[#111827]">
+                  {p.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
                   {p.subtitle}
                 </p>
-                <div
-                  className="mt-5 h-1 w-10 rounded-full transition-all duration-200 group-hover:w-16"
-                  style={{ backgroundColor: s.ring }}
-                />
               </div>
             )
           })}
@@ -102,7 +103,7 @@ export default function HeroSection() {
         <div className="mt-12">
           <a
             href="#architecture"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2563EB] px-5 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#1D4ED8]"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#2563EB] transition-colors hover:text-[#1D4ED8]"
           >
             Explore the apps
             <span aria-hidden>↓</span>

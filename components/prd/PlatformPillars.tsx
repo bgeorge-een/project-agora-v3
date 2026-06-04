@@ -12,29 +12,32 @@ const PILLARS: Pillar[] = [
   {
     title: 'Signal Intelligence',
     icon: '📡',
-    description: 'Ingests and normalizes signals from any vendor.',
+    description:
+      'Ingests and normalizes signals from any vendor, camera, sensor, or external feed into a common queryable schema. Signal categories: security, environmental, operational, identity, vehicle, building_systems, external_context.',
     color: '#2563EB',
     tint: '#EFF6FF',
   },
   {
     title: 'World Model',
     icon: '🌐',
-    description: 'Live physical ontology: sites, zones, doors, devices.',
-    color: '#0D9488',
-    tint: '#F0FDFA',
+    description:
+      'A continuously maintained physical ontology: sites, buildings, floors, zones, doors, cameras, sensors, people, vehicles, credentials. Every event is interpreted spatially.',
+    color: '#0891B2',
+    tint: '#ECFEFF',
   },
   {
     title: 'Agentic Enrichment',
     icon: '🧠',
     description:
-      '5-agent AI pipeline enriches every alert before human review.',
+      'Five-agent AI pipeline: Signal Normalizer → Enrichment Agent → Analysis Agent → Recommendation Agent + Explanation Agent. Partial results stream to app UIs as each agent completes.',
     color: '#7C3AED',
     tint: '#F5F3FF',
   },
   {
     title: 'SOP + Playbook Engine',
     icon: '✅',
-    description: 'Human procedures + system automation, served platform-wide.',
+    description:
+      'SOPs define what humans do (retrieved at triage time). Playbooks define what the system does (Response and Deterrence types). Both authored in Case Management, served platform-wide.',
     color: '#EA580C',
     tint: '#FFF7ED',
   },
@@ -42,7 +45,7 @@ const PILLARS: Pillar[] = [
     title: 'Closed-Loop Learning',
     icon: '🔄',
     description:
-      'Every override becomes a FeedbackRecord feeding model improvement.',
+      'Every human override writes a FeedbackRecord. AI Analyst labels each: model problem / policy gap / data quality / correct override. Feeds model improvement.',
     color: '#16A34A',
     tint: '#F0FDF4',
   },
@@ -50,7 +53,7 @@ const PILLARS: Pillar[] = [
 
 export default function PlatformPillars() {
   return (
-    <section className="bg-[#F1F5F9] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-12 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Inside the platform"
@@ -58,12 +61,15 @@ export default function PlatformPillars() {
           subtitle="The five capabilities every Agora app inherits — built once, served everywhere."
         />
 
-        <div className="mt-12 flex gap-5 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {PILLARS.map((pillar, i) => (
             <div
               key={pillar.title}
-              className="flex min-w-[220px] flex-1 flex-col rounded-2xl bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_10px_15px_rgba(0,0,0,0.08)]"
-              style={{ borderTop: `4px solid ${pillar.color}` }}
+              className="flex flex-col rounded-lg bg-white p-6"
+              style={{
+                borderTop: `4px solid ${pillar.color}`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
             >
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"

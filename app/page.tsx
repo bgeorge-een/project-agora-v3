@@ -2,25 +2,23 @@ import Link from 'next/link'
 import HeroSection from '@/components/prd/HeroSection'
 import ArchitectureDiagram from '@/components/prd/ArchitectureDiagram'
 import PlatformPillars from '@/components/prd/PlatformPillars'
-import JobsToBeDone from '@/components/prd/JobsToBeDone'
+import AgentPipelineDiagram from '@/components/prd/AgentPipelineDiagram'
+import DataModelTable from '@/components/prd/DataModelTable'
+import AlertLifecycleFlow from '@/components/prd/AlertLifecycleFlow'
 import PersonaHierarchy from '@/components/prd/PersonaHierarchy'
+import UserStoriesIncident from '@/components/prd/UserStoriesIncident'
+import UserStoriesCaseManagement from '@/components/prd/UserStoriesCaseManagement'
 import CompetitiveTable from '@/components/prd/CompetitiveTable'
 import BuildRoadmap from '@/components/prd/BuildRoadmap'
 
 function BottomCTA() {
   return (
-    <section
-      className="px-12 py-24"
-      style={{
-        background:
-          'linear-gradient(135deg, #172130 0%, #15263e 55%, #1a3a5c 100%)',
-      }}
-    >
+    <section className="bg-[#EFF6FF] px-12 py-24">
       <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight text-white">
-          Explore the Demo Applications
+        <h2 className="text-3xl font-extrabold tracking-tight text-[#111827]">
+          Ready to see it in action?
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-[#94A3B8]">
+        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-[#6B7280]">
           Two licensable apps, one shared intelligence fabric. Step into each to
           see how Agora turns raw signals into decisive action.
         </p>
@@ -49,8 +47,12 @@ export default function OverviewPage() {
       <HeroSection />
       <ArchitectureDiagram />
       <PlatformPillars />
-      <JobsToBeDone />
+      <AgentPipelineDiagram />
+      <DataModelTable />
+      <AlertLifecycleFlow />
       <PersonaHierarchy />
+      <UserStoriesIncident />
+      <UserStoriesCaseManagement />
       <CompetitiveTable />
       <BuildRoadmap />
       <BottomCTA />

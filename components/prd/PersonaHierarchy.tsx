@@ -3,48 +3,93 @@ import SectionHeader from '@/components/ui/SectionHeader'
 interface PersonaLevel {
   level: string
   role: string
+  description: string
 }
 
 const INCIDENT_PERSONAS: PersonaLevel[] = [
-  { level: 'L1', role: 'Site Operator' },
-  { level: 'L2', role: 'Shift Supervisor' },
-  { level: 'L3', role: 'Site SOC Director' },
-  { level: 'L4', role: 'Regional SOC Director' },
-  { level: 'L5', role: 'Global SOC Director' },
+  {
+    level: 'L1',
+    role: 'Site Operator',
+    description:
+      'Triage live alert queue, verify incidents, follow AI-assisted response plans. Primary views: Response View, Monitor View.',
+  },
+  {
+    level: 'L2',
+    role: 'Shift Supervisor',
+    description:
+      'Oversee operator queue, approve high-risk escalations, manage shift handoff.',
+  },
+  {
+    level: 'L3',
+    role: 'Site SOC Director',
+    description: 'Monitor site health, operator performance, shift metrics.',
+  },
+  {
+    level: 'L4',
+    role: 'Regional SOC Director',
+    description:
+      'Multi-site Map View, cross-site incident patterns, resource allocation.',
+  },
+  {
+    level: 'L5',
+    role: 'Global SOC Director',
+    description:
+      'Enterprise risk posture, AI quality oversight, executive briefs.',
+  },
 ]
 
 const CASE_PERSONAS: PersonaLevel[] = [
-  { level: 'L1', role: 'Investigator' },
-  { level: 'L2', role: 'Case Supervisor' },
+  {
+    level: 'L1',
+    role: 'Investigator',
+    description:
+      'Case workspace: evidence, entity graph, timeline, AI-assisted narrative.',
+  },
+  {
+    level: 'L2',
+    role: 'Case Supervisor',
+    description: 'Case queue management, assignment, SLA oversight.',
+  },
   {
     level: 'L3',
-    role: 'Compliance/Safety Manager + External Collaborator',
+    role: 'Compliance/Safety Manager',
+    description:
+      'Author SOPs and Playbooks, review Violations, manage corrective actions, audit packs.',
   },
-  { level: 'L4', role: 'Regional Security Director' },
-  { level: 'L5', role: 'Global Security Director' },
+  {
+    level: 'L3',
+    role: 'External Collaborator',
+    description:
+      'Task-recipient access tier: HR, Legal, Facilities, IT. Scoped evidence only.',
+  },
+  {
+    level: 'L4',
+    role: 'Regional Security Director',
+    description: 'Cross-site case trends, compliance posture.',
+  },
+  {
+    level: 'L5',
+    role: 'Global Security Director',
+    description: 'Enterprise risk reporting, AI quality at scale.',
+  },
 ]
 
 interface LadderProps {
   title: string
   accent: string
   tint: string
-  border: string
   icon: string
   personas: PersonaLevel[]
 }
 
-function PersonaLadder({
-  title,
-  accent,
-  tint,
-  border,
-  icon,
-  personas,
-}: LadderProps) {
+function PersonaLadder({ title, accent, tint, icon, personas }: LadderProps) {
   return (
     <div
-      className="rounded-2xl bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]"
-      style={{ borderTop: `4px solid ${accent}` }}
+      className="rounded-lg bg-white p-7"
+      style={{
+        borderTop: `4px solid ${accent}`,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      }}
     >
       <div className="flex items-center gap-3">
         <span
@@ -56,16 +101,11 @@ function PersonaLadder({
         <h3 className="text-lg font-bold text-[#111827]">{title}</h3>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-6 space-y-3">
         {personas.map((p, i) => (
           <div
-            key={p.level}
-            className="flex items-center gap-4 rounded-xl border px-4 py-3 transition-transform hover:translate-x-1"
-            style={{
-              backgroundColor: tint,
-              borderColor: border,
-              marginLeft: `${i * 14}px`,
-            }}
+            key={`${p.level}-${p.role}`}
+            className="flex gap-3 rounded-lg border border-[#F3F4F6] bg-[#F9FAFB] p-4"
           >
             <span
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
@@ -73,27 +113,27 @@ function PersonaLadder({
             >
               {p.level}
             </span>
-            <span className="text-sm font-semibold text-[#1F2937]">
-              {p.role}
-            </span>
+            <div>
+              <p className="text-sm font-bold text-[#111827]">{p.role}</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                {p.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
-      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
-        L1 site scope → L5 enterprise scope
-      </p>
     </div>
   )
 }
 
 export default function PersonaHierarchy() {
   return (
-    <section className="bg-[#F1F5F9] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-12 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Who uses it"
           title="Persona Hierarchy"
-          subtitle="Each app scales from a single site operator (L1) to a global director (L5), with responsibilities widening at every level."
+          subtitle="Each app serves five levels. Each level sees only what it needs."
         />
 
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -101,7 +141,6 @@ export default function PersonaHierarchy() {
             title="Real-time Incident Management"
             accent="#2563EB"
             tint="#EFF6FF"
-            border="#BFDBFE"
             icon="⚡"
             personas={INCIDENT_PERSONAS}
           />
@@ -109,7 +148,6 @@ export default function PersonaHierarchy() {
             title="Case Management"
             accent="#7C3AED"
             tint="#F5F3FF"
-            border="#DDD6FE"
             icon="🔍"
             personas={CASE_PERSONAS}
           />

@@ -13,6 +13,7 @@ interface Slice {
   theme: Theme
   title: string
   outcome: string
+  demo: string
 }
 
 const THEME_COLOR: Record<Theme, string> = {
@@ -20,7 +21,7 @@ const THEME_COLOR: Record<Theme, string> = {
   'Live Operations': '#2563EB',
   Investigation: '#7C3AED',
   Governance: '#EA580C',
-  Collaboration: '#0D9488',
+  Collaboration: '#0891B2',
   'Enterprise Intelligence': '#16A34A',
 }
 
@@ -30,57 +31,64 @@ const SLICES: Slice[] = [
     theme: 'Foundation',
     title: 'Platform & World Model',
     outcome: 'Signal ingestion + live physical ontology online.',
+    demo: 'A signal from any vendor lands as a normalized Signal mapped to a zone.',
   },
   {
     num: 2,
     theme: 'Live Operations',
     title: 'Real-time Alert Triage',
     outcome: 'Operators see enriched, deduplicated alerts in real time.',
+    demo: 'Operator triages a severity-grouped queue and accepts an AI recommendation.',
   },
   {
     num: 3,
     theme: 'Live Operations',
     title: 'SOP + Playbook Execution',
     outcome: 'Guided response with policy-aware automation.',
+    demo: 'Operator works an SOP checklist while low-risk Playbook actions auto-execute.',
   },
   {
     num: 4,
     theme: 'Investigation',
     title: 'Case Timeline & Evidence',
     outcome: 'Before/during/after reconstruction from any source.',
+    demo: 'Investigator builds a timeline mixing system, agent, and manual events.',
   },
   {
     num: 5,
     theme: 'Investigation',
     title: 'Cross-site Pattern Analysis',
     outcome: 'Recurring threats surfaced across the portfolio.',
+    demo: 'System links related cases into a Campaign via shared entities.',
   },
   {
     num: 6,
     theme: 'Governance',
     title: 'Compliance & Audit',
     outcome: 'Defensible audit trail for every decision and override.',
+    demo: 'A Violation drives a tracked corrective action to closure.',
   },
   {
     num: 7,
     theme: 'Collaboration',
     title: 'External Collaborator Access',
     outcome: 'Scoped, secure case sharing with outside parties.',
+    demo: 'HR collaborator completes a task seeing only the granted evidence.',
   },
   {
     num: 8,
     theme: 'Enterprise Intelligence',
     title: 'Closed-Loop Model Tuning',
     outcome: 'Feedback records drive continuous model improvement.',
+    demo: 'An override is labeled and surfaced in the AI quality report.',
   },
 ]
 
 export default function BuildRoadmap() {
   return (
-    <section className="bg-[#172130] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-12 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
-          dark
           label="Sequencing"
           title="Build Roadmap"
           subtitle="Eight vertical slices, each delivering a usable outcome and stacking toward full enterprise intelligence."
@@ -92,7 +100,11 @@ export default function BuildRoadmap() {
             return (
               <div
                 key={slice.num}
-                className="group relative flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition-colors hover:bg-white/[0.07]"
+                className="flex flex-col rounded-lg bg-white p-5"
+                style={{
+                  borderLeft: `4px solid ${color}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                }}
               >
                 <div className="flex items-center justify-between">
                   <span
@@ -101,20 +113,27 @@ export default function BuildRoadmap() {
                   >
                     {slice.theme}
                   </span>
-                  <span className="text-2xl font-black text-white/15">
+                  <span
+                    className="text-2xl font-black"
+                    style={{ color: `${color}33` }}
+                  >
                     {String(slice.num).padStart(2, '0')}
                   </span>
                 </div>
-                <h3 className="mt-4 text-base font-bold leading-snug text-white">
+                <h3 className="mt-4 text-base font-bold leading-snug text-[#111827]">
                   {slice.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#94A3B8]">
+                <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
                   {slice.outcome}
                 </p>
-                <div
-                  className="mt-4 h-1 w-8 rounded-full transition-all duration-200 group-hover:w-14"
-                  style={{ backgroundColor: color }}
-                />
+                <div className="mt-4 border-t border-[#F3F4F6] pt-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+                    Demo success
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#374151]">
+                    {slice.demo}
+                  </p>
+                </div>
               </div>
             )
           })}

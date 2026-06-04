@@ -50,7 +50,7 @@ function MarkCell({ mark, highlight = false }: { mark: Mark; highlight?: boolean
 
 export default function CompetitiveTable() {
   return (
-    <section className="bg-[#F1F5F9] px-12 py-20">
+    <section className="bg-white px-12 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Where we win"

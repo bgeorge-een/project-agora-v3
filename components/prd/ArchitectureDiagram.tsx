@@ -1,7 +1,7 @@
 import SectionHeader from '@/components/ui/SectionHeader'
 
 const PLATFORM_CAPABILITIES = [
-  'Signal Intel',
+  'Signal Intelligence',
   'World Model',
   'Agents',
   'SOP + Playbook Engine',
@@ -15,32 +15,47 @@ export default function ArchitectureDiagram() {
         <SectionHeader
           label="How it fits together"
           title="Platform + App Architecture"
-          subtitle="Two licensable applications sit on top of one shared intelligence platform, consuming its capabilities through a common set of Platform APIs."
+          subtitle="Two licensable apps share one intelligence fabric. The platform handles all signal ingest, normalization, AI enrichment, and learning — apps consume it via APIs."
         />
 
-        <div className="mt-14">
+        <div
+          className="mt-14 rounded-2xl p-6 sm:p-10"
+          style={{ backgroundColor: '#EFF6FF' }}
+        >
           {/* App tier */}
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <div className="rounded-2xl border-2 border-[#2563EB]/30 bg-[#EFF6FF] p-6">
+            <div
+              className="rounded-lg bg-white p-6"
+              style={{
+                borderLeft: '4px solid #2563EB',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
+            >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2563EB] text-lg">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-lg text-[#2563EB]">
                   ⚡
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-[#1E3A8A]">
-                    Real-time Incident Mgmt
+                  <p className="text-sm font-bold text-[#111827]">
+                    Real-time Incident Management
                   </p>
                   <p className="text-xs text-[#2563EB]">Live operations app</p>
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl border-2 border-[#7C3AED]/30 bg-[#F5F3FF] p-6">
+            <div
+              className="rounded-lg bg-white p-6"
+              style={{
+                borderLeft: '4px solid #7C3AED',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
+            >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#7C3AED] text-lg">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F5F3FF] text-lg text-[#7C3AED]">
                   🔍
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-[#5B21B6]">
+                  <p className="text-sm font-bold text-[#111827]">
                     Case Management
                   </p>
                   <p className="text-xs text-[#7C3AED]">Forensics app</p>
@@ -49,45 +64,40 @@ export default function ArchitectureDiagram() {
             </div>
           </div>
 
-          {/* Connectors */}
-          <div className="relative flex items-stretch justify-center gap-40 px-[12%]">
-            <div className="flex w-px flex-col items-center">
-              <div className="h-10 w-px bg-[#CBD5E1]" />
-            </div>
-            <div className="flex w-px flex-col items-center">
-              <div className="h-10 w-px bg-[#CBD5E1]" />
-            </div>
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <span className="rounded-full border border-[#E5E7EB] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
-                consume via Platform APIs
-              </span>
-            </div>
+          {/* Connector */}
+          <div className="relative flex items-center justify-center py-6">
+            <div className="absolute inset-x-[12%] top-1/2 h-px -translate-y-1/2 bg-[#BFDBFE]" />
+            <span className="relative rounded-full border border-[#BFDBFE] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#2563EB]">
+              ↓ consume via Platform APIs ↓
+            </span>
           </div>
 
           {/* Platform tier */}
           <div
-            className="rounded-2xl px-8 py-7"
+            className="rounded-lg bg-white px-6 py-7 sm:px-8"
             style={{
-              background:
-                'linear-gradient(135deg, #172130 0%, #1c2c44 100%)',
+              border: '2px solid #172130',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#38BDF8]/15 text-lg">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F3F4F6] text-lg text-[#172130]">
                   ⚙️
                 </span>
-                <h3 className="text-xl font-bold text-white">Agora Platform</h3>
+                <h3 className="text-xl font-bold text-[#172130]">
+                  Agora Platform
+                </h3>
               </div>
-              <span className="rounded-full bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
-                Shared · Not user-facing
+              <span className="rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
+                Shared intelligence fabric
               </span>
             </div>
             <div className="mt-5 flex flex-wrap gap-2.5">
               {PLATFORM_CAPABILITIES.map((cap) => (
                 <span
                   key={cap}
-                  className="rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-[#CBD5E0]"
+                  className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3.5 py-2 text-sm font-medium text-[#374151]"
                 >
                   {cap}
                 </span>
