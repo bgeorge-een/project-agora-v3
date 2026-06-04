@@ -4,13 +4,32 @@ import { useEffect, useState } from 'react'
 import type { Case, Entity, EntityType } from '@/lib/types'
 
 const ENTITY_ICON: Record<EntityType, string> = {
-  person: '👤',
-  credential: '🪪',
-  vehicle: '🚗',
-  door: '🚪',
-  camera: '📷',
-  zone: '📍',
-  sensor: '📡',
+  person: 'badge',
+  credential: 'key',
+  vehicle: 'directions_car',
+  door: 'door_front',
+  camera: 'videocam',
+  zone: 'location_on',
+  sensor: 'sensors',
+}
+
+function Icon({
+  name,
+  size = 18,
+  className,
+}: {
+  name: string
+  size?: number
+  className?: string
+}) {
+  return (
+    <span
+      className={`material-symbols-outlined ${className ?? ''}`}
+      style={{ fontSize: `${size}px`, lineHeight: 1 }}
+    >
+      {name}
+    </span>
+  )
 }
 
 const EXEC_SUMMARY =
@@ -49,28 +68,28 @@ export default function NarrativeReport({
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/60 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#2D3748] bg-[#1A1F2E] shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] bg-[#F5F3FF] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[#2D3748] bg-[#111827] px-6 py-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-lg shadow-sm">
-              📄
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#243048] text-[#7C3AED]">
+              <Icon name="description" size={20} />
             </span>
             <div>
-              <h2 className="text-base font-bold text-[#111827]">
+              <h2 className="text-base font-bold text-white">
                 Investigation Report
               </h2>
-              <p className="text-xs text-[#7C3AED]">
+              <p className="text-xs text-[#A78BFA]">
                 {caseData.id} · {caseData.title}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-white"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#243048] hover:text-white"
           >
-            ✕
+            <Icon name="close" size={18} />
           </button>
         </div>
 
@@ -83,7 +102,7 @@ export default function NarrativeReport({
                 <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-[#7C3AED] [animation-delay:-0.1s]" />
                 <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-[#7C3AED]" />
               </div>
-              <p className="mt-4 text-sm font-semibold text-[#374151]">
+              <p className="mt-4 text-sm font-semibold text-white">
                 Generating report…
               </p>
               <p className="mt-1 text-xs text-[#9CA3AF]">
@@ -93,38 +112,44 @@ export default function NarrativeReport({
           ) : (
             <div className="space-y-7">
               {/* Executive Summary */}
-              <section>
-                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-[#7C3AED]">
+              <section className="rounded-lg bg-[#0F1117] p-4">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Executive Summary
-                  <span className="rounded bg-[#CCFBF1] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#0F766E]">
+                  <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
                     AI-generated
                   </span>
                 </h3>
-                <p className="text-sm leading-relaxed text-[#374151]">
+                <p className="text-sm leading-relaxed text-[#CBD5E0]">
                   {EXEC_SUMMARY}
                 </p>
               </section>
 
               {/* Timeline */}
               <section>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#7C3AED]">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Timeline
                 </h3>
                 <ol className="space-y-2">
                   {caseData.timeline.map((ev) => (
                     <li
                       key={ev.id}
-                      className="flex gap-3 rounded-lg bg-[#F9FAFB] px-3 py-2"
+                      className="flex gap-3 rounded-lg bg-[#0F1117] px-3 py-2"
                     >
                       <span className="font-mono text-[11px] font-semibold text-[#6B7280]">
                         {fmtTime(ev.timestamp)}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-[#111827]">
-                          {ev.flagged && '⚠️ '}
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-white">
+                          {ev.flagged && (
+                            <Icon
+                              name="warning"
+                              size={14}
+                              className="text-[#EF4444]"
+                            />
+                          )}
                           {ev.title}
                         </p>
-                        <p className="text-[11px] text-[#6B7280]">{ev.detail}</p>
+                        <p className="text-[11px] text-[#9CA3AF]">{ev.detail}</p>
                       </div>
                     </li>
                   ))}
@@ -132,22 +157,26 @@ export default function NarrativeReport({
               </section>
 
               {/* Involved Parties */}
-              <section>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#7C3AED]">
+              <section className="rounded-lg bg-[#0F1117] p-4">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Involved Parties
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
                   {entities.map((e) => (
                     <div
                       key={e.id}
-                      className="flex items-center gap-2 rounded-lg border border-[#E5E7EB] px-3 py-2"
+                      className="flex items-center gap-2 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-3 py-2"
                     >
-                      <span className="text-base">{ENTITY_ICON[e.type]}</span>
+                      <Icon
+                        name={ENTITY_ICON[e.type]}
+                        size={18}
+                        className="text-[#9CA3AF]"
+                      />
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-[#374151]">
+                        <p className="truncate text-xs font-semibold text-[#CBD5E0]">
                           {e.label}
                         </p>
-                        <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                        <p className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                           {e.type} · {e.riskLevel} risk
                         </p>
                       </div>
@@ -158,14 +187,14 @@ export default function NarrativeReport({
 
               {/* Open Questions */}
               <section>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#7C3AED]">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Open Questions
                 </h3>
                 <ul className="space-y-1.5">
                   {caseData.openQuestions.map((q) => (
                     <li
                       key={q}
-                      className="flex items-start gap-2 text-xs leading-relaxed text-[#374151]"
+                      className="flex items-start gap-2 text-xs leading-relaxed text-[#CBD5E0]"
                     >
                       <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F59E0B]" />
                       {q}
@@ -175,15 +204,15 @@ export default function NarrativeReport({
               </section>
 
               {/* Recommendations */}
-              <section>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#7C3AED]">
+              <section className="rounded-lg bg-[#0F1117] p-4">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Recommendations
                 </h3>
                 <ol className="space-y-1.5">
                   {RECOMMENDATIONS.map((r, i) => (
                     <li
                       key={r}
-                      className="flex gap-2.5 text-xs leading-relaxed text-[#374151]"
+                      className="flex gap-2.5 text-xs leading-relaxed text-[#CBD5E0]"
                     >
                       <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-[10px] font-bold text-white">
                         {i + 1}
@@ -198,24 +227,24 @@ export default function NarrativeReport({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t border-[#E5E7EB] bg-[#F9FAFB] px-6 py-3">
+        <div className="flex justify-end gap-2 border-t border-[#2D3748] bg-[#111827] px-6 py-3">
           <button
             disabled={generating}
-            className="rounded-lg border border-[#D1D5DB] px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-white disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#374151] bg-[#1F2937] px-4 py-2 text-sm font-medium text-[#CBD5E0] transition-colors hover:bg-[#243048] disabled:opacity-50"
           >
-            Edit
+            <Icon name="edit_note" size={16} /> Edit
           </button>
           <button
             disabled={generating}
-            className="rounded-lg border border-[#D1D5DB] px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-white disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#7C3AED] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:opacity-50"
           >
-            Export PDF
+            <Icon name="download" size={16} /> Export PDF
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg bg-[#7C3AED] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9]"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2 text-sm font-medium text-[#9CA3AF] transition-colors hover:bg-[#243048] hover:text-white"
           >
-            Close
+            <Icon name="close" size={16} /> Close
           </button>
         </div>
       </div>

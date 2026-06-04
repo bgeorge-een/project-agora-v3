@@ -12,6 +12,25 @@ const STARTERS = [
 
 const EVIDENCE_REFS = ['ev-002 Badge denial log', 'ev-001 Camera C4 clip']
 
+function Icon({
+  name,
+  size = 18,
+  className,
+}: {
+  name: string
+  size?: number
+  className?: string
+}) {
+  return (
+    <span
+      className={`material-symbols-outlined ${className ?? ''}`}
+      style={{ fontSize: `${size}px`, lineHeight: 1 }}
+    >
+      {name}
+    </span>
+  )
+}
+
 export default function AIAssistant() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -80,7 +99,7 @@ export default function AIAssistant() {
         copy[copy.length - 1] = {
           role: 'assistant',
           content:
-            '⚠️ Unable to reach the investigation agent. Verify ANTHROPIC_API_KEY is configured in .env.local.',
+            'Unable to reach the investigation agent. Verify ANTHROPIC_API_KEY is configured in .env.local.',
         }
         return copy
       })
@@ -93,20 +112,20 @@ export default function AIAssistant() {
   return (
     <div className="flex h-[480px] flex-col">
       {/* Disclaimer */}
-      <div className="mb-3 flex items-center gap-2 rounded-lg bg-[#F5F3FF] px-3 py-2 text-[11px] font-medium text-[#7C3AED]">
-        <span>🔒</span>
+      <div className="mb-3 flex items-center gap-2 rounded-lg bg-[#1A1530] px-3 py-2 text-[11px] font-medium text-[#A78BFA]">
+        <Icon name="lock" size={14} />
         Answers are scoped to Case-001 evidence only.
       </div>
 
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 space-y-4 overflow-y-auto rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-4"
+        className="flex-1 space-y-4 overflow-y-auto rounded-lg border border-[#2D3748] bg-[#0F1117] p-4"
       >
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <span className="text-3xl">🤖</span>
-            <p className="mt-3 text-sm font-semibold text-[#374151]">
+            <Icon name="smart_toy" size={40} className="text-[#7C3AED]" />
+            <p className="mt-3 text-sm font-semibold text-white">
               Case Investigation Assistant
             </p>
             <p className="mt-1 max-w-xs text-xs text-[#9CA3AF]">
@@ -123,35 +142,35 @@ export default function AIAssistant() {
               }`}
             >
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                   m.role === 'user'
                     ? 'bg-[#2563EB] text-white'
-                    : 'bg-white ring-1 ring-[#E5E7EB]'
+                    : 'bg-[#1A1F2E] text-[#2DD4BF] ring-1 ring-[#2D3748]'
                 }`}
               >
-                {m.role === 'user' ? '🧑' : '🤖'}
+                <Icon name={m.role === 'user' ? 'person' : 'smart_toy'} size={16} />
               </span>
               <div
                 className={`max-w-[78%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   m.role === 'user'
-                    ? 'bg-[#2563EB] text-white'
-                    : 'bg-white text-[#374151] ring-1 ring-[#E5E7EB]'
+                    ? 'bg-[#243048] text-white'
+                    : 'bg-[#1A1F2E] text-[#CBD5E0] ring-1 ring-[#2D3748]'
                 }`}
               >
                 {m.content ? (
                   <p className="whitespace-pre-wrap">{m.content}</p>
                 ) : (
                   <span className="inline-flex gap-1">
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9CA3AF] [animation-delay:-0.2s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9CA3AF] [animation-delay:-0.1s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9CA3AF]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#6B7280] [animation-delay:-0.2s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#6B7280] [animation-delay:-0.1s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#6B7280]" />
                   </span>
                 )}
                 {m.role === 'assistant' &&
                   m.content &&
                   m.citedEvidenceIds &&
                   m.citedEvidenceIds.length > 0 && (
-                    <p className="mt-2 border-t border-[#F1F5F9] pt-1.5 text-[10px] text-[#9CA3AF]">
+                    <p className="mt-2 border-t border-[#2D3748] pt-1.5 text-[10px] text-[#6B7280]">
                       Citing: {m.citedEvidenceIds.join(' · ')}
                     </p>
                   )}
@@ -168,7 +187,7 @@ export default function AIAssistant() {
             <button
               key={s}
               onClick={() => send(s)}
-              className="rounded-full border border-[#D1D5DB] bg-white px-3 py-1.5 text-xs font-medium text-[#374151] transition-colors hover:border-[#7C3AED] hover:text-[#7C3AED]"
+              className="rounded-full border border-[#2D3748] bg-[#1A1F2E] px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:border-[#38BDF8] hover:text-white"
             >
               {s}
             </button>
@@ -190,14 +209,20 @@ export default function AIAssistant() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about Case-001 evidence…"
           disabled={streaming}
-          className="flex-1 rounded-lg border border-[#D1D5DB] px-3.5 py-2.5 text-sm outline-none focus:border-[#7C3AED] disabled:bg-[#F9FAFB]"
+          className="flex-1 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-3.5 py-2.5 text-sm text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED] disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={streaming || !input.trim()}
-          className="rounded-lg bg-[#7C3AED] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#7C3AED] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {streaming ? '…' : 'Send'}
+          {streaming ? (
+            <Icon name="more_horiz" size={18} />
+          ) : (
+            <>
+              <Icon name="send" size={16} /> Send
+            </>
+          )}
         </button>
       </form>
     </div>

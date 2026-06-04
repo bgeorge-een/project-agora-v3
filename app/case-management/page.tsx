@@ -17,33 +17,38 @@ export default function CaseManagementPage() {
   const [tab, setTab] = useState<TabKey>('workspace')
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8FAFC]">
+    <div className="flex min-h-screen flex-col bg-[#0F1117]">
       {/* Top bar */}
-      <header className="sticky top-0 z-20 border-b border-[#E5E7EB] bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-[#2D3748] bg-[#1A1F2E]/95 backdrop-blur-sm">
         <div className="flex items-center justify-between px-8 pt-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F5F3FF] text-lg">
-              🔍
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#243048] text-[#7C3AED]">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '20px', lineHeight: 1 }}
+              >
+                folder_open
+              </span>
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold tracking-tight text-[#111827]">
+                <h1 className="text-lg font-bold tracking-tight text-white">
                   Case Management
                 </h1>
-                <span className="rounded-full bg-[#F5F3FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#7C3AED]">
+                <span className="rounded-full bg-[#2D1F47] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A78BFA]">
                   Forensics
                 </span>
               </div>
-              <nav className="mt-0.5 flex items-center gap-1.5 text-xs text-[#6B7280]">
+              <nav className="mt-0.5 flex items-center gap-1.5 text-xs text-[#9CA3AF]">
                 <span>Cases</span>
-                <span className="text-[#D1D5DB]">/</span>
-                <span className="font-medium text-[#374151]">
+                <span className="text-[#4B5563]">/</span>
+                <span className="font-medium text-[#CBD5E0]">
                   Case-001: Unauthorized Server Room Access
                 </span>
               </nav>
             </div>
           </div>
-          <div className="hidden items-center gap-2 text-xs text-[#6B7280] md:flex">
+          <div className="hidden items-center gap-2 text-xs text-[#9CA3AF] md:flex">
             <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
             Post-incident forensics &amp; investigation
           </div>
@@ -59,8 +64,8 @@ export default function CaseManagementPage() {
                 onClick={() => setTab(t.key)}
                 className={`relative px-4 py-2.5 text-sm font-semibold transition-colors ${
                   active
-                    ? 'text-[#7C3AED]'
-                    : 'text-[#6B7280] hover:text-[#374151]'
+                    ? 'bg-[#243048] text-white'
+                    : 'text-[#9CA3AF] hover:text-white'
                 }`}
               >
                 {t.label}

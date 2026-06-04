@@ -18,12 +18,32 @@ const baseCase = MOCK_CASES[0]
 type WorkspaceTab = 'timeline' | 'evidence' | 'graph' | 'tasks' | 'ai'
 
 const WORKSPACE_TABS: { key: WorkspaceTab; label: string; icon: string }[] = [
-  { key: 'timeline', label: 'Timeline', icon: '🕑' },
-  { key: 'evidence', label: 'Evidence', icon: '🗂️' },
-  { key: 'graph', label: 'Entity Graph', icon: '🕸️' },
-  { key: 'tasks', label: 'Tasks', icon: '✅' },
-  { key: 'ai', label: 'AI Assistant', icon: '🤖' },
+  { key: 'timeline', label: 'Timeline', icon: 'timeline' },
+  { key: 'evidence', label: 'Evidence', icon: 'source' },
+  { key: 'graph', label: 'Entity Graph', icon: 'hub' },
+  { key: 'tasks', label: 'Tasks', icon: 'task_alt' },
+  { key: 'ai', label: 'AI Assistant', icon: 'smart_toy' },
 ]
+
+// Small inline Material icon helper
+function Icon({
+  name,
+  size = 18,
+  className,
+}: {
+  name: string
+  size?: number
+  className?: string
+}) {
+  return (
+    <span
+      className={`material-symbols-outlined ${className ?? ''}`}
+      style={{ fontSize: `${size}px`, lineHeight: 1 }}
+    >
+      {name}
+    </span>
+  )
+}
 
 // ---- Sample evidence ----
 const EVIDENCE: Evidence[] = [
@@ -101,29 +121,38 @@ const INITIAL_TASKS: CaseTask[] = [
 ]
 
 const SEVERITY_STYLE: Record<string, { bg: string; text: string }> = {
-  critical: { bg: '#FEF2F2', text: '#DC2626' },
-  high: { bg: '#FFF7ED', text: '#EA580C' },
-  medium: { bg: '#FFFBEB', text: '#D97706' },
-  low: { bg: '#F1F5F9', text: '#64748B' },
+  critical: { bg: '#2A1212', text: '#F87171' },
+  high: { bg: '#2A1B0E', text: '#FB923C' },
+  medium: { bg: '#2A2310', text: '#FBBF24' },
+  low: { bg: '#1F2937', text: '#9CA3AF' },
 }
 
 const ENTITY_ICON: Record<EntityType, string> = {
-  person: '👤',
-  credential: '🪪',
-  vehicle: '🚗',
-  door: '🚪',
-  camera: '📷',
-  zone: '📍',
-  sensor: '📡',
+  person: 'badge',
+  credential: 'key',
+  vehicle: 'directions_car',
+  door: 'door_front',
+  camera: 'videocam',
+  zone: 'location_on',
+  sensor: 'sensors',
 }
 
 const TYPE_ICON: Record<TimelineEvent['type'], string> = {
-  access: '🔑',
-  camera: '📷',
-  agent: '🤖',
-  manual: '✏️',
-  external_context: '🌐',
-  annotation: '📝',
+  access: 'key',
+  camera: 'videocam',
+  agent: 'psychology',
+  manual: 'edit_note',
+  external_context: 'public',
+  annotation: 'sticky_note_2',
+}
+
+const TYPE_ICON_COLOR: Record<TimelineEvent['type'], string> = {
+  access: '#3B82F6',
+  camera: '#3B82F6',
+  agent: '#2DD4BF',
+  manual: '#9CA3AF',
+  external_context: '#9CA3AF',
+  annotation: '#9CA3AF',
 }
 
 function fmtTime(iso: string) {
@@ -162,12 +191,12 @@ export default function CaseWorkspace() {
         {/* ===================== LEFT COLUMN ===================== */}
         <div className="space-y-5">
           {/* Case header card */}
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
+          <div className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
             <div className="p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold uppercase tracking-wide text-[#7C3AED]">
+                    <span className="font-mono text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
                       {baseCase.id}
                     </span>
                     <span
@@ -177,32 +206,32 @@ export default function CaseWorkspace() {
                       {baseCase.severity}
                     </span>
                   </div>
-                  <h2 className="mt-1.5 text-xl font-bold tracking-tight text-[#111827]">
+                  <h2 className="mt-1.5 text-xl font-bold tracking-tight text-white">
                     {baseCase.title}
                   </h2>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-semibold text-[#2563EB]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#2563EB]" />
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0C1A2A] px-3 py-1 text-xs font-semibold text-[#38BDF8]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
                   Investigating
                 </span>
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
                 <div>
-                  <span className="text-[#9CA3AF]">Owner</span>
-                  <span className="ml-1.5 font-semibold text-[#374151]">
+                  <span className="text-[#6B7280]">Owner</span>
+                  <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.owner}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#9CA3AF]">Site</span>
-                  <span className="ml-1.5 font-semibold text-[#374151]">
+                  <span className="text-[#6B7280]">Site</span>
+                  <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.siteName}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[#9CA3AF]">SLA</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#F0FDF4] px-2 py-0.5 font-semibold text-[#16A34A]">
+                  <span className="text-[#6B7280]">SLA</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#0C2714] px-2 py-0.5 font-semibold text-[#22C55E]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
                     {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
                     {fmtDateTime(baseCase.sla.dueAt)}
@@ -212,16 +241,16 @@ export default function CaseWorkspace() {
             </div>
 
             {campaign && (
-              <div className="flex items-center gap-2 border-t border-[#FDE68A] bg-[#FFFBEB] px-5 py-2.5 text-xs">
-                <span>🔗</span>
-                <span className="font-semibold uppercase tracking-wide text-[#B45309]">
+              <div className="flex items-center gap-2 border-t border-[#78350F] bg-[#1C1500] px-5 py-2.5 text-xs">
+                <Icon name="hub" size={16} className="text-[#FBBF24]" />
+                <span className="font-semibold uppercase tracking-wide text-[#FDE68A]">
                   Campaign Linked:
                 </span>
-                <span className="font-semibold text-[#92400E]">
+                <span className="font-semibold text-[#FDE68A]">
                   HXT-7291 Multi-Site Activity
                 </span>
-                <span className="text-[#B45309]">·</span>
-                <span className="text-[#92400E]">
+                <span className="text-[#FBBF24]">·</span>
+                <span className="text-[#FDE68A]">
                   {campaign.incidentIds.length} incidents
                 </span>
               </div>
@@ -229,8 +258,8 @@ export default function CaseWorkspace() {
           </div>
 
           {/* Workspace tabs */}
-          <div className="rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-            <div className="flex gap-1 border-b border-[#E5E7EB] px-3 pt-2">
+          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+            <div className="flex gap-1 border-b border-[#2D3748] bg-[#111827] px-3 pt-2">
               {WORKSPACE_TABS.map((t) => {
                 const active = tab === t.key
                 return (
@@ -239,14 +268,14 @@ export default function CaseWorkspace() {
                     onClick={() => setTab(t.key)}
                     className={`relative flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
                       active
-                        ? 'text-[#7C3AED]'
-                        : 'text-[#6B7280] hover:text-[#374151]'
+                        ? 'text-[#38BDF8]'
+                        : 'text-[#6B7280] hover:text-[#9CA3AF]'
                     }`}
                   >
-                    <span>{t.icon}</span>
+                    <Icon name={t.icon} size={16} />
                     {t.label}
                     {active && (
-                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#7C3AED]" />
+                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#38BDF8]" />
                     )}
                   </button>
                 )
@@ -280,13 +309,14 @@ export default function CaseWorkspace() {
         {/* ===================== RIGHT COLUMN ===================== */}
         <div className="space-y-5">
           {/* Open Questions */}
-          <div className="rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-            <div className="border-b border-[#E5E7EB] px-5 py-3">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-[#111827]">
-                <span>❓</span> Open Questions
+          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+            <div className="border-b border-[#2D3748] px-5 py-3">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+                <Icon name="help" size={16} className="text-[#9CA3AF]" /> Open
+                Questions
               </h3>
             </div>
-            <ul className="divide-y divide-[#F1F5F9]">
+            <ul className="divide-y divide-[#2D3748]">
               {baseCase.openQuestions.map((q) => {
                 const resolved = resolvedQuestions.includes(q)
                 return (
@@ -300,8 +330,8 @@ export default function CaseWorkspace() {
                       <p
                         className={`text-xs leading-relaxed ${
                           resolved
-                            ? 'text-[#9CA3AF] line-through'
-                            : 'text-[#374151]'
+                            ? 'text-[#6B7280] line-through'
+                            : 'text-[#CBD5E0]'
                         }`}
                       >
                         {q}
@@ -311,7 +341,7 @@ export default function CaseWorkspace() {
                           onClick={() =>
                             setResolvedQuestions((prev) => [...prev, q])
                           }
-                          className="mt-1 text-[11px] font-semibold text-[#2563EB] hover:underline"
+                          className="mt-1 text-[11px] font-semibold text-[#38BDF8] transition-colors hover:text-white"
                         >
                           Mark Resolved
                         </button>
@@ -326,45 +356,45 @@ export default function CaseWorkspace() {
           {/* Generate Report */}
           <button
             onClick={() => setShowReport(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-3 text-sm font-semibold text-white shadow-[0_1px_3px_rgba(0,0,0,0.10)] transition-colors hover:bg-[#6D28D9]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9]"
           >
-            <span>📄</span> Generate Report
+            <Icon name="auto_awesome" size={18} /> Generate Report
           </button>
 
           {/* Case Details */}
-          <div className="rounded-xl bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-            <h3 className="mb-3 text-sm font-bold text-[#111827]">
+          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
               Case Details
             </h3>
             <dl className="space-y-2.5 text-xs">
               <div className="flex justify-between">
-                <dt className="text-[#9CA3AF]">Created</dt>
-                <dd className="font-medium text-[#374151]">
+                <dt className="text-[#6B7280]">Created</dt>
+                <dd className="font-medium text-[#CBD5E0]">
                   {fmtDateTime(baseCase.createdAt)}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[#9CA3AF]">Updated</dt>
-                <dd className="font-medium text-[#374151]">
+                <dt className="text-[#6B7280]">Updated</dt>
+                <dd className="font-medium text-[#CBD5E0]">
                   {fmtDateTime(baseCase.updatedAt)}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[#9CA3AF]">SLA Due</dt>
-                <dd className="font-medium text-[#374151]">
+                <dt className="text-[#6B7280]">SLA Due</dt>
+                <dd className="font-medium text-[#CBD5E0]">
                   {fmtDateTime(baseCase.sla.dueAt)}
                 </dd>
               </div>
             </dl>
             <div className="mt-4">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
                 Tags
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {baseCase.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full bg-[#F5F3FF] px-2 py-0.5 text-[11px] font-medium text-[#7C3AED]"
+                    className="rounded-full bg-[#2D1F47] px-2 py-0.5 text-[11px] font-medium text-[#A78BFA]"
                   >
                     {t}
                   </span>
@@ -374,22 +404,26 @@ export default function CaseWorkspace() {
           </div>
 
           {/* Entity refs */}
-          <div className="rounded-xl bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-            <h3 className="mb-3 text-sm font-bold text-[#111827]">
+          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
+            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
               Involved Entities
             </h3>
             <ul className="space-y-2">
               {baseCase.entityRefs.map((e) => (
                 <li
                   key={e.id}
-                  className="flex items-center gap-2.5 rounded-lg border border-[#F1F5F9] px-3 py-2"
+                  className="flex items-center gap-2.5 rounded-lg border border-[#2D3748] bg-[#111827] px-3 py-2"
                 >
-                  <span className="text-base">{ENTITY_ICON[e.type]}</span>
+                  <Icon
+                    name={ENTITY_ICON[e.type]}
+                    size={18}
+                    className="text-[#9CA3AF]"
+                  />
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#374151]">
+                    <p className="truncate text-xs font-semibold text-[#CBD5E0]">
                       {e.label}
                     </p>
-                    <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+                    <p className="text-[10px] uppercase tracking-wide text-[#6B7280]">
                       {e.type}
                     </p>
                   </div>
@@ -469,27 +503,30 @@ function TimelineTab({
     setShowEventForm(false)
   }
 
+  const inputCls =
+    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
           Investigation Timeline · {timeline.length} events
         </p>
         <button
           onClick={() => setShowEventForm(!showEventForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-[#7C3AED] transition-colors hover:bg-[#F5F3FF]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-3 py-1.5 text-xs font-semibold text-[#9CA3AF] transition-colors hover:border-[#7C3AED] hover:text-white"
         >
-          <span>＋</span> Add Manual Event
+          <Icon name="add" size={16} /> Add Manual Event
         </button>
       </div>
 
       {showEventForm && (
-        <div className="mb-5 rounded-lg border border-dashed border-[#C4B5FD] bg-[#F5F3FF] p-4">
-          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-[#7C3AED]">
+        <div className="mb-5 rounded-lg border border-dashed border-[#5B4691] bg-[#1A1530] p-4">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-[#A78BFA]">
             New Manual Event
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-[11px] font-semibold text-[#6B7280]">
+            <label className="text-[11px] font-semibold text-[#9CA3AF]">
               Timestamp
               <input
                 type="datetime-local"
@@ -497,10 +534,10 @@ function TimelineTab({
                 onChange={(e) =>
                   setForm({ ...form, timestamp: e.target.value })
                 }
-                className="mt-1 w-full rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs font-normal text-[#374151] outline-none focus:border-[#7C3AED]"
+                className={inputCls}
               />
             </label>
-            <label className="text-[11px] font-semibold text-[#6B7280]">
+            <label className="text-[11px] font-semibold text-[#9CA3AF]">
               Event Type
               <select
                 value={form.type}
@@ -510,7 +547,7 @@ function TimelineTab({
                     type: e.target.value as TimelineEvent['type'],
                   })
                 }
-                className="mt-1 w-full rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs font-normal text-[#374151] outline-none focus:border-[#7C3AED]"
+                className={inputCls}
               >
                 <option value="manual">Manual Note</option>
                 <option value="access">Access</option>
@@ -520,34 +557,34 @@ function TimelineTab({
               </select>
             </label>
           </div>
-          <label className="mt-3 block text-[11px] font-semibold text-[#6B7280]">
+          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
             Title
             <input
               type="text"
               value={form.title}
               placeholder="Short event title"
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="mt-1 w-full rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs font-normal text-[#374151] outline-none focus:border-[#7C3AED]"
+              className={inputCls}
             />
           </label>
-          <label className="mt-3 block text-[11px] font-semibold text-[#6B7280]">
+          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
             Description
             <textarea
               value={form.detail}
               rows={2}
               placeholder="What happened?"
               onChange={(e) => setForm({ ...form, detail: e.target.value })}
-              className="mt-1 w-full resize-none rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs font-normal text-[#374151] outline-none focus:border-[#7C3AED]"
+              className={`${inputCls} resize-none`}
             />
           </label>
-          <label className="mt-3 block text-[11px] font-semibold text-[#6B7280]">
+          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
             Source Attribution
             <input
               type="text"
               value={form.source}
               placeholder="e.g. Reviewed by J. Torres / HR record"
               onChange={(e) => setForm({ ...form, source: e.target.value })}
-              className="mt-1 w-full rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs font-normal text-[#374151] outline-none focus:border-[#7C3AED]"
+              className={inputCls}
             />
           </label>
           <div className="mt-4 flex gap-2">
@@ -559,7 +596,7 @@ function TimelineTab({
             </button>
             <button
               onClick={() => setShowEventForm(false)}
-              className="rounded-lg border border-[#D1D5DB] px-4 py-2 text-xs font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB]"
+              className="rounded-lg border border-[#374151] px-4 py-2 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
             >
               Cancel
             </button>
@@ -571,13 +608,13 @@ function TimelineTab({
       <ol className="relative space-y-0">
         {timeline.map((ev, idx) => {
           const isLast = idx === timeline.length - 1
-          const accentBorder = ev.flagged
-            ? 'border-l-[#EF4444]'
+          const cardCls = ev.flagged
+            ? 'bg-[#1C0A0A] border border-[#7F1D1D]'
             : ev.isManual
-              ? 'border-l-[#7C3AED] border-dashed'
+              ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
               : ev.isAIGenerated
-                ? 'border-l-[#14B8A6]'
-                : 'border-l-[#E5E7EB]'
+                ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
+                : 'bg-[#1A1F2E] border border-[#2D3748]'
           return (
             <li key={ev.id} className="relative flex gap-3 pb-5">
               {/* Time + connector */}
@@ -587,36 +624,51 @@ function TimelineTab({
                 </span>
               </div>
               <div className="relative flex flex-col items-center">
-                <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-xs shadow-sm">
-                  {TYPE_ICON[ev.type]}
+                <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#2D3748] bg-[#111827]">
+                  <Icon
+                    name={ev.flagged ? 'warning' : TYPE_ICON[ev.type]}
+                    size={15}
+                    className=""
+                  />
                 </span>
                 {!isLast && (
-                  <span className="absolute top-7 h-full w-px bg-[#E5E7EB]" />
+                  <span className="absolute top-7 h-full w-px bg-[#374151]" />
                 )}
               </div>
               {/* Card */}
-              <div
-                className={`min-w-0 flex-1 rounded-lg border-l-2 bg-[#F9FAFB] p-3 ${accentBorder}`}
-              >
+              <div className={`min-w-0 flex-1 rounded-lg p-3 ${cardCls}`}>
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-semibold leading-snug text-[#111827]">
-                    {ev.flagged && <span className="mr-1">⚠️</span>}
-                    {ev.title}
+                  <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
+                    {ev.flagged && (
+                      <Icon
+                        name="warning"
+                        size={16}
+                        className="mt-0.5 shrink-0 text-[#EF4444]"
+                      />
+                    )}
+                    {!ev.flagged && (
+                      <Icon
+                        name={TYPE_ICON[ev.type]}
+                        size={16}
+                        className="mt-0.5 shrink-0"
+                      />
+                    )}
+                    <span>{ev.title}</span>
                   </p>
                   <div className="flex shrink-0 gap-1">
                     {ev.isAIGenerated && (
-                      <span className="rounded bg-[#CCFBF1] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#0F766E]">
+                      <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
                         AI
                       </span>
                     )}
                     {ev.isManual && (
-                      <span className="rounded border border-dashed border-[#C4B5FD] bg-[#F5F3FF] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7C3AED]">
+                      <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
                         Manual Evidence
                       </span>
                     )}
                   </div>
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
                   {ev.detail}
                 </p>
                 {ev.entityRefs.length > 0 && (
@@ -624,9 +676,9 @@ function TimelineTab({
                     {ev.entityRefs.map((e) => (
                       <span
                         key={e.id}
-                        className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#374151] ring-1 ring-[#E5E7EB]"
+                        className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
                       >
-                        {ENTITY_ICON[e.type]} {e.label}
+                        <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
                       </span>
                     ))}
                   </div>
@@ -644,22 +696,22 @@ function TimelineTab({
 // EVIDENCE TAB
 // ============================================================
 const EVIDENCE_ICON: Record<Evidence['type'], string> = {
-  clip: '📹',
-  still: '📷',
-  access_event: '🔑',
-  document: '📄',
-  manual: '✏️',
+  clip: 'videocam',
+  still: 'image',
+  access_event: 'key',
+  document: 'description',
+  manual: 'edit_note',
 }
 
 function EvidenceTab() {
   return (
     <div>
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
         Linked Evidence · {EVIDENCE.length} items · chain of custody preserved
       </p>
-      <div className="overflow-hidden rounded-lg border border-[#E5E7EB]">
+      <div className="overflow-hidden rounded-lg border border-[#2D3748]">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#F9FAFB] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+          <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
             <tr>
               <th className="px-3 py-2.5 font-semibold">Type</th>
               <th className="px-3 py-2.5 font-semibold">Label</th>
@@ -669,22 +721,27 @@ function EvidenceTab() {
               <th className="px-3 py-2.5 text-right font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#F1F5F9]">
+          <tbody className="divide-y divide-[#2D3748]">
             {EVIDENCE.map((ev) => (
-              <tr key={ev.id} className="hover:bg-[#F9FAFB]">
+              <tr
+                key={ev.id}
+                className="bg-[#1A1F2E] transition-colors hover:bg-[#243048]"
+              >
                 <td className="px-3 py-3">
-                  <span className="text-base">{EVIDENCE_ICON[ev.type]}</span>
+                  <Icon
+                    name={EVIDENCE_ICON[ev.type]}
+                    size={18}
+                    className="text-[#9CA3AF]"
+                  />
                 </td>
-                <td className="px-3 py-3 font-medium text-[#111827]">
-                  {ev.label}
-                </td>
-                <td className="px-3 py-3 text-[#6B7280]">{ev.sourceSystem}</td>
+                <td className="px-3 py-3 font-medium text-white">{ev.label}</td>
+                <td className="px-3 py-3 text-[#9CA3AF]">{ev.sourceSystem}</td>
                 <td className="px-3 py-3 font-mono text-[#6B7280]">
                   {fmtTime(ev.timestamp)}
                 </td>
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-12 overflow-hidden rounded-full bg-[#E5E7EB]">
+                    <div className="h-1.5 w-12 overflow-hidden rounded-full bg-[#374151]">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -698,13 +755,13 @@ function EvidenceTab() {
                         }}
                       />
                     </div>
-                    <span className="font-semibold text-[#374151]">
+                    <span className="font-semibold text-[#CBD5E0]">
                       {Math.round(ev.confidence * 100)}%
                     </span>
                   </div>
                 </td>
                 <td className="px-3 py-3 text-right">
-                  <button className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-[11px] font-semibold text-[#374151] transition-colors hover:border-[#7C3AED] hover:text-[#7C3AED]">
+                  <button className="rounded-md border border-[#374151] px-2.5 py-1 text-[11px] font-semibold text-[#CBD5E0] transition-colors hover:border-[#7C3AED] hover:text-[#A78BFA]">
                     View
                   </button>
                 </td>
@@ -730,12 +787,14 @@ function TasksTab({
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ title: '', owner: '', due: '' })
 
-  const STATUS_STYLE: Record<CaseTask['status'], { bg: string; text: string; label: string }> =
-    {
-      open: { bg: '#EFF6FF', text: '#2563EB', label: 'Open' },
-      pending: { bg: '#FFFBEB', text: '#D97706', label: 'Pending' },
-      done: { bg: '#F0FDF4', text: '#16A34A', label: 'Done' },
-    }
+  const STATUS_STYLE: Record<
+    CaseTask['status'],
+    { bg: string; text: string; label: string }
+  > = {
+    open: { bg: '#0C1A2A', text: '#38BDF8', label: 'Open' },
+    pending: { bg: '#2A2310', text: '#FBBF24', label: 'Pending' },
+    done: { bg: '#0C2714', text: '#22C55E', label: 'Done' },
+  }
 
   function addTask() {
     if (!form.title.trim()) return
@@ -763,42 +822,45 @@ function TasksTab({
     )
   }
 
+  const inputCls =
+    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
           Investigation Tasks
         </p>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-[#7C3AED] transition-colors hover:bg-[#F5F3FF]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-3 py-1.5 text-xs font-semibold text-[#9CA3AF] transition-colors hover:border-[#7C3AED] hover:text-white"
         >
-          <span>＋</span> Add Task
+          <Icon name="add" size={16} /> Add Task
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-4 grid grid-cols-1 gap-3 rounded-lg border border-dashed border-[#C4B5FD] bg-[#F5F3FF] p-4 sm:grid-cols-3">
+        <div className="mb-4 grid grid-cols-1 gap-3 rounded-lg border border-dashed border-[#5B4691] bg-[#1A1530] p-4 sm:grid-cols-3">
           <input
             type="text"
             value={form.title}
             placeholder="Task title"
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED] sm:col-span-3"
+            className={`${inputCls} sm:col-span-3`}
           />
           <input
             type="text"
             value={form.owner}
             placeholder="Owner"
             onChange={(e) => setForm({ ...form, owner: e.target.value })}
-            className="rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED]"
+            className={inputCls}
           />
           <input
             type="text"
             value={form.due}
             placeholder="Due (e.g. Tomorrow)"
             onChange={(e) => setForm({ ...form, due: e.target.value })}
-            className="rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED]"
+            className={inputCls}
           />
           <div className="flex gap-2">
             <button
@@ -809,7 +871,7 @@ function TasksTab({
             </button>
             <button
               onClick={() => setShowForm(false)}
-              className="rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs font-medium text-[#374151] hover:bg-white"
+              className="rounded-md border border-[#374151] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] hover:bg-[#1F2937]"
             >
               Cancel
             </button>
@@ -823,7 +885,7 @@ function TasksTab({
           return (
             <li
               key={t.id}
-              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-4 py-3"
             >
               <input
                 type="checkbox"
@@ -835,27 +897,28 @@ function TasksTab({
                 <p
                   className={`text-sm font-medium ${
                     t.status === 'done'
-                      ? 'text-[#9CA3AF] line-through'
-                      : 'text-[#111827]'
+                      ? 'text-[#6B7280] line-through'
+                      : 'text-white'
                   }`}
                 >
                   {t.title}
                 </p>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#6B7280]">
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#9CA3AF]">
                   <span>
                     Owner:{' '}
-                    <span className="font-medium text-[#374151]">
+                    <span className="font-medium text-[#CBD5E0]">
                       {t.owner}
                     </span>
                     {t.ownerTag && (
-                      <span className="ml-1.5 rounded bg-[#F5F3FF] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7C3AED]">
-                        {t.ownerTag}
+                      <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-[#1E1B4B] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A5B4FC]">
+                        <Icon name="group" size={11} /> {t.ownerTag}
                       </span>
                     )}
                   </span>
                   <span>·</span>
                   <span>
-                    Due: <span className="font-medium text-[#374151]">{t.due}</span>
+                    Due:{' '}
+                    <span className="font-medium text-[#CBD5E0]">{t.due}</span>
                   </span>
                 </div>
               </div>

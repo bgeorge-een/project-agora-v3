@@ -3,6 +3,25 @@
 import { useState } from 'react'
 import type { SOP, PlaybookRule, Violation } from '@/lib/types'
 
+function Icon({
+  name,
+  size = 18,
+  className,
+}: {
+  name: string
+  size?: number
+  className?: string
+}) {
+  return (
+    <span
+      className={`material-symbols-outlined ${className ?? ''}`}
+      style={{ fontSize: `${size}px`, lineHeight: 1 }}
+    >
+      {name}
+    </span>
+  )
+}
+
 // ---- SOP Library ----
 interface SOPRow extends SOP {
   lastUpdated: string
@@ -114,10 +133,10 @@ const INITIAL_VIOLATIONS: Violation[] = [
 ]
 
 const SEVERITY_STYLE: Record<string, { bg: string; text: string }> = {
-  critical: { bg: '#FEF2F2', text: '#DC2626' },
-  high: { bg: '#FFF7ED', text: '#EA580C' },
-  medium: { bg: '#FFFBEB', text: '#D97706' },
-  low: { bg: '#F1F5F9', text: '#64748B' },
+  critical: { bg: '#2A1212', text: '#F87171' },
+  high: { bg: '#2A1B0E', text: '#FB923C' },
+  medium: { bg: '#2A2310', text: '#FBBF24' },
+  low: { bg: '#1F2937', text: '#9CA3AF' },
 }
 
 const INCIDENT_TYPES = [
@@ -152,10 +171,13 @@ function SOPLibrary() {
   })
 
   const STATUS_STYLE: Record<SOPRow['status'], { bg: string; text: string }> = {
-    Active: { bg: '#F0FDF4', text: '#16A34A' },
-    Draft: { bg: '#FFFBEB', text: '#D97706' },
-    Retired: { bg: '#F1F5F9', text: '#64748B' },
+    Active: { bg: '#0C2714', text: '#22C55E' },
+    Draft: { bg: '#2A2310', text: '#FBBF24' },
+    Retired: { bg: '#1F2937', text: '#9CA3AF' },
   }
+
+  const inputCls =
+    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
 
   function add() {
     if (!form.title.trim()) return
@@ -165,7 +187,8 @@ function SOPLibrary() {
         title: form.title.trim(),
         incidentType: form.incidentType,
         version: '1.0',
-        effectiveDate: form.effectiveDate || new Date().toISOString().slice(0, 10),
+        effectiveDate:
+          form.effectiveDate || new Date().toISOString().slice(0, 10),
         lastUpdated: new Date().toISOString().slice(0, 10),
         status: 'Draft',
         versionHistory: 1,
@@ -183,35 +206,36 @@ function SOPLibrary() {
   }
 
   return (
-    <section className="rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-      <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-3.5">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-[#111827]">
-          <span>📚</span> SOP Library
+    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+      <div className="flex items-center justify-between border-b border-[#2D3748] px-5 py-3.5">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+          <Icon name="checklist" size={18} className="text-[#38BDF8]" /> SOP
+          Library
         </h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-[#7C3AED] transition-colors hover:bg-[#F5F3FF]"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1E40AF]"
         >
-          <span>＋</span> Author New SOP
+          <Icon name="add" size={16} /> Author New SOP
         </button>
       </div>
 
       {showForm && (
-        <div className="border-b border-[#E5E7EB] bg-[#F5F3FF] p-4">
+        <div className="border-b border-[#2D3748] bg-[#1A1530] p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               type="text"
               value={form.title}
               placeholder="SOP title"
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED]"
+              className={inputCls}
             />
             <select
               value={form.incidentType}
               onChange={(e) =>
                 setForm({ ...form, incidentType: e.target.value })
               }
-              className="rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED]"
+              className={inputCls}
             >
               {INCIDENT_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -225,10 +249,10 @@ function SOPLibrary() {
             rows={3}
             placeholder="Steps (one per line)"
             onChange={(e) => setForm({ ...form, steps: e.target.value })}
-            className="mt-3 w-full resize-none rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1.5 text-xs outline-none focus:border-[#7C3AED]"
+            className={`mt-3 w-full resize-none ${inputCls}`}
           />
           <div className="mt-3 flex items-center gap-3">
-            <label className="text-[11px] font-semibold text-[#6B7280]">
+            <label className="text-[11px] font-semibold text-[#9CA3AF]">
               Effective Date
               <input
                 type="date"
@@ -236,7 +260,7 @@ function SOPLibrary() {
                 onChange={(e) =>
                   setForm({ ...form, effectiveDate: e.target.value })
                 }
-                className="ml-2 rounded-md border border-[#D1D5DB] bg-white px-2.5 py-1 text-xs font-normal outline-none focus:border-[#7C3AED]"
+                className={`ml-2 font-normal ${inputCls} py-1`}
               />
             </label>
             <div className="ml-auto flex gap-2">
@@ -248,7 +272,7 @@ function SOPLibrary() {
               </button>
               <button
                 onClick={() => setShowForm(false)}
-                className="rounded-md border border-[#D1D5DB] px-3 py-1.5 text-xs font-medium text-[#374151] hover:bg-white"
+                className="rounded-md border border-[#374151] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] hover:bg-[#243048]"
               >
                 Cancel
               </button>
@@ -258,7 +282,7 @@ function SOPLibrary() {
       )}
 
       <table className="w-full text-left text-xs">
-        <thead className="bg-[#F9FAFB] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+        <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
           <tr>
             <th className="px-5 py-2.5 font-semibold">ID</th>
             <th className="px-3 py-2.5 font-semibold">Title</th>
@@ -268,30 +292,33 @@ function SOPLibrary() {
             <th className="px-3 py-2.5 font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#F1F5F9]">
+        <tbody className="divide-y divide-[#2D3748]">
           {sops.map((s) => {
             const st = STATUS_STYLE[s.status]
             return (
-              <tr key={s.id} className="hover:bg-[#F9FAFB]">
-                <td className="px-5 py-3 font-mono font-semibold text-[#7C3AED]">
-                  {s.id.toUpperCase().startsWith('SOP') ? s.id.toUpperCase() : s.id}
+              <tr
+                key={s.id}
+                className="bg-[#1A1F2E] transition-colors hover:bg-[#243048]"
+              >
+                <td className="px-5 py-3 font-mono font-semibold text-[#A78BFA]">
+                  {s.id.toUpperCase().startsWith('SOP')
+                    ? s.id.toUpperCase()
+                    : s.id}
                 </td>
-                <td className="px-3 py-3 font-medium text-[#111827]">
-                  {s.title}
-                </td>
-                <td className="px-3 py-3 text-[#6B7280]">{s.incidentType}</td>
+                <td className="px-3 py-3 font-medium text-white">{s.title}</td>
+                <td className="px-3 py-3 text-[#9CA3AF]">{s.incidentType}</td>
                 <td className="px-3 py-3">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-[#374151]">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-[#CBD5E0]">
                     v{s.version}
                     <span
-                      className="text-[10px] text-[#9CA3AF]"
+                      className="text-[10px] text-[#6B7280]"
                       title={`${s.versionHistory} prior versions`}
                     >
                       ({s.versionHistory} rev)
                     </span>
                   </span>
                 </td>
-                <td className="px-3 py-3 text-[#6B7280]">{s.lastUpdated}</td>
+                <td className="px-3 py-3 text-[#9CA3AF]">{s.lastUpdated}</td>
                 <td className="px-3 py-3">
                   <span
                     className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
@@ -316,12 +343,14 @@ function PlaybookLibrary() {
   const [simResult, setSimResult] = useState<Record<string, string | null>>({})
   const [deployed, setDeployed] = useState<string[]>([])
 
-  const STATUS_STYLE: Record<PlaybookRow['status'], { bg: string; text: string }> =
-    {
-      Approved: { bg: '#F0FDF4', text: '#16A34A' },
-      Draft: { bg: '#F1F5F9', text: '#64748B' },
-      Pending: { bg: '#FFFBEB', text: '#D97706' },
-    }
+  const STATUS_STYLE: Record<
+    PlaybookRow['status'],
+    { bg: string; text: string }
+  > = {
+    Approved: { bg: '#0C2714', text: '#22C55E' },
+    Draft: { bg: '#1F2937', text: '#9CA3AF' },
+    Pending: { bg: '#2A2310', text: '#FBBF24' },
+  }
 
   function simulate(id: string) {
     setSimResult((prev) => ({
@@ -331,42 +360,47 @@ function PlaybookLibrary() {
   }
 
   return (
-    <section className="rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-      <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-[#111827]">
-          <span>📖</span> Playbook Library
+    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+      <div className="border-b border-[#2D3748] px-5 py-3.5">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+          <Icon name="policy" size={18} className="text-[#FBBF24]" /> Playbook
+          Library
         </h3>
       </div>
-      <div className="divide-y divide-[#F1F5F9]">
+      <div className="divide-y divide-[#2D3748]">
         {PLAYBOOKS.map((p) => {
           const st = STATUS_STYLE[p.status]
           const isDeployed = deployed.includes(p.id)
+          const leftBorder =
+            p.type === 'response'
+              ? 'border-l-2 border-l-[#2563EB]'
+              : 'border-l-2 border-l-[#F59E0B]'
           return (
-            <div key={p.id} className="p-5">
+            <div key={p.id} className={`p-5 ${leftBorder}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span
                       className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                         p.type === 'response'
-                          ? 'bg-[#EFF6FF] text-[#2563EB]'
-                          : 'bg-[#FFFBEB] text-[#D97706]'
+                          ? 'bg-[#0C1A2A] text-[#38BDF8]'
+                          : 'bg-[#2A2310] text-[#FBBF24]'
                       }`}
                     >
                       {p.type}
                     </span>
-                    <h4 className="text-sm font-semibold text-[#111827]">
+                    <h4 className="text-sm font-semibold text-white">
                       {p.name}
                     </h4>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                  <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
                     {p.description}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {p.triggers.map((t) => (
                       <span
                         key={t}
-                        className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#64748B]"
+                        className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#9CA3AF] ring-1 ring-[#2D3748]"
                       >
                         {t}
                       </span>
@@ -384,9 +418,9 @@ function PlaybookLibrary() {
               <div className="mt-4 flex items-center gap-2">
                 <button
                   onClick={() => simulate(p.id)}
-                  className="rounded-lg border border-[#D1D5DB] px-3 py-1.5 text-xs font-semibold text-[#374151] transition-colors hover:border-[#7C3AED] hover:text-[#7C3AED]"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:border-[#7C3AED] hover:text-white"
                 >
-                  Simulate
+                  <Icon name="play_arrow" size={16} /> Simulate
                 </button>
                 <button
                   onClick={() =>
@@ -401,20 +435,26 @@ function PlaybookLibrary() {
                       ? 'Requires Approved status'
                       : undefined
                   }
-                  className="rounded-lg bg-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#E5E7EB] disabled:text-[#9CA3AF]"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#1F2937] disabled:text-[#6B7280]"
                 >
-                  {isDeployed ? 'Deployed ✓' : 'Deploy'}
+                  {isDeployed ? (
+                    <>
+                      <Icon name="check" size={16} /> Deployed
+                    </>
+                  ) : (
+                    'Deploy'
+                  )}
                 </button>
                 {p.status !== 'Approved' && (
-                  <span className="text-[11px] text-[#9CA3AF]">
+                  <span className="text-[11px] text-[#6B7280]">
                     Deploy requires Approved status
                   </span>
                 )}
               </div>
 
               {simResult[p.id] && (
-                <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-3 py-2 text-xs font-medium text-[#15803D]">
-                  <span>✓</span>
+                <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#166534] bg-[#0C2714] px-3 py-2 text-xs font-medium text-[#86EFAC]">
+                  <Icon name="check_circle" size={15} />
                   {simResult[p.id]}
                 </div>
               )}
@@ -441,13 +481,18 @@ function ViolationsQueue() {
     )
   }
 
-  const STATUS_STYLE: Record<Violation['status'], { bg: string; text: string }> =
-    {
-      open: { bg: '#EFF6FF', text: '#2563EB' },
-      accepted: { bg: '#F0FDF4', text: '#16A34A' },
-      rejected: { bg: '#F1F5F9', text: '#64748B' },
-      closed: { bg: '#F1F5F9', text: '#64748B' },
-    }
+  const STATUS_STYLE: Record<
+    Violation['status'],
+    { bg: string; text: string }
+  > = {
+    open: { bg: '#0C1A2A', text: '#38BDF8' },
+    accepted: { bg: '#0C2714', text: '#22C55E' },
+    rejected: { bg: '#1F2937', text: '#9CA3AF' },
+    closed: { bg: '#1F2937', text: '#9CA3AF' },
+  }
+
+  const inputCls =
+    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-2 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
 
   function saveCA() {
     if (!caModal) return
@@ -463,14 +508,15 @@ function ViolationsQueue() {
   }
 
   return (
-    <section className="rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10),0_1px_2px_rgba(0,0,0,0.06)]">
-      <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-[#111827]">
-          <span>🚨</span> Violations Queue
+    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+      <div className="border-b border-[#2D3748] px-5 py-3.5">
+        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+          <Icon name="gavel" size={18} className="text-[#EF4444]" /> Violations
+          Queue
         </h3>
       </div>
       <table className="w-full text-left text-xs">
-        <thead className="bg-[#F9FAFB] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+        <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
           <tr>
             <th className="px-5 py-2.5 font-semibold">Violation</th>
             <th className="px-3 py-2.5 font-semibold">Rule</th>
@@ -481,21 +527,26 @@ function ViolationsQueue() {
             <th className="px-3 py-2.5 text-right font-semibold">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#F1F5F9]">
+        <tbody className="divide-y divide-[#2D3748]">
           {violations.map((v) => {
             const sev = SEVERITY_STYLE[v.severity]
             const st = STATUS_STYLE[v.status]
+            const rowBg =
+              v.severity === 'critical' ? 'bg-[#1C0A0A]' : 'bg-[#1A1F2E]'
             return (
-              <tr key={v.id} className="align-top hover:bg-[#F9FAFB]">
-                <td className="px-5 py-3 font-medium text-[#111827]">
+              <tr
+                key={v.id}
+                className={`align-top transition-colors hover:bg-[#243048] ${rowBg}`}
+              >
+                <td className="px-5 py-3 font-medium text-white">
                   {v.description}
                   {assigned[v.id] && (
-                    <span className="mt-1 block text-[10px] font-normal text-[#7C3AED]">
+                    <span className="mt-1 block text-[10px] font-normal text-[#A78BFA]">
                       CA: {assigned[v.id]}
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-3 font-mono text-[#6B7280]">
+                <td className="px-3 py-3 font-mono text-[#9CA3AF]">
                   {v.ruleTitle}
                 </td>
                 <td className="px-3 py-3">
@@ -506,10 +557,10 @@ function ViolationsQueue() {
                     {v.severity}
                   </span>
                 </td>
-                <td className="px-3 py-3 text-[#374151]">
+                <td className="px-3 py-3 text-[#CBD5E0]">
                   {v.personName ?? '—'}
                 </td>
-                <td className="px-3 py-3 text-[#374151]">{v.zone}</td>
+                <td className="px-3 py-3 text-[#CBD5E0]">{v.zone}</td>
                 <td className="px-3 py-3">
                   <span
                     className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize"
@@ -523,25 +574,25 @@ function ViolationsQueue() {
                     <div className="flex justify-end gap-1.5">
                       <button
                         onClick={() => setStatus(v.id, 'accepted')}
-                        className="rounded-md bg-[#22C55E] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#16A34A]"
+                        className="rounded-md bg-[#166534] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#15803D]"
                       >
                         Accept
                       </button>
                       <button
                         onClick={() => setStatus(v.id, 'rejected')}
-                        className="rounded-md border border-[#D1D5DB] px-2.5 py-1 text-[11px] font-semibold text-[#374151] transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626]"
+                        className="rounded-md bg-[#7F1D1D] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#991B1B]"
                       >
                         Reject
                       </button>
                       <button
                         onClick={() => setCaModal(v)}
-                        className="rounded-md border border-[#7C3AED] px-2.5 py-1 text-[11px] font-semibold text-[#7C3AED] transition-colors hover:bg-[#F5F3FF]"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#7C3AED] px-2.5 py-1 text-[11px] font-semibold text-[#A78BFA] transition-colors hover:bg-[#2D1F47]"
                       >
-                        Assign CA
+                        <Icon name="assignment_turned_in" size={13} /> Assign CA
                       </button>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-[#9CA3AF]">—</span>
+                    <span className="text-[11px] text-[#6B7280]">—</span>
                   )}
                 </td>
               </tr>
@@ -552,18 +603,25 @@ function ViolationsQueue() {
 
       {/* Assign CA modal */}
       {caModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <div className="border-b border-[#E5E7EB] px-5 py-4">
-              <h4 className="text-base font-bold text-[#111827]">
-                Assign Corrective Action
-              </h4>
-              <p className="mt-0.5 text-xs text-[#6B7280]">
-                {caModal.description} · {caModal.ruleTitle}
-              </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[#2D3748] bg-[#1A1F2E] shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+            <div className="flex items-center gap-2 border-b border-[#2D3748] px-5 py-4">
+              <Icon
+                name="assignment_turned_in"
+                size={18}
+                className="text-[#7C3AED]"
+              />
+              <div>
+                <h4 className="text-base font-bold text-white">
+                  Assign Corrective Action
+                </h4>
+                <p className="mt-0.5 text-xs text-[#9CA3AF]">
+                  {caModal.description} · {caModal.ruleTitle}
+                </p>
+              </div>
             </div>
             <div className="space-y-3 p-5">
-              <label className="block text-xs font-semibold text-[#6B7280]">
+              <label className="block text-xs font-semibold text-[#9CA3AF]">
                 Owner
                 <input
                   type="text"
@@ -572,25 +630,23 @@ function ViolationsQueue() {
                   onChange={(e) =>
                     setCaForm({ ...caForm, owner: e.target.value })
                   }
-                  className="mt-1 w-full rounded-md border border-[#D1D5DB] px-2.5 py-2 text-sm font-normal outline-none focus:border-[#7C3AED]"
+                  className={inputCls}
                 />
               </label>
-              <label className="block text-xs font-semibold text-[#6B7280]">
+              <label className="block text-xs font-semibold text-[#9CA3AF]">
                 Due Date
                 <input
                   type="date"
                   value={caForm.due}
-                  onChange={(e) =>
-                    setCaForm({ ...caForm, due: e.target.value })
-                  }
-                  className="mt-1 w-full rounded-md border border-[#D1D5DB] px-2.5 py-2 text-sm font-normal outline-none focus:border-[#7C3AED]"
+                  onChange={(e) => setCaForm({ ...caForm, due: e.target.value })}
+                  className={inputCls}
                 />
               </label>
             </div>
-            <div className="flex justify-end gap-2 border-t border-[#E5E7EB] px-5 py-3">
+            <div className="flex justify-end gap-2 border-t border-[#2D3748] px-5 py-3">
               <button
                 onClick={() => setCaModal(null)}
-                className="rounded-lg border border-[#D1D5DB] px-4 py-2 text-sm font-medium text-[#374151] hover:bg-[#F9FAFB]"
+                className="rounded-lg border border-[#374151] px-4 py-2 text-sm font-medium text-[#CBD5E0] hover:bg-[#243048]"
               >
                 Cancel
               </button>
