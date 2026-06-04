@@ -1,38 +1,51 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const client = new Anthropic()
 
 export async function POST(req: NextRequest) {
   const { alert } = await req.json()
 
-  const stream = await client.messages.stream({
+  const message = await client.messages.create({
     model: 'claude-haiku-4-5',
-    max_tokens: 400,
-    system: `You are the Agora enrichment agent. Given an alert, produce a brief JSON response with:
-- "recommendedAction": string (one clear action)
-- "confidence": number 0-1
-- "rationale": string (2-3 sentences max)
-- "explanation": string (why this alert fired, 1-2 sentences)
-Respond with only valid JSON.`,
-    messages: [{ role: 'user', content: `Alert: ${JSON.stringify(alert)}` }],
+    max_tokens: 500,
+    system: `You are the Agora AI enrichment agent for a physical security SOC. Given an alert, return a JSON object with exactly these fields:
+{
+  "recommendedAction": "string — specific operational action to take RIGHT NOW to contain or stop the threat (not 'create a case')",
+  "confidence": number between 0.65 and 0.95,
+  "urgency": "immediate" | "high" | "medium" | "low",
+  "responsePhase": "contain" | "communicate" | "document",
+  "rationale": "string — 2-3 sentences explaining why this action, what the threat is, what happens if not acted on",
+  "alternatives": ["string", "string"],
+  "autoExecuteActions": ["string", "string", "string"],
+  "gatedActions": ["string", "string"]
+}
+
+Rules:
+- recommendedAction should be CONTAINMENT-FIRST (stop the threat, not documentation)
+- autoExecuteActions: notifications, evidence locking, logging — things that can happen immediately
+- gatedActions: physical actions requiring human approval (lock doors, restrict badges, contact LEA)
+- Return ONLY valid JSON, no other text`,
+    messages: [
+      {
+        role: 'user',
+        content: `Alert: title="${alert.title}", location="${alert.location}", sources=${JSON.stringify(alert.sources)}, type=${alert.type}`,
+      },
+    ],
   })
 
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        if (
-          chunk.type === 'content_block_delta' &&
-          chunk.delta.type === 'text_delta'
-        ) {
-          controller.enqueue(new TextEncoder().encode(chunk.delta.text))
-        }
-      }
-      controller.close()
-    },
-  })
+  const content = message.content[0]
+  if (content.type !== 'text') {
+    return NextResponse.json({ error: 'No text response' }, { status: 500 })
+  }
 
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  try {
+    const nba = JSON.parse(content.text)
+    return NextResponse.json(nba)
+  } catch {
+    return NextResponse.json(
+      { error: 'Failed to parse NBA', raw: content.text },
+      { status: 500 }
+    )
+  }
 }

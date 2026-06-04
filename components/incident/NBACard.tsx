@@ -93,6 +93,11 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
             <h3 className="text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
               Next Best Action
             </h3>
+            {alert.id.startsWith('alert-sim-') && alert.nba && (
+              <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-[#0C2714] text-[#22C55E]">
+                AI LIVE
+              </span>
+            )}
             {nba.responsePhase && (
               <span className={`ml-auto rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
                 nba.responsePhase === 'contain'
