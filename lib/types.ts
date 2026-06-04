@@ -43,12 +43,15 @@ export interface Entity extends EntityRef {
 }
 
 // --- NBA ---
+export type ResponsePhase = 'contain' | 'communicate' | 'document'
+
 export interface NextBestAction {
   recommendationId: string
   recommendedAction: string
   rationale: string
   confidence: number
   urgency: 'immediate' | 'high' | 'medium' | 'low'
+  responsePhase?: ResponsePhase
   alternatives: string[]
   requiresApproval: boolean
   autoExecuteActions: string[]

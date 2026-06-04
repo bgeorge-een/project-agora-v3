@@ -83,7 +83,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
       <div className="flex items-start gap-4 border-b border-[#2D3748] p-5">
         <ConfidenceRing value={nba.confidence} />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <span
               className="material-symbols-outlined text-[#38BDF8]"
               style={{ fontSize: '18px', lineHeight: 1 }}
@@ -93,6 +93,17 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
             <h3 className="text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
               Next Best Action
             </h3>
+            {nba.responsePhase && (
+              <span className={`ml-auto rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
+                nba.responsePhase === 'contain'
+                  ? 'bg-[#7F1D1D] text-[#FCA5A5]'
+                  : nba.responsePhase === 'communicate'
+                  ? 'bg-[#78350F] text-[#FDE68A]'
+                  : 'bg-[#1F2937] text-[#9CA3AF]'
+              }`}>
+                {nba.responsePhase === 'contain' ? '⬤ CONTAIN' : nba.responsePhase === 'communicate' ? '⬤ COMMUNICATE' : '⬤ DOCUMENT'}
+              </span>
+            )}
           </div>
           <p className="mt-1 text-sm font-semibold leading-snug text-white">
             {alert.title}
