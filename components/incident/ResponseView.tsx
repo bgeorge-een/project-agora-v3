@@ -144,48 +144,50 @@ function AlertCard({
       )}
 
       {/* Row 5 — buttons */}
-      {!resolution && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 pl-4">
-          <button
-            onClick={() => onAccept(alert)}
-            disabled={alert.status === 'enriching' || !alert.nba}
-            className="flex items-center gap-1.5 rounded-md bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '16px', lineHeight: 1 }}
+      <div className="mt-3 flex flex-wrap items-center gap-2 pl-4">
+        {!resolution && (
+          <>
+            <button
+              onClick={() => onAccept(alert)}
+              disabled={alert.status === 'enriching' || !alert.nba}
+              className="flex items-center gap-1.5 rounded-md bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              check_circle
-            </span>
-            Accept AI Recommendation
-          </button>
-          <button
-            onClick={() => onReview(alert)}
-            className="flex items-center gap-1.5 rounded-md border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '16px', lineHeight: 1 }}
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '16px', lineHeight: 1 }}
+              >
+                check_circle
+              </span>
+              Accept AI Recommendation
+            </button>
+            <button
+              onClick={() => onOverride(alert)}
+              disabled={!alert.nba}
+              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
-              folder_open
-            </span>
-            Review Detail
-          </button>
-          <button
-            onClick={() => onOverride(alert)}
-            disabled={!alert.nba}
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '16px', lineHeight: 1 }}
+              >
+                edit_note
+              </span>
+              Override
+            </button>
+          </>
+        )}
+        <button
+          onClick={() => onReview(alert)}
+          className="flex items-center gap-1.5 rounded-md border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]"
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '16px', lineHeight: 1 }}
           >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '16px', lineHeight: 1 }}
-            >
-              edit_note
-            </span>
-            Override
-          </button>
-        </div>
-      )}
+            folder_open
+          </span>
+          {resolution ? 'View Incident' : 'Review Detail'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -250,7 +252,7 @@ export default function ResponseView() {
       ...prev,
       [a.id]: `Accepted — ${a.nba?.recommendedAction ?? 'recommendation applied'}`,
     }))
-    if (selectedId === a.id) setSelectedId(null)
+    // Do NOT clear selectedId — keep drawer open so operator sees the disposition in timeline
   }
 
   function handleReview(a: Alert) {
