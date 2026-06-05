@@ -499,6 +499,19 @@ export default function CaseWorkspace() {
 // ============================================================
 // TIMELINE TAB
 // ============================================================
+
+const CURRENT_CASE_OPERATOR = 'J. Torres'
+
+function getTzAbbr(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', hour: 'numeric' }).formatToParts(date)
+  return parts.find((p) => p.type === 'timeZoneName')?.value ?? 'UTC'
+}
+
+function fmtCaseDateHeader(iso: string): string {
+  const d = new Date(iso)
+  return `${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · ${getTzAbbr(d)}`
+}
+
 function TimelineTab({
   timeline,
   setTimeline,
@@ -701,135 +714,172 @@ function TimelineTab({
 
       {/* Vertical timeline */}
       <ol className="relative space-y-0">
-        {timeline.map((ev, idx) => {
-          const isLast = idx === timeline.length - 1
-          const isDisposition =
-            !!ev.isManual &&
-            (ev.title.startsWith('Task completed') ||
-              ev.title.startsWith('Question resolved'))
-          const isOperatorNote = !!ev.isManual && ev.title === 'Operator Note'
-          const cardCls = ev.flagged
-            ? 'bg-[#1C0A0A] border border-[#7F1D1D]'
-            : isDisposition
-              ? 'bg-[#0C2714] border border-dashed border-[#166534]'
-              : isOperatorNote
-                ? 'bg-[#1A1502] border border-dashed border-[#78350F]'
-                : ev.isManual
-                  ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
-                  : ev.isAIGenerated
-                    ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
-                    : 'bg-[#1A1F2E] border border-[#2D3748]'
-          const titleIcon = ev.flagged
-            ? 'warning'
-            : isDisposition
-              ? 'check_circle'
-              : isOperatorNote
-                ? 'edit_note'
-                : TYPE_ICON[ev.type]
-          return (
-            <li key={ev.id} className="relative flex gap-3 pb-5">
-              {/* Time + connector */}
-              <div className="flex w-14 shrink-0 flex-col items-end">
-                <span className="font-mono text-[11px] font-semibold text-[#6B7280]">
-                  {fmtTime(ev.timestamp)}
-                </span>
-              </div>
-              <div className="relative flex flex-col items-center">
-                <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#2D3748] bg-[#111827]">
-                  <Icon
-                    name={titleIcon}
-                    size={15}
-                    className={
-                      isDisposition
-                        ? 'text-[#22C55E]'
-                        : isOperatorNote
-                          ? 'text-[#F59E0B]'
-                          : ''
-                    }
-                  />
-                </span>
-                {!isLast && (
-                  <span className="absolute top-7 h-full w-px bg-[#374151]" />
-                )}
-              </div>
-              {/* Card */}
-              <div className={`min-w-0 flex-1 rounded-lg p-3 ${cardCls}`}>
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
-                        <Icon
-                          name={titleIcon}
-                          size={16}
-                          className={`mt-0.5 shrink-0 ${
-                            ev.flagged
-                              ? 'text-[#EF4444]'
-                              : isDisposition
-                                ? 'text-[#22C55E]'
-                                : isOperatorNote
-                                  ? 'text-[#F59E0B]'
-                                  : ''
-                          }`}
-                        />
-                        <span>{ev.title}</span>
-                      </p>
-                      <div className="flex shrink-0 gap-1">
-                        {ev.isAIGenerated && (
-                          <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
-                            AI
-                          </span>
-                        )}
-                        {isDisposition && (
-                          <span className="rounded border border-dashed border-[#166534] bg-[#0C2714] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#22C55E]">
-                            Action
-                          </span>
-                        )}
-                        {isOperatorNote && (
-                          <span className="rounded border border-dashed border-[#78350F] bg-[#1A1502] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#F59E0B]">
-                            Operator Note
-                          </span>
-                        )}
-                        {ev.isManual && !isDisposition && !isOperatorNote && (
-                          <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
-                            Manual Evidence
-                          </span>
-                        )}
+        {(() => {
+          let currentDate = ''
+          return timeline.flatMap((ev, idx) => {
+            const isLast = idx === timeline.length - 1
+            const isDisposition =
+              !!ev.isManual &&
+              (ev.title.startsWith('Task completed') ||
+                ev.title.startsWith('Question resolved'))
+            const isOperatorNote = !!ev.isManual && ev.title === 'Operator Note'
+            const cardCls = ev.flagged
+              ? 'bg-[#1C0A0A] border border-[#7F1D1D]'
+              : isDisposition
+                ? 'bg-[#0C2714] border border-dashed border-[#166534]'
+                : isOperatorNote
+                  ? 'bg-[#1A1502] border border-dashed border-[#78350F]'
+                  : ev.isManual
+                    ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
+                    : ev.isAIGenerated
+                      ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
+                      : 'bg-[#1A1F2E] border border-[#2D3748]'
+            const titleIcon = ev.flagged
+              ? 'warning'
+              : isDisposition
+                ? 'check_circle'
+                : isOperatorNote
+                  ? 'edit_note'
+                  : TYPE_ICON[ev.type]
+
+            const evDate = new Date(ev.timestamp).toDateString()
+            const items: React.ReactNode[] = []
+
+            if (evDate !== currentDate) {
+              currentDate = evDate
+              items.push(
+                <li key={`date-sep-${evDate}`} className="flex items-center gap-2 pb-4">
+                  <div className="w-14 shrink-0" />
+                  <div className="flex w-7 shrink-0 justify-center">
+                    <span className="h-2 w-2 rounded-full bg-[#374151]" />
+                  </div>
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <span
+                      className="material-symbols-outlined text-[#6B7280]"
+                      style={{ fontSize: '12px', lineHeight: 1 }}
+                    >
+                      calendar_today
+                    </span>
+                    <span className="whitespace-nowrap text-[11px] font-semibold text-[#6B7280]">
+                      {fmtCaseDateHeader(ev.timestamp)}
+                    </span>
+                    <span className="flex-1 border-t border-dashed border-[#2D3748]" />
+                  </div>
+                </li>
+              )
+            }
+
+            items.push(
+              <li key={ev.id} className="relative flex gap-3 pb-5">
+                {/* Time + connector */}
+                <div className="flex w-14 shrink-0 flex-col items-end">
+                  <span className="font-mono text-[11px] font-semibold text-[#6B7280]">
+                    {fmtTime(ev.timestamp)}
+                  </span>
+                </div>
+                <div className="relative flex flex-col items-center">
+                  <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#2D3748] bg-[#111827]">
+                    <Icon
+                      name={titleIcon}
+                      size={15}
+                      className={
+                        isDisposition
+                          ? 'text-[#22C55E]'
+                          : isOperatorNote
+                            ? 'text-[#F59E0B]'
+                            : ''
+                      }
+                    />
+                  </span>
+                  {!isLast && (
+                    <span className="absolute top-7 h-full w-px bg-[#374151]" />
+                  )}
+                </div>
+                {/* Card */}
+                <div className={`min-w-0 flex-1 rounded-lg p-3 ${cardCls}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
+                          <Icon
+                            name={titleIcon}
+                            size={16}
+                            className={`mt-0.5 shrink-0 ${
+                              ev.flagged
+                                ? 'text-[#EF4444]'
+                                : isDisposition
+                                  ? 'text-[#22C55E]'
+                                  : isOperatorNote
+                                    ? 'text-[#F59E0B]'
+                                    : ''
+                            }`}
+                          />
+                          <span>{ev.title}</span>
+                        </p>
+                        <div className="flex shrink-0 gap-1">
+                          {ev.isAIGenerated && (
+                            <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
+                              AI
+                            </span>
+                          )}
+                          {isDisposition && (
+                            <span className="rounded border border-dashed border-[#166534] bg-[#0C2714] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#22C55E]">
+                              Action
+                            </span>
+                          )}
+                          {isOperatorNote && (
+                            <span className="rounded border border-dashed border-[#78350F] bg-[#1A1502] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#F59E0B]">
+                              Operator Note
+                            </span>
+                          )}
+                          {ev.isManual && !isDisposition && !isOperatorNote && (
+                            <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
+                              Manual Evidence
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
+                        {ev.detail}
+                      </p>
+                      {isOperatorNote && (
+                        <p className="mt-1.5 text-[10px] font-medium text-[#F59E0B]">
+                          — {CURRENT_CASE_OPERATOR}
+                        </p>
+                      )}
+                      {ev.entityRefs.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {ev.entityRefs.map((e) => (
+                            <span
+                              key={e.id}
+                              className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
+                            >
+                              <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
-                      {ev.detail}
-                    </p>
-                    {ev.entityRefs.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {ev.entityRefs.map((e) => (
-                          <span
-                            key={e.id}
-                            className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
-                          >
-                            <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
-                          </span>
-                        ))}
+
+                    {/* Inline camera still */}
+                    {ev.cameraPreview && (
+                      <div className="w-[100px] shrink-0">
+                        <CameraStill
+                          channel={ev.cameraPreview.channel}
+                          sceneType={ev.cameraPreview.sceneType}
+                          location={ev.title}
+                          timestamp={fmtTime(ev.timestamp)}
+                          onClick={() => setPlayingClip(ev)}
+                        />
                       </div>
                     )}
                   </div>
-
-                  {/* Inline camera still */}
-                  {ev.cameraPreview && (
-                    <div className="w-[100px] shrink-0">
-                      <CameraStill
-                        channel={ev.cameraPreview.channel}
-                        sceneType={ev.cameraPreview.sceneType}
-                        location={ev.title}
-                        timestamp={fmtTime(ev.timestamp)}
-                        onClick={() => setPlayingClip(ev)}
-                      />
-                    </div>
-                  )}
                 </div>
-              </div>
-            </li>
-          )
-        })}
+              </li>
+            )
+            return items
+          })
+        })()}
       </ol>
 
       {playingClip && playingClip.cameraPreview && (

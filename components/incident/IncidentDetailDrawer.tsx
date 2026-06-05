@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import type { Alert, AlertDetail, CorrelatedEvent, PersonDetails, Severity } from '@/lib/types'
 import { CameraStill } from './CameraStill'
 import { CameraClipModal } from './CameraClipModal'
@@ -376,11 +376,26 @@ function TimelineRow({
 }
 
 // ---- Operator Log ----
+const CURRENT_OPERATOR = 'J. Torres'
+
+function getTzAbbr(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', hour: 'numeric' }).formatToParts(date)
+  return parts.find((p) => p.type === 'timeZoneName')?.value ?? 'UTC'
+}
+
+function fmtAlertDate(isoString: string): string {
+  const d = new Date(isoString)
+  const datePart = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return `${datePart} · ${getTzAbbr(d)}`
+}
+
 type OperatorEntry = {
   id: string
-  ts: string // HH:MM format (same as CorrelatedEvent.ts)
+  ts: string     // HH:MM for display
+  isoTs: string  // full ISO for date comparison
   entryType: 'note' | 'accepted' | 'override'
   text: string
+  author: string
 }
 
 type TimelineItem =
@@ -463,6 +478,7 @@ function OperatorEntryRow({ entry, isLast }: { entry: OperatorEntry; isLast: boo
                 >
                   {s.badge}
                 </span>
+                <span className="text-[10px] font-medium text-gray-500">{entry.author}</span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-gray-300">{entry.text}</p>
             </div>
@@ -488,19 +504,21 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     ...operatorLog.map((e) => ({ kind: 'operator' as const, data: e })),
   ].sort((a, b) => a.data.ts.localeCompare(b.data.ts))
 
-  function nowTs() {
-    return new Date().toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })
+  const alertDateStr = new Date(alert.timestamp).toDateString()
+
+  function nowEntry(): Pick<OperatorEntry, 'ts' | 'isoTs'> {
+    const now = new Date()
+    return {
+      ts: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+      isoTs: now.toISOString(),
+    }
   }
 
   function addNote() {
     if (!noteText.trim()) return
     setOperatorLog((prev) => [
       ...prev,
-      { id: `op-${Date.now()}`, ts: nowTs(), entryType: 'note', text: noteText.trim() },
+      { id: `op-${Date.now()}`, ...nowEntry(), entryType: 'note', text: noteText.trim(), author: CURRENT_OPERATOR },
     ])
     setNoteText('')
   }
@@ -510,9 +528,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       ...prev,
       {
         id: `op-${Date.now()}`,
-        ts: nowTs(),
+        ...nowEntry(),
         entryType: 'accepted',
         text: nba?.recommendedAction ?? 'AI recommendation accepted',
+        author: CURRENT_OPERATOR,
       },
     ])
     onAccept()
@@ -523,9 +542,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       ...prev,
       {
         id: `op-${Date.now()}`,
-        ts: nowTs(),
+        ...nowEntry(),
         entryType: 'override',
         text: 'Operator overrode AI recommendation',
+        author: CURRENT_OPERATOR,
       },
     ])
     onOverride()
@@ -602,21 +622,59 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 </span>
               </div>
 
+              {/* Date header */}
+              <div className="mb-4 flex items-center gap-2">
+                <span
+                  className="material-symbols-outlined text-gray-600"
+                  style={{ fontSize: '14px', lineHeight: 1 }}
+                >
+                  calendar_today
+                </span>
+                <span className="text-[11px] font-semibold text-gray-500">
+                  {fmtAlertDate(alert.timestamp)}
+                </span>
+                <span className="flex-1 border-t border-dashed border-gray-800" />
+              </div>
+
               <div>
-                {allItems.map((item, i) => {
-                  const isLast = i === allItems.length - 1
-                  if (item.kind === 'event') {
-                    return (
-                      <TimelineRow
-                        key={item.data.id}
-                        event={item.data}
-                        isLast={isLast}
-                        onOpenClip={setClipEvent}
-                      />
-                    )
-                  }
-                  return <OperatorEntryRow key={item.data.id} entry={item.data} isLast={isLast} />
-                })}
+                {(() => {
+                  let currentDateStr = alertDateStr
+                  const rows: React.ReactNode[] = []
+                  allItems.forEach((item, i) => {
+                    const isLast = i === allItems.length - 1
+                    // Insert date separator when operator note crosses into a new day
+                    if (item.kind === 'operator') {
+                      const itemDateStr = new Date(item.data.isoTs).toDateString()
+                      if (itemDateStr !== currentDateStr) {
+                        currentDateStr = itemDateStr
+                        rows.push(
+                          <div key={`date-sep-${item.data.id}`} className="my-3 flex items-center gap-2">
+                            <span className="flex-1 border-t border-dashed border-gray-800" />
+                            <span className="text-[11px] font-semibold text-gray-500">
+                              {fmtAlertDate(item.data.isoTs)}
+                            </span>
+                            <span className="flex-1 border-t border-dashed border-gray-800" />
+                          </div>
+                        )
+                      }
+                    }
+                    if (item.kind === 'event') {
+                      rows.push(
+                        <TimelineRow
+                          key={item.data.id}
+                          event={item.data}
+                          isLast={isLast}
+                          onOpenClip={setClipEvent}
+                        />
+                      )
+                    } else {
+                      rows.push(
+                        <OperatorEntryRow key={item.data.id} entry={item.data} isLast={isLast} />
+                      )
+                    }
+                  })
+                  return rows
+                })()}
               </div>
             </div>
 
