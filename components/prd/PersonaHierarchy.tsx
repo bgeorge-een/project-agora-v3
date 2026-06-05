@@ -93,10 +93,10 @@ function PersonaLadder({ title, accent, tint, icon, personas }: LadderProps) {
     >
       <div className="flex items-center gap-3">
         <span
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
-          style={{ backgroundColor: tint }}
+          className="flex h-10 w-10 items-center justify-center rounded-lg"
+          style={{ backgroundColor: tint, color: accent }}
         >
-          {icon}
+          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>{icon}</span>
         </span>
         <h3 className="text-lg font-bold text-[#111827]">{title}</h3>
       </div>
@@ -141,14 +141,14 @@ export default function PersonaHierarchy() {
             title="Real-time Incident Management"
             accent="#2563EB"
             tint="#EFF6FF"
-            icon="⚡"
+            icon="bolt"
             personas={INCIDENT_PERSONAS}
           />
           <PersonaLadder
             title="Case Management"
             accent="#7C3AED"
             tint="#F5F3FF"
-            icon="🔍"
+            icon="manage_search"
             personas={CASE_PERSONAS}
           />
         </div>

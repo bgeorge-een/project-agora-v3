@@ -7,19 +7,19 @@ interface ProductCard {
 
 const PRODUCTS: ProductCard[] = [
   {
-    icon: '⚙️',
+    icon: 'hub',
     title: 'Agora Platform',
     subtitle: 'Shared intelligence fabric · APIs consumed by both apps',
     variant: 'platform',
   },
   {
-    icon: '⚡',
+    icon: 'bolt',
     title: 'Real-time Incident Management',
     subtitle: 'Live SOC operations · L1 Operator → L5 Global Director',
     variant: 'incident',
   },
   {
-    icon: '🔍',
+    icon: 'manage_search',
     title: 'Case Management',
     subtitle: 'Post-incident forensics · L1 Investigator → L5 Global Director',
     variant: 'case',
@@ -84,10 +84,10 @@ export default function HeroSection() {
                 }}
               >
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
+                  className="flex h-12 w-12 items-center justify-center rounded-xl"
                   style={{ backgroundColor: s.iconBg, color: s.iconColor }}
                 >
-                  {p.icon}
+                  <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{p.icon}</span>
                 </div>
                 <h3 className="mt-4 text-lg font-bold leading-snug text-[#111827]">
                   {p.title}

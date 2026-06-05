@@ -11,7 +11,7 @@ interface Pillar {
 const PILLARS: Pillar[] = [
   {
     title: 'Signal Intelligence',
-    icon: '📡',
+    icon: 'sensors',
     description:
       'Ingests and normalizes signals from any vendor, camera, sensor, or external feed into a common queryable schema. Signal categories: security, environmental, operational, identity, vehicle, building_systems, external_context.',
     color: '#2563EB',
@@ -19,7 +19,7 @@ const PILLARS: Pillar[] = [
   },
   {
     title: 'World Model',
-    icon: '🌐',
+    icon: 'layers',
     description:
       'A continuously maintained physical ontology: sites, buildings, floors, zones, doors, cameras, sensors, people, vehicles, credentials. Every event is interpreted spatially.',
     color: '#0891B2',
@@ -27,7 +27,7 @@ const PILLARS: Pillar[] = [
   },
   {
     title: 'Agentic Enrichment',
-    icon: '🧠',
+    icon: 'psychology',
     description:
       'Five-agent AI pipeline: Signal Normalizer → Enrichment Agent → Analysis Agent → Recommendation Agent + Explanation Agent. Partial results stream to app UIs as each agent completes.',
     color: '#7C3AED',
@@ -35,7 +35,7 @@ const PILLARS: Pillar[] = [
   },
   {
     title: 'SOP + Playbook Engine',
-    icon: '✅',
+    icon: 'checklist',
     description:
       'SOPs define what humans do (retrieved at triage time). Playbooks define what the system does (Response and Deterrence types). Both authored in Case Management, served platform-wide.',
     color: '#EA580C',
@@ -43,7 +43,7 @@ const PILLARS: Pillar[] = [
   },
   {
     title: 'Closed-Loop Learning',
-    icon: '🔄',
+    icon: 'loop',
     description:
       'Every human override writes a FeedbackRecord. AI Analyst labels each: model problem / policy gap / data quality / correct override. Feeds model improvement.',
     color: '#16A34A',
@@ -72,10 +72,10 @@ export default function PlatformPillars() {
               }}
             >
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-                style={{ backgroundColor: pillar.tint }}
+                className="flex h-12 w-12 items-center justify-center rounded-xl"
+                style={{ backgroundColor: pillar.tint, color: pillar.color }}
               >
-                {pillar.icon}
+                <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{pillar.icon}</span>
               </div>
               <span
                 className="mt-4 text-xs font-bold uppercase tracking-wider"

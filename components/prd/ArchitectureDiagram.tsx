@@ -32,8 +32,8 @@ export default function ArchitectureDiagram() {
               }}
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-lg text-[#2563EB]">
-                  ⚡
+                <span className="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]" style={{ fontSize: 22 }}>
+                  bolt
                 </span>
                 <div>
                   <p className="text-sm font-bold text-[#111827]">
@@ -51,8 +51,8 @@ export default function ArchitectureDiagram() {
               }}
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F5F3FF] text-lg text-[#7C3AED]">
-                  🔍
+                <span className="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-lg bg-[#F5F3FF] text-[#7C3AED]" style={{ fontSize: 22 }}>
+                  manage_search
                 </span>
                 <div>
                   <p className="text-sm font-bold text-[#111827]">
@@ -82,8 +82,8 @@ export default function ArchitectureDiagram() {
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F3F4F6] text-lg text-[#172130]">
-                  ⚙️
+                <span className="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-lg bg-[#F3F4F6] text-[#172130]" style={{ fontSize: 22 }}>
+                  hub
                 </span>
                 <h3 className="text-xl font-bold text-[#172130]">
                   Agora Platform

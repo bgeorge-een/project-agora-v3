@@ -9,31 +9,31 @@ interface Job {
 
 const JOBS: Job[] = [
   {
-    icon: '⚡',
+    icon: 'bolt',
     question: 'What is happening right now, and is it real?',
     answeredBy: 'Real-time Incident Management',
     variant: 'incident',
   },
   {
-    icon: '📋',
+    icon: 'policy',
     question: 'What is the right response — and what does policy say?',
     answeredBy: 'Real-time Incident Management',
     variant: 'incident',
   },
   {
-    icon: '🔍',
+    icon: 'manage_search',
     question: 'What happened before, during, and after?',
     answeredBy: 'Case Management',
     variant: 'case',
   },
   {
-    icon: '📊',
+    icon: 'analytics',
     question: 'What pattern does this represent across sites?',
     answeredBy: 'Both apps',
     variant: 'both',
   },
   {
-    icon: '🔄',
+    icon: 'loop',
     question: 'What rule, SOP, or model should change?',
     answeredBy: 'Case Management → Platform',
     variant: 'loop',
@@ -68,7 +68,7 @@ export default function JobsToBeDone() {
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] text-base font-bold text-[#334155]">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="text-2xl leading-none">{job.icon}</span>
+                <span className="material-symbols-outlined shrink-0 text-[#6B7280]" style={{ fontSize: 24 }}>{job.icon}</span>
                 <p className="flex-1 text-base font-semibold text-[#111827]">
                   {job.question}
                 </p>

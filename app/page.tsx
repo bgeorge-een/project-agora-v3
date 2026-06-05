@@ -27,13 +27,15 @@ function BottomCTA() {
             href="/incident-management"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-7 py-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#1D4ED8] sm:w-auto"
           >
-            ⚡ Real-time Incident Management <span aria-hidden>→</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>bolt</span>
+            Real-time Incident Management <span aria-hidden>→</span>
           </Link>
           <Link
             href="/case-management"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-7 py-4 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#6D28D9] sm:w-auto"
           >
-            🔍 Case Management <span aria-hidden>→</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>manage_search</span>
+            Case Management <span aria-hidden>→</span>
           </Link>
         </div>
       </div>
