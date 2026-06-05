@@ -375,13 +375,161 @@ function TimelineRow({
   )
 }
 
+// ---- Operator Log ----
+type OperatorEntry = {
+  id: string
+  ts: string // HH:MM format (same as CorrelatedEvent.ts)
+  entryType: 'note' | 'accepted' | 'override'
+  text: string
+}
+
+type TimelineItem =
+  | { kind: 'event'; data: CorrelatedEvent }
+  | { kind: 'operator'; data: OperatorEntry }
+
+const OPERATOR_STYLE: Record<
+  OperatorEntry['entryType'],
+  { dot: string; icon: string; iconColor: string; cardBg: string; cardBorder: string; badge: string; badgeBg: string; badgeText: string }
+> = {
+  note: {
+    dot: '#F59E0B',
+    icon: 'edit_note',
+    iconColor: '#F59E0B',
+    cardBg: '#1A1502',
+    cardBorder: '#78350F',
+    badge: 'Operator Note',
+    badgeBg: 'rgba(120, 53, 15, 0.6)',
+    badgeText: '#FCD34D',
+  },
+  accepted: {
+    dot: '#22C55E',
+    icon: 'check_circle',
+    iconColor: '#22C55E',
+    cardBg: '#0C2714',
+    cardBorder: '#166534',
+    badge: 'Accepted',
+    badgeBg: 'rgba(22, 101, 52, 0.6)',
+    badgeText: '#86EFAC',
+  },
+  override: {
+    dot: '#EA580C',
+    icon: 'edit_note',
+    iconColor: '#EA580C',
+    cardBg: '#1C1000',
+    cardBorder: '#9A3412',
+    badge: 'Override',
+    badgeBg: 'rgba(154, 52, 18, 0.6)',
+    badgeText: '#FDBA74',
+  },
+}
+
+function OperatorEntryRow({ entry, isLast }: { entry: OperatorEntry; isLast: boolean }) {
+  const s = OPERATOR_STYLE[entry.entryType]
+
+  return (
+    <div className="flex gap-3">
+      {/* Time + connector */}
+      <div className="flex w-12 shrink-0 flex-col items-end pt-0.5">
+        <span className="font-mono text-[11px] leading-tight text-gray-400">{entry.ts}</span>
+      </div>
+
+      {/* Dot + line */}
+      <div className="relative flex flex-col items-center">
+        <span
+          className="z-10 mt-1 h-3 w-3 shrink-0 rounded-full ring-2 ring-gray-950"
+          style={{ backgroundColor: s.dot }}
+        />
+        {!isLast && <span className="-mt-0.5 w-px flex-1 bg-gray-700" />}
+      </div>
+
+      {/* Content */}
+      <div className="min-w-0 flex-1 pb-5">
+        <div
+          className="rounded-lg border p-3"
+          style={{ backgroundColor: s.cardBg, borderColor: s.cardBorder }}
+        >
+          <div className="flex items-start gap-2">
+            <span
+              className="material-symbols-outlined leading-none"
+              style={{ fontSize: '18px', lineHeight: 1, color: s.iconColor }}
+            >
+              {s.icon}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span
+                  className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                  style={{ backgroundColor: s.badgeBg, color: s.badgeText }}
+                >
+                  {s.badge}
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-gray-300">{entry.text}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ---- Main Drawer ----
 export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverride }: Props) {
   const [clipEvent, setClipEvent] = useState<CorrelatedEvent | null>(null)
   const [whyOpen, setWhyOpen] = useState(false)
+  const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
+  const [noteText, setNoteText] = useState('')
   const sevBadge = SEVERITY_BADGE[alert.severity]
   const isDeterrent = alert.type === 'deterrent'
   const { nba, sop } = alert
+
+  const allItems: TimelineItem[] = [
+    ...detail.correlatedEvents.map((e) => ({ kind: 'event' as const, data: e })),
+    ...operatorLog.map((e) => ({ kind: 'operator' as const, data: e })),
+  ].sort((a, b) => a.data.ts.localeCompare(b.data.ts))
+
+  function nowTs() {
+    return new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  }
+
+  function addNote() {
+    if (!noteText.trim()) return
+    setOperatorLog((prev) => [
+      ...prev,
+      { id: `op-${Date.now()}`, ts: nowTs(), entryType: 'note', text: noteText.trim() },
+    ])
+    setNoteText('')
+  }
+
+  function handleAccept() {
+    setOperatorLog((prev) => [
+      ...prev,
+      {
+        id: `op-${Date.now()}`,
+        ts: nowTs(),
+        entryType: 'accepted',
+        text: nba?.recommendedAction ?? 'AI recommendation accepted',
+      },
+    ])
+    onAccept()
+  }
+
+  function handleOverride() {
+    setOperatorLog((prev) => [
+      ...prev,
+      {
+        id: `op-${Date.now()}`,
+        ts: nowTs(),
+        entryType: 'override',
+        text: 'Operator overrode AI recommendation',
+      },
+    ])
+    onOverride()
+  }
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -450,19 +598,62 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   Correlated Evidence
                 </h3>
                 <span className="rounded-full bg-[#2D3748] px-2 py-0.5 text-[10px] font-bold text-gray-400">
-                  {detail.correlatedEvents.length} events
+                  {allItems.length} events
                 </span>
               </div>
 
               <div>
-                {detail.correlatedEvents.map((event, i) => (
-                  <TimelineRow
-                    key={event.id}
-                    event={event}
-                    isLast={i === detail.correlatedEvents.length - 1}
-                    onOpenClip={setClipEvent}
-                  />
-                ))}
+                {allItems.map((item, i) => {
+                  const isLast = i === allItems.length - 1
+                  if (item.kind === 'event') {
+                    return (
+                      <TimelineRow
+                        key={item.data.id}
+                        event={item.data}
+                        isLast={isLast}
+                        onOpenClip={setClipEvent}
+                      />
+                    )
+                  }
+                  return <OperatorEntryRow key={item.data.id} entry={item.data} isLast={isLast} />
+                })}
+              </div>
+            </div>
+
+            {/* Add Operator Note */}
+            <div className="mt-2 rounded-lg border border-[#374151] bg-[#111827] p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <span
+                  className="material-symbols-outlined text-[#F59E0B]"
+                  style={{ fontSize: '18px', lineHeight: 1 }}
+                >
+                  edit_note
+                </span>
+                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-300">
+                  Add Operator Note
+                </h4>
+              </div>
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                rows={2}
+                placeholder="Type a note visible to all operators..."
+                className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-3 py-2 text-xs leading-relaxed text-gray-200 placeholder:text-gray-500 focus:border-[#F59E0B] focus:outline-none"
+              />
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={addNote}
+                  disabled={!noteText.trim()}
+                  className="flex items-center gap-1.5 rounded-md bg-[#92400E] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#B45309] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '16px', lineHeight: 1 }}
+                  >
+                    add
+                  </span>
+                  Add Note
+                </button>
               </div>
             </div>
 
@@ -538,7 +729,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                     Recommended Action
                   </p>
                   <button
-                    onClick={onAccept}
+                    onClick={handleAccept}
                     className="w-full rounded-lg bg-blue-600 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-blue-500"
                   >
                     {nba.recommendedAction}
@@ -653,7 +844,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 {/* Action footer */}
                 <div className="border-t border-[#2D3748] pt-5">
                   <button
-                    onClick={onAccept}
+                    onClick={handleAccept}
                     className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
                   >
                     <span
@@ -665,7 +856,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                     Accept AI Recommendation
                   </button>
                   <button
-                    onClick={onOverride}
+                    onClick={handleOverride}
                     className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white"
                   >
                     <span

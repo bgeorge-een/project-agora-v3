@@ -188,6 +188,47 @@ export default function CaseWorkspace() {
   const campaign = MOCK_CAMPAIGNS.find((c) => c.id === baseCase.campaignId)
   const sev = SEVERITY_STYLE[baseCase.severity]
 
+  function handleTaskComplete(taskTitle: string) {
+    const ev: TimelineEvent = {
+      id: `tl-task-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'manual',
+      title: `Task completed: ${taskTitle}`,
+      detail: `Investigation task marked complete`,
+      entityRefs: [],
+      evidenceRefs: [],
+      isAIGenerated: false,
+      isManual: true,
+    }
+    setTimeline((prev) =>
+      [...prev, ev].sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
+    )
+  }
+
+  function handleResolveQuestion(q: string) {
+    setResolvedQuestions((prev) => [...prev, q])
+    const ev: TimelineEvent = {
+      id: `tl-q-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'manual',
+      title: 'Question resolved',
+      detail: q,
+      entityRefs: [],
+      evidenceRefs: [],
+      isAIGenerated: false,
+      isManual: true,
+    }
+    setTimeline((prev) =>
+      [...prev, ev].sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
+    )
+  }
+
   return (
     <div className="px-8 py-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[65fr_35fr]">
@@ -302,7 +343,11 @@ export default function CaseWorkspace() {
                 />
               )}
               {tab === 'tasks' && (
-                <TasksTab tasks={tasks} setTasks={setTasks} />
+                <TasksTab
+                  tasks={tasks}
+                  setTasks={setTasks}
+                  onTaskComplete={handleTaskComplete}
+                />
               )}
               {tab === 'ai' && <AIAssistant />}
             </div>
@@ -344,9 +389,7 @@ export default function CaseWorkspace() {
                       </p>
                       {!resolved && (
                         <button
-                          onClick={() =>
-                            setResolvedQuestions((prev) => [...prev, q])
-                          }
+                          onClick={() => handleResolveQuestion(q)}
                           className="mt-1 text-[11px] font-semibold text-[#38BDF8] transition-colors hover:text-white"
                         >
                           Mark Resolved
@@ -474,7 +517,30 @@ function TimelineTab({
     detail: '',
     source: '',
   })
+  const [quickNote, setQuickNote] = useState('')
   const [playingClip, setPlayingClip] = useState<TimelineEvent | null>(null)
+
+  function submitQuickNote() {
+    if (!quickNote.trim()) return
+    const ev: TimelineEvent = {
+      id: `tl-note-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'manual',
+      title: 'Operator Note',
+      detail: quickNote.trim(),
+      entityRefs: [],
+      evidenceRefs: [],
+      isAIGenerated: false,
+      isManual: true,
+    }
+    setTimeline((prev) =>
+      [...prev, ev].sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
+    )
+    setQuickNote('')
+  }
 
   function handleAdd() {
     if (!form.title.trim()) return
@@ -515,6 +581,28 @@ function TimelineTab({
 
   return (
     <div>
+      {/* Quick operator note */}
+      <div className="mb-5 rounded-lg border border-[#2D3748] bg-[#111827] p-3">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+          Add Operator Note
+        </p>
+        <textarea
+          value={quickNote}
+          rows={2}
+          placeholder="Jot down a quick observation…"
+          onChange={(e) => setQuickNote(e.target.value)}
+          className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]"
+        />
+        <div className="mt-2 flex justify-end">
+          <button
+            onClick={submitQuickNote}
+            className="rounded-lg bg-[#7C3AED] px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9]"
+          >
+            Add Note
+          </button>
+        </div>
+      </div>
+
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
           Investigation Timeline · {timeline.length} events
@@ -615,13 +703,29 @@ function TimelineTab({
       <ol className="relative space-y-0">
         {timeline.map((ev, idx) => {
           const isLast = idx === timeline.length - 1
+          const isDisposition =
+            !!ev.isManual &&
+            (ev.title.startsWith('Task completed') ||
+              ev.title.startsWith('Question resolved'))
+          const isOperatorNote = !!ev.isManual && ev.title === 'Operator Note'
           const cardCls = ev.flagged
             ? 'bg-[#1C0A0A] border border-[#7F1D1D]'
-            : ev.isManual
-              ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
-              : ev.isAIGenerated
-                ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
-                : 'bg-[#1A1F2E] border border-[#2D3748]'
+            : isDisposition
+              ? 'bg-[#0C2714] border border-dashed border-[#166534]'
+              : isOperatorNote
+                ? 'bg-[#1A1502] border border-dashed border-[#78350F]'
+                : ev.isManual
+                  ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
+                  : ev.isAIGenerated
+                    ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
+                    : 'bg-[#1A1F2E] border border-[#2D3748]'
+          const titleIcon = ev.flagged
+            ? 'warning'
+            : isDisposition
+              ? 'check_circle'
+              : isOperatorNote
+                ? 'edit_note'
+                : TYPE_ICON[ev.type]
           return (
             <li key={ev.id} className="relative flex gap-3 pb-5">
               {/* Time + connector */}
@@ -633,9 +737,15 @@ function TimelineTab({
               <div className="relative flex flex-col items-center">
                 <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#2D3748] bg-[#111827]">
                   <Icon
-                    name={ev.flagged ? 'warning' : TYPE_ICON[ev.type]}
+                    name={titleIcon}
                     size={15}
-                    className=""
+                    className={
+                      isDisposition
+                        ? 'text-[#22C55E]'
+                        : isOperatorNote
+                          ? 'text-[#F59E0B]'
+                          : ''
+                    }
                   />
                 </span>
                 {!isLast && (
@@ -648,20 +758,19 @@ function TimelineTab({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
-                        {ev.flagged && (
-                          <Icon
-                            name="warning"
-                            size={16}
-                            className="mt-0.5 shrink-0 text-[#EF4444]"
-                          />
-                        )}
-                        {!ev.flagged && (
-                          <Icon
-                            name={TYPE_ICON[ev.type]}
-                            size={16}
-                            className="mt-0.5 shrink-0"
-                          />
-                        )}
+                        <Icon
+                          name={titleIcon}
+                          size={16}
+                          className={`mt-0.5 shrink-0 ${
+                            ev.flagged
+                              ? 'text-[#EF4444]'
+                              : isDisposition
+                                ? 'text-[#22C55E]'
+                                : isOperatorNote
+                                  ? 'text-[#F59E0B]'
+                                  : ''
+                          }`}
+                        />
                         <span>{ev.title}</span>
                       </p>
                       <div className="flex shrink-0 gap-1">
@@ -670,7 +779,17 @@ function TimelineTab({
                             AI
                           </span>
                         )}
-                        {ev.isManual && (
+                        {isDisposition && (
+                          <span className="rounded border border-dashed border-[#166534] bg-[#0C2714] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#22C55E]">
+                            Action
+                          </span>
+                        )}
+                        {isOperatorNote && (
+                          <span className="rounded border border-dashed border-[#78350F] bg-[#1A1502] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#F59E0B]">
+                            Operator Note
+                          </span>
+                        )}
+                        {ev.isManual && !isDisposition && !isOperatorNote && (
                           <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
                             Manual Evidence
                           </span>
@@ -815,9 +934,11 @@ function EvidenceTab() {
 function TasksTab({
   tasks,
   setTasks,
+  onTaskComplete,
 }: {
   tasks: CaseTask[]
   setTasks: React.Dispatch<React.SetStateAction<CaseTask[]>>
+  onTaskComplete?: (title: string) => void
 }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ title: '', owner: '', due: '' })
@@ -849,11 +970,14 @@ function TasksTab({
 
   function toggle(id: string) {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? { ...t, status: t.status === 'done' ? 'open' : 'done' }
-          : t
-      )
+      prev.map((t) => {
+        if (t.id === id) {
+          const next = t.status === 'done' ? 'open' : 'done'
+          if (next === 'done') onTaskComplete?.(t.title)
+          return { ...t, status: next }
+        }
+        return t
+      })
     )
   }
 
