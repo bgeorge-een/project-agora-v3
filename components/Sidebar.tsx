@@ -10,9 +10,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/', icon: '📋', label: 'Overview' },
-  { href: '/incident-management', icon: '⚡', label: 'Real-time Incident Mgmt' },
-  { href: '/case-management', icon: '🔍', label: 'Case Management' },
+  { href: '/', icon: 'home_app_logo', label: 'Overview' },
+  { href: '/incident-management', icon: 'bolt', label: 'Real-time Incident Mgmt' },
+  { href: '/case-management', icon: 'manage_search', label: 'Case Management' },
 ]
 
 export default function Sidebar() {
@@ -47,7 +47,7 @@ export default function Sidebar() {
                   : 'text-[#CBD5E0] hover:bg-[#1E2D42]/60 hover:text-white'
               }`}
             >
-              <span className="text-base leading-none">{item.icon}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           )
