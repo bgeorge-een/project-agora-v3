@@ -4,6 +4,7 @@ import ArchitectureDiagram from '@/components/prd/ArchitectureDiagram'
 import PlatformPillars from '@/components/prd/PlatformPillars'
 import AgentPipelineDiagram from '@/components/prd/AgentPipelineDiagram'
 import DataModelTable from '@/components/prd/DataModelTable'
+import SignalFunnelDiagram from '@/components/prd/SignalFunnelDiagram'
 import AlertLifecycleFlow from '@/components/prd/AlertLifecycleFlow'
 import PersonaHierarchy from '@/components/prd/PersonaHierarchy'
 import UserStoriesIncident from '@/components/prd/UserStoriesIncident'
@@ -51,6 +52,7 @@ export default function OverviewPage() {
       <PlatformPillars />
       <AgentPipelineDiagram />
       <DataModelTable />
+      <SignalFunnelDiagram />
       <AlertLifecycleFlow />
       <PersonaHierarchy />
       <UserStoriesIncident />

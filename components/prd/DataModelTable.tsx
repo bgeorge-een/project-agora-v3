@@ -12,18 +12,34 @@ const TERMS: Term[] = [
   {
     term: 'Signal',
     definition:
-      'A single raw event from one device or feed. No inherent value alone.',
-    createdBy: 'Any device/feed',
+      'Raw device telemetry. A single data point from one device or feed — a motion pixel change, door contact state, badge scan, or camera frame. No meaning on its own. Invisible to users; processed by the platform only.',
+    createdBy: 'Any device / feed',
     ownedBy: 'Signal Normalizer',
-    becomes: 'Alert',
+    becomes: 'Event (via normalization)',
+  },
+  {
+    term: 'Event',
+    definition:
+      'A normalized, meaningful state change the platform produced from one or more signals. Examples: "Door opened," "Person entered Zone B," "Temperature exceeded 90°F." Logged and queryable. Not necessarily actionable — the audit log shows Events.',
+    createdBy: 'Signal Intelligence layer',
+    ownedBy: 'Platform (audit log)',
+    becomes: 'Alert (if policy match)',
   },
   {
     term: 'Alert',
     definition:
-      'Normalized, enriched, scored notification. Many signals → one alert.',
+      'An event (or cluster of events) evaluated against a security policy and surfaced to an operator for triage. Sits in the operator queue. Requires a human decision: accept or dismiss. Also triggers Notifications to configured recipients.',
     createdBy: 'Signal Normalizer + agents',
     ownedBy: 'Operator',
-    becomes: 'Incident (on accept) or Dismissed',
+    becomes: 'Incident (on accept) or Dismissed → FeedbackRecord',
+  },
+  {
+    term: 'Notification',
+    definition:
+      'An outbound message (push, SMS, email) sent to a person when an Alert meets a delivery rule. The Notification is the delivery mechanism; the Alert is the system-side object. "I got an alert" typically means the person received a Notification about an Alert.',
+    createdBy: 'Notification engine (on Alert)',
+    ownedBy: 'Recipient',
+    becomes: 'Acknowledged or ignored',
   },
   {
     term: 'Incident',
