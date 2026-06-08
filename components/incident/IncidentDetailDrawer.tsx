@@ -13,11 +13,11 @@ interface Props {
   onOverride: () => void
 }
 
-const SEVERITY_BADGE: Record<Severity, { bg: string; text: string; label: string }> = {
-  critical: { bg: '#7F1D1D', text: '#FCA5A5', label: 'CRITICAL' },
-  high: { bg: '#7C2D12', text: '#FDBA74', label: 'HIGH' },
-  medium: { bg: '#78350F', text: '#FCD34D', label: 'MEDIUM' },
-  low: { bg: '#334155', text: '#CBD5E1', label: 'LOW' },
+const SEVERITY_BADGE: Record<Severity, { bg: string; text: string; label: string; rail: string }> = {
+  critical: { bg: '#210A08', text: '#FF453A', label: 'Critical', rail: '#FF453A' },
+  high: { bg: '#2A1706', text: '#FDBA74', label: 'High', rail: '#F97316' },
+  medium: { bg: '#27200B', text: '#FCD34D', label: 'Medium', rail: '#FBBF24' },
+  low: { bg: '#1E293B', text: '#CBD5E1', label: 'Low', rail: '#64748B' },
 }
 
 // ---- Confidence Ring (dark variant) ----
@@ -46,7 +46,7 @@ function ConfidenceRing({ value }: { value: number }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-sm font-bold leading-none text-white">{pct}%</span>
-        <span className="text-[8px] font-medium uppercase tracking-wide text-gray-500">conf</span>
+        <span className="text-[10px] font-medium text-[#94A3B8]">Conf.</span>
       </div>
     </div>
   )
@@ -59,7 +59,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
   if (person.type === 'known') {
     const isHighRisk = person.avatarColor === '#DC2626'
     return (
-      <div className="rounded-lg border border-[#2D3748] bg-[#1A1F2E] p-4">
+      <div className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
         <div className="flex items-start gap-3">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
@@ -71,7 +71,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
             <div className="flex items-center gap-2">
               <h4 className="text-base font-bold text-white">{person.name}</h4>
               {isHighRisk && (
-                <span className="flex items-center gap-1 rounded-full bg-red-950 px-2 py-0.5 text-[10px] font-bold text-red-400">
+                <span className="flex items-center gap-1 rounded-full border border-[#FF453A]/70 bg-[#210A08] px-2.5 py-1 text-xs font-bold text-[#FF453A]">
                   <span
                     className="material-symbols-outlined"
                     style={{ fontSize: '14px', lineHeight: 1 }}
@@ -82,7 +82,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="mt-1 text-sm leading-relaxed text-[#D1D5DB]">
               {person.role}
               {person.company ? ` · ${person.company}` : ''}
             </p>
@@ -105,7 +105,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
 
   // Unknown person — red-tinted card
   return (
-    <div className="rounded-lg border border-[#7F1D1D] bg-[#1C0A0A] p-4">
+    <div className="rounded-lg border border-[#7F1D1D] bg-[#210A08] p-5">
       <div className="flex items-start gap-3">
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white"
@@ -129,7 +129,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
             {person.label ?? 'Unknown Individual'}
           </h4>
           {person.watchlistCategory && (
-            <span className="mt-1 inline-block rounded-full bg-red-900/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-300">
+            <span className="mt-2 inline-block rounded-full border border-[#FF453A]/60 bg-[#210A08] px-2.5 py-1 text-xs font-bold text-[#FFB4AE]">
               {person.watchlistCategory}
             </span>
           )}
@@ -139,7 +139,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
       <div className="mt-4 space-y-2.5">
         {person.confidence != null && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Face Match Confidence
             </p>
             <div className="flex items-center gap-2">
@@ -152,22 +152,22 @@ function PersonCard({ person }: { person: PersonDetails }) {
         )}
 
         {person.firstSeen && (
-          <div className="flex items-baseline justify-between text-xs">
-            <span className="text-gray-500">First seen</span>
-            <span className="font-mono text-gray-300">{person.firstSeen}</span>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="text-[#94A3B8]">First seen</span>
+            <span className="font-mono text-[#E5E7EB]">{person.firstSeen}</span>
           </div>
         )}
 
         {person.cameraSightings && person.cameraSightings.length > 0 && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Camera Sightings
             </p>
             <div className="flex flex-wrap gap-1.5">
               {person.cameraSightings.map((c) => (
                 <span
                   key={c}
-                  className="flex items-center gap-1 rounded border border-[#2D3748] bg-[#1A1F2E] px-2 py-0.5 text-[10px] font-medium text-gray-300"
+                  className="flex items-center gap-1 rounded border border-[#334155] bg-[#151B26] px-2 py-1 text-xs font-medium text-[#D1D5DB]"
                 >
                   <span
                     className="material-symbols-outlined"
@@ -184,7 +184,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
 
         {person.vehiclePlate && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Vehicle Plate
             </p>
             <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
                     setTimeout(() => setCopied(false), 1500)
                   }
                 }}
-                className="flex items-center gap-1 rounded border border-gray-700 px-2 py-1 text-[10px] font-medium text-gray-400 transition-colors hover:border-gray-500 hover:text-gray-200"
+                className="flex min-h-9 items-center gap-1 rounded border border-[#475569] px-2 text-xs font-semibold text-[#D1D5DB] transition-colors hover:border-[#94A3B8] hover:text-white"
               >
                 {copied && (
                   <span
@@ -232,7 +232,7 @@ function Field({
 }) {
   return (
     <div>
-      <p className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-[#94A3B8]">
         {icon && (
           <span
             className="material-symbols-outlined"
@@ -243,7 +243,7 @@ function Field({
         )}
         {label}
       </p>
-      <p className={`text-xs text-gray-200 ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
+      <p className={`text-sm text-[#E5E7EB] ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
     </div>
   )
 }
@@ -293,7 +293,7 @@ function TimelineRow({
     <div className="flex gap-3">
       {/* Time + connector */}
       <div className="flex w-12 shrink-0 flex-col items-end pt-0.5">
-        <span className="font-mono text-[11px] leading-tight text-gray-400">{event.ts}</span>
+        <span className="font-mono text-xs leading-tight text-[#CBD5E1]">{event.ts}</span>
       </div>
 
       {/* Dot + line */}
@@ -310,10 +310,10 @@ function TimelineRow({
         <div
           className={`rounded-lg border p-3 ${
             denied
-              ? 'border-[#7F1D1D] bg-[#1C0A0A]'
+              ? 'border-[#7F1D1D] bg-[#210A08]'
               : isAgent
-                ? 'border-l-2 border-l-teal-500 border-[#2D3748] bg-[#0A1F1F]'
-                : 'border-[#2D3748] bg-[#1A1F2E]'
+                ? 'border-l-2 border-l-teal-400 border-[#334155] bg-[#151B26]'
+                : 'border-[#334155] bg-[#151B26]'
           }`}
         >
           <div className="flex items-start gap-2">
@@ -325,24 +325,24 @@ function TimelineRow({
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-semibold text-gray-100">{event.location}</span>
+                <span className="text-sm font-semibold text-[#F8FAFC]">{event.location}</span>
                 {isAgent && (
-                  <span className="rounded bg-teal-900/60 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-teal-300">
+                  <span className="rounded bg-teal-900/60 px-1.5 py-0.5 text-[11px] font-bold text-teal-200">
                     AI
                   </span>
                 )}
                 {denied && (
-                  <span className="rounded bg-red-900/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-red-300">
+                  <span className="rounded bg-red-900/70 px-1.5 py-0.5 text-[11px] font-bold text-red-200">
                     Denied
                   </span>
                 )}
                 {event.type === 'access' && event.granted === true && (
-                  <span className="rounded bg-green-900/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-green-300">
+                  <span className="rounded bg-green-900/50 px-1.5 py-0.5 text-[11px] font-bold text-green-200">
                     Granted
                   </span>
                 )}
                 {event.tailgate && (
-                  <span className="flex items-center gap-1 rounded bg-amber-900/60 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-300">
+                  <span className="flex items-center gap-1 rounded bg-amber-900/60 px-1.5 py-0.5 text-[11px] font-bold text-amber-200">
                     <span
                       className="material-symbols-outlined"
                       style={{ fontSize: '12px', lineHeight: 1 }}
@@ -353,7 +353,7 @@ function TimelineRow({
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-gray-400">{event.detail}</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#CBD5E1]">{event.detail}</p>
             </div>
 
             {/* Inline camera thumbnail */}
@@ -379,13 +379,23 @@ function TimelineRow({
 const CURRENT_OPERATOR = 'J. Torres'
 
 function getTzAbbr(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short', hour: 'numeric' }).formatToParts(date)
-  return parts.find((p) => p.type === 'timeZoneName')?.value ?? 'UTC'
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    timeZoneName: 'short',
+    hour: 'numeric',
+  }).formatToParts(date)
+  const zone = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'CT'
+  return zone.replace(/\bCST\b|\bCDT\b/, 'CT')
 }
 
 function fmtAlertDate(isoString: string): string {
   const d = new Date(isoString)
-  const datePart = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const datePart = d.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'America/Chicago',
+  })
   return `${datePart} · ${getTzAbbr(d)}`
 }
 
@@ -445,7 +455,7 @@ function OperatorEntryRow({ entry, isLast }: { entry: OperatorEntry; isLast: boo
     <div className="flex gap-3">
       {/* Time + connector */}
       <div className="flex w-12 shrink-0 flex-col items-end pt-0.5">
-        <span className="font-mono text-[11px] leading-tight text-gray-400">{entry.ts}</span>
+        <span className="font-mono text-xs leading-tight text-[#CBD5E1]">{entry.ts}</span>
       </div>
 
       {/* Dot + line */}
@@ -473,14 +483,14 @@ function OperatorEntryRow({ entry, isLast }: { entry: OperatorEntry; isLast: boo
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span
-                  className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+                  className="rounded px-1.5 py-0.5 text-[11px] font-bold"
                   style={{ backgroundColor: s.badgeBg, color: s.badgeText }}
                 >
                   {s.badge}
                 </span>
-                <span className="text-[10px] font-medium text-gray-500">{entry.author}</span>
+                <span className="text-xs font-medium text-[#94A3B8]">{entry.author}</span>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-gray-300">{entry.text}</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#D1D5DB]">{entry.text}</p>
             </div>
           </div>
         </div>
@@ -551,17 +561,51 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     onOverride()
   }
 
+  function viewAllEvidence() {
+    document.getElementById('correlated-evidence-timeline')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+
+  function exportEvidence() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      alert: {
+        id: alert.id,
+        title: alert.title,
+        severity: alert.severity,
+        type: alert.type,
+        location: alert.location,
+        siteName: alert.siteName,
+        timestamp: alert.timestamp,
+      },
+      person: detail.person,
+      agentSummary: detail.agentSummary,
+      correlatedEvents: detail.correlatedEvents,
+      operatorLog,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${alert.id}-evidence-chain.json`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
         className="flex h-full w-[80vw] max-w-[1400px] flex-col bg-[#0F1117] shadow-2xl"
+        style={{ borderLeft: `5px solid ${sevBadge.rail}` }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#2D3748] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[#334155] px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <span
-              className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+              className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-extrabold"
               style={{ backgroundColor: sevBadge.bg, color: sevBadge.text }}
             >
               <span
@@ -571,10 +615,11 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
               {sevBadge.label}
             </span>
             <span
-              className="flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+              className="flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-sm font-bold"
               style={{
-                backgroundColor: isDeterrent ? '#78350F' : '#7F1D1D',
-                color: isDeterrent ? '#FDE68A' : '#FCA5A5',
+                backgroundColor: isDeterrent ? '#27200B' : '#210A08',
+                borderColor: isDeterrent ? '#854D0E' : '#7F1D1D',
+                color: isDeterrent ? '#FDE68A' : '#FFB4AE',
               }}
             >
               <span
@@ -585,11 +630,11 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
               </span>
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
-            <h2 className="truncate text-base font-bold text-white">{alert.title}</h2>
+            <h2 className="truncate text-lg font-bold text-white">{alert.title}</h2>
           </div>
           <button
             onClick={onClose}
-            className="ml-4 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 transition-colors hover:bg-[#1F2937] hover:text-white"
+            className="ml-4 flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-[#CBD5E1] transition-colors hover:bg-[#1F2937] hover:text-white"
           >
             <span
               className="material-symbols-outlined"
@@ -604,36 +649,94 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         {/* Body */}
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[60%_40%]">
           {/* LEFT — Evidence */}
-          <div className="min-h-0 overflow-y-auto border-r border-[#2D3748] p-6">
-            <p className="mb-1 text-xs text-gray-500">
+          <div className="min-h-0 overflow-y-auto border-r border-[#334155] p-6">
+            <p className="mb-2 text-sm font-medium text-[#CBD5E1]">
               {alert.location} · {alert.siteName}
             </p>
 
             <PersonCard person={detail.person} />
 
+            {/* Agent Summary */}
+            <section className="mt-5 rounded-lg border border-[#334155] bg-[#151B26] p-5">
+              <div className="flex items-start gap-3">
+                <span
+                  className="material-symbols-outlined mt-0.5 text-[#38BDF8]"
+                  style={{ fontSize: '22px', lineHeight: 1 }}
+                >
+                  psychology
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base font-bold text-white">Agent Analysis</h3>
+                  <p className="mt-2 text-sm leading-[1.6] text-[#D1D5DB]">{detail.agentSummary}</p>
+                </div>
+              </div>
+
+              {alert.explanation && (
+                <div className="mt-4 border-t border-[#334155] pt-3">
+                  <button
+                    onClick={() => setWhyOpen((v) => !v)}
+                    className="flex min-h-11 w-full items-center justify-between text-sm font-semibold text-[#7DD3FC] transition-colors hover:text-[#BAE6FD]"
+                  >
+                    <span>Why this fired</span>
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '20px', lineHeight: 1 }}
+                    >
+                      {whyOpen ? 'unfold_less' : 'unfold_more'}
+                    </span>
+                  </button>
+                  {whyOpen && (
+                    <p className="mt-2 text-sm leading-[1.6] text-[#CBD5E1]">{alert.explanation}</p>
+                  )}
+                </div>
+              )}
+            </section>
+
             {/* Timeline */}
-            <div className="mt-6">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-300">
+            <div className="mt-5" id="correlated-evidence-timeline">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-base font-bold text-white">
                   Correlated Evidence
                 </h3>
-                <span className="rounded-full bg-[#2D3748] px-2 py-0.5 text-[10px] font-bold text-gray-400">
-                  {allItems.length} events
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-[#334155] bg-[#151B26] px-3 py-1 text-sm font-bold text-[#D1D5DB]">
+                    All {allItems.length} events visible
+                  </span>
+                  <button
+                    type="button"
+                    onClick={viewAllEvidence}
+                    className="min-h-10 rounded-md border border-[#475569] px-3 text-sm font-semibold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+                  >
+                    View All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={exportEvidence}
+                    className="flex min-h-10 items-center gap-1.5 rounded-md bg-[#2563EB] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#1D4ED8]"
+                  >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '18px', lineHeight: 1 }}
+                    >
+                      download
+                    </span>
+                    Export
+                  </button>
+                </div>
               </div>
 
               {/* Date header */}
               <div className="mb-4 flex items-center gap-2">
                 <span
-                  className="material-symbols-outlined text-gray-600"
+                  className="material-symbols-outlined text-[#94A3B8]"
                   style={{ fontSize: '14px', lineHeight: 1 }}
                 >
                   calendar_today
                 </span>
-                <span className="text-[11px] font-semibold text-gray-500">
+                <span className="text-xs font-semibold text-[#94A3B8]">
                   {fmtAlertDate(alert.timestamp)}
                 </span>
-                <span className="flex-1 border-t border-dashed border-gray-800" />
+                <span className="flex-1 border-t border-dashed border-[#334155]" />
               </div>
 
               <div>
@@ -649,11 +752,11 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                         currentDateStr = itemDateStr
                         rows.push(
                           <div key={`date-sep-${item.data.id}`} className="my-3 flex items-center gap-2">
-                            <span className="flex-1 border-t border-dashed border-gray-800" />
-                            <span className="text-[11px] font-semibold text-gray-500">
+                            <span className="flex-1 border-t border-dashed border-[#334155]" />
+                            <span className="text-xs font-semibold text-[#94A3B8]">
                               {fmtAlertDate(item.data.isoTs)}
                             </span>
-                            <span className="flex-1 border-t border-dashed border-gray-800" />
+                            <span className="flex-1 border-t border-dashed border-[#334155]" />
                           </div>
                         )
                       }
@@ -679,7 +782,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
             </div>
 
             {/* Add Operator Note */}
-            <div className="mt-2 rounded-lg border border-[#374151] bg-[#111827] p-4">
+            <div className="mt-1 rounded-lg border border-[#334155] bg-[#151B26] p-5">
               <div className="mb-2 flex items-center gap-2">
                 <span
                   className="material-symbols-outlined text-[#F59E0B]"
@@ -687,22 +790,22 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 >
                   edit_note
                 </span>
-                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-300">
+                <h3 className="text-base font-bold text-white">
                   Add Operator Note
-                </h4>
+                </h3>
               </div>
               <textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 rows={2}
                 placeholder="Type a note visible to all operators..."
-                className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-3 py-2 text-xs leading-relaxed text-gray-200 placeholder:text-gray-500 focus:border-[#F59E0B] focus:outline-none"
+                className="w-full resize-none rounded-md border border-[#475569] bg-[#0F1117] px-3 py-2 text-sm leading-[1.5] text-[#E5E7EB] placeholder:text-[#94A3B8] focus:border-[#F59E0B] focus:outline-none"
               />
               <div className="mt-2 flex justify-end">
                 <button
                   onClick={addNote}
                   disabled={!noteText.trim()}
-                  className="flex items-center gap-1.5 rounded-md bg-[#92400E] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#B45309] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex min-h-11 items-center gap-1.5 rounded-md bg-[#D97706] px-4 text-sm font-bold text-black transition-colors hover:bg-[#F59E0B] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span
                     className="material-symbols-outlined"
@@ -714,42 +817,6 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 </button>
               </div>
             </div>
-
-            {/* Agent Summary */}
-            <div className="mt-2 rounded-lg border border-[#1E3A5F] bg-[#0A1525] p-4">
-              <div className="flex items-center gap-2">
-                <span
-                  className="material-symbols-outlined text-[#38BDF8]"
-                  style={{ fontSize: '20px', lineHeight: 1 }}
-                >
-                  psychology
-                </span>
-                <h4 className="text-xs font-bold uppercase tracking-wide text-[#38BDF8]">
-                  Agent Analysis
-                </h4>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-gray-300">{detail.agentSummary}</p>
-
-              {alert.explanation && (
-                <div className="mt-3 border-t border-[#1E3A5F] pt-3">
-                  <button
-                    onClick={() => setWhyOpen((v) => !v)}
-                    className="flex w-full items-center justify-between text-xs font-semibold text-[#38BDF8] transition-colors hover:text-[#7DD3FC]"
-                  >
-                    <span>Why this fired</span>
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: '18px', lineHeight: 1 }}
-                    >
-                      {whyOpen ? 'unfold_less' : 'unfold_more'}
-                    </span>
-                  </button>
-                  {whyOpen && (
-                    <p className="mt-2 text-xs leading-relaxed text-gray-400">{alert.explanation}</p>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* RIGHT — NBA + SOP + Actions */}
@@ -757,7 +824,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
             {nba ? (
               <div className="space-y-5">
                 {/* NBA header */}
-                <div className="flex items-start gap-4 border-b border-[#2D3748] pb-5">
+                <div className="flex items-start gap-4 border-b border-[#334155] pb-5">
                   <ConfidenceRing value={nba.confidence} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
@@ -767,11 +834,11 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                       >
                         smart_toy
                       </span>
-                      <h3 className="text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
+                      <h3 className="text-base font-bold text-white">
                         Next Best Action
                       </h3>
                     </div>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-2 text-sm leading-[1.5] text-[#D1D5DB]">
                       Contextualized with{' '}
                       {detail.person.type === 'known'
                         ? detail.person.name
@@ -783,29 +850,29 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
                 {/* Recommended action */}
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <p className="mb-2 text-sm font-semibold text-[#94A3B8]">
                     Recommended Action
                   </p>
                   <button
                     onClick={handleAccept}
-                    className="w-full rounded-lg bg-blue-600 px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-blue-500"
+                    className="min-h-[52px] w-full rounded-lg bg-[#2563EB] px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-colors hover:bg-[#1D4ED8]"
                   >
                     {nba.recommendedAction}
                   </button>
-                  <p className="mt-2 text-xs italic leading-relaxed text-gray-400">{nba.rationale}</p>
+                  <p className="mt-2 text-sm italic leading-[1.5] text-[#CBD5E1]">{nba.rationale}</p>
                 </div>
 
                 {/* Alternatives */}
                 {nba.alternatives.length > 0 && (
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <p className="mb-2 text-sm font-semibold text-[#94A3B8]">
                       Alternatives
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {nba.alternatives.map((alt) => (
                         <button
                           key={alt}
-                          className="rounded-lg border border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-blue-500 hover:text-blue-400"
+                          className="min-h-10 rounded-lg border border-[#475569] px-3 text-sm font-medium text-[#D1D5DB] transition-colors hover:border-blue-500 hover:text-blue-300"
                         >
                           {alt}
                         </button>
@@ -816,8 +883,8 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
                 {/* SOP */}
                 {sop && (
-                  <div className="rounded-lg border border-[#2D3748] bg-[#0F1117] p-4">
-                    <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#FCD34D]">
+                  <div className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
+                    <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-[#FCD34D]">
                       <span
                         className="material-symbols-outlined"
                         style={{ fontSize: '18px', lineHeight: 1 }}
@@ -830,7 +897,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                       {sop.steps.map((s) => (
                         <li
                           key={s.step}
-                          className="flex gap-2.5 rounded-md bg-[#1A1F2E] px-3 py-2 text-xs leading-relaxed text-[#CBD5E0]"
+                          className="flex gap-2.5 rounded-md bg-[#0F1117] px-3 py-2 text-sm leading-[1.5] text-[#D1D5DB]"
                         >
                           <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#78350F] text-[10px] font-bold text-[#FDE68A]">
                             {s.step}
@@ -846,7 +913,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 <div className="grid grid-cols-1 gap-3">
                   {nba.autoExecuteActions.length > 0 && (
                     <div className="rounded-lg border border-[#166534] bg-[#0C2714] p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#34D399]">
+                      <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#34D399]">
                         <span
                           className="material-symbols-outlined"
                           style={{ fontSize: '16px', lineHeight: 1 }}
@@ -857,7 +924,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                       </p>
                       <ul className="space-y-1">
                         {nba.autoExecuteActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-xs text-[#86EFAC]">
+                          <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#86EFAC]">
                             <span
                               className="material-symbols-outlined text-[#22C55E]"
                               style={{ fontSize: '16px', lineHeight: 1 }}
@@ -873,7 +940,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
                   {nba.gatedActions.length > 0 && (
                     <div className="rounded-lg border border-[#7F1D1D] bg-[#2D1515] p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#FCA5A5]">
+                      <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#FFB4AE]">
                         <span
                           className="material-symbols-outlined"
                           style={{ fontSize: '16px', lineHeight: 1 }}
@@ -884,7 +951,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                       </p>
                       <ul className="space-y-1">
                         {nba.gatedActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-xs text-[#FCA5A5]">
+                          <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#FFB4AE]">
                             <span
                               className="material-symbols-outlined text-[#EF4444]"
                               style={{ fontSize: '16px', lineHeight: 1 }}
@@ -900,10 +967,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 </div>
 
                 {/* Action footer */}
-                <div className="border-t border-[#2D3748] pt-5">
+                <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-[#334155] bg-[#0F1117]/95 px-6 py-5 backdrop-blur">
                   <button
                     onClick={handleAccept}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+                    className="flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 text-sm font-bold text-white transition-colors hover:bg-[#2563EB]"
                   >
                     <span
                       className="material-symbols-outlined"
@@ -915,7 +982,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   </button>
                   <button
                     onClick={handleOverride}
-                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white"
+                    className="mt-2 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg border border-[#475569] px-4 text-sm font-semibold text-[#D1D5DB] transition-colors hover:bg-[#1F2937] hover:text-white"
                   >
                     <span
                       className="material-symbols-outlined"
@@ -925,7 +992,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                     </span>
                     Override with Reason
                   </button>
-                  <p className="mt-3 text-center text-[11px] text-gray-500">
+                  <p className="mt-3 text-center text-xs text-[#94A3B8]">
                     Every action is logged with attribution
                   </p>
                 </div>
@@ -939,7 +1006,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   smart_toy
                 </span>
                 <p className="text-sm font-semibold text-gray-300">No recommendation available</p>
-                <p className="mt-1 max-w-[220px] text-xs text-gray-500">
+                <p className="mt-1 max-w-[220px] text-sm leading-[1.5] text-[#94A3B8]">
                   This alert is still being enriched.
                 </p>
               </div>
