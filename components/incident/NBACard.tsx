@@ -6,12 +6,22 @@ interface NBACardProps {
   alert: Alert | null
   onAccept: (alert: Alert) => void
   onOverride: (alert: Alert) => void
+  highContrast?: boolean
 }
 
-export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
+export default function NBACard({
+  alert,
+  onAccept,
+  onOverride,
+  highContrast = false,
+}: NBACardProps) {
   if (!alert || !alert.nba) {
     return (
-      <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-[#273142] bg-[#171D29] p-8 text-center">
+      <div
+        className={`soc-surface flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border p-8 text-center ${
+          highContrast ? 'border-[#64748B] bg-black' : 'border-[#273142] bg-[#171D29]'
+        }`}
+      >
         <span
           className="material-symbols-outlined mb-3 text-[#9CA3AF]"
           style={{ fontSize: '32px', lineHeight: 1 }}
@@ -38,7 +48,11 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
     : 'Review'
 
   return (
-    <div className="rounded-xl border border-[#273142] bg-[#171D29]">
+    <div
+      className={`soc-surface rounded-xl border ${
+        highContrast ? 'border-[#64748B] bg-black' : 'border-[#273142] bg-[#171D29]'
+      }`}
+    >
       {/* Header */}
       <div className="border-b border-[#273142] p-5">
         <div className="min-w-0 flex-1">
@@ -80,7 +94,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
           </p>
           <button
             onClick={() => onAccept(alert)}
-            className="w-full rounded-lg bg-[#2563EB] px-4 py-3 text-left text-[15px] font-semibold leading-snug text-white transition-colors hover:bg-[#1D4ED8]"
+            className="min-h-[52px] w-full rounded-lg bg-[#2563EB] px-4 py-3 text-left text-[15px] font-semibold leading-snug text-white transition-colors hover:bg-[#1D4ED8]"
           >
             {nba.recommendedAction}
           </button>
@@ -201,7 +215,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
         <div className="flex gap-2 border-t border-[#273142] pt-5">
           <button
             onClick={() => onAccept(alert)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+            className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
           >
             <span
               className="material-symbols-outlined"
@@ -213,7 +227,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
           </button>
           <button
             onClick={() => onOverride(alert)}
-            className="flex items-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white"
+            className="flex min-h-12 items-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#D1D5DB] transition-colors hover:bg-[#1F2937] hover:text-white"
           >
             <span
               className="material-symbols-outlined"

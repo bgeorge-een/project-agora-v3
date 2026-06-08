@@ -20,11 +20,20 @@ const SITES = ['Austin HQ', 'Dallas Office', 'Cedar Park Warehouse']
 export default function IncidentManagementPage() {
   const [tab, setTab] = useState<ViewTab>('response')
   const [site, setSite] = useState('Austin HQ')
+  const [highContrast, setHighContrast] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[#0F1117]">
+    <div
+      className={`min-h-screen ${highContrast ? 'soc-high-contrast bg-black' : 'bg-[#0F1117]'}`}
+    >
       {/* Top bar */}
-      <header className="sticky top-0 z-20 border-b border-[#273142] bg-[#171D29]/95 backdrop-blur-sm">
+      <header
+        className={`sticky top-0 z-20 border-b backdrop-blur-sm ${
+          highContrast
+            ? 'border-[#64748B] bg-black'
+            : 'border-[#273142] bg-[#171D29]/95'
+        }`}
+      >
         <div className="flex flex-wrap items-center gap-4 px-6 py-4">
           <h1 className="text-lg font-semibold text-white">
             Real-time Incident Management
@@ -58,6 +67,19 @@ export default function IncidentManagementPage() {
               </span>
               Live
             </span>
+
+            <button
+              type="button"
+              aria-pressed={highContrast}
+              onClick={() => setHighContrast((value) => !value)}
+              className={`min-h-12 rounded-lg px-3 text-sm font-semibold transition-colors ${
+                highContrast
+                  ? 'bg-white text-black'
+                  : 'border border-[#374151] bg-[#111827] text-[#D1D5DB] hover:bg-[#1F2937]'
+              }`}
+            >
+              High Contrast
+            </button>
           </div>
         </div>
 
@@ -69,7 +91,7 @@ export default function IncidentManagementPage() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`relative min-h-[52px] px-5 py-3 text-sm font-semibold transition-colors ${
                   active
                     ? 'text-white'
                     : 'text-[#9CA3AF] hover:text-white'
@@ -77,7 +99,7 @@ export default function IncidentManagementPage() {
               >
                 {t.label}
                 {active && (
-                  <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#60A5FA]" />
+                  <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#60A5FA]" />
                 )}
               </button>
             )
@@ -87,7 +109,7 @@ export default function IncidentManagementPage() {
 
       {/* Active view */}
       <div className="px-6 py-6">
-        {tab === 'response' && <ResponseView />}
+        {tab === 'response' && <ResponseView highContrast={highContrast} />}
         {tab === 'monitor' && <MonitorView />}
         {tab === 'map' && <MapView />}
         {tab === 'insights' && <InsightsView />}

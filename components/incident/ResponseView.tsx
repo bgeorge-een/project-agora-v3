@@ -9,14 +9,26 @@ import OverrideModal, { type OverrideReason } from './OverrideModal'
 import { IncidentDetailDrawer } from './IncidentDetailDrawer'
 
 // ---- helpers ----
-function formatAge(seconds: number): string {
-  if (seconds < 60) return `0:${String(seconds).padStart(2, '0')} ago`
+function formatElapsed(seconds: number): string {
+  if (seconds < 60) return `${seconds}s elapsed`
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
-  if (m < 60) return `${m}:${String(s).padStart(2, '0')} ago`
+  if (m < 60) return `${m}m ${String(s).padStart(2, '0')}s elapsed`
   const h = Math.floor(m / 60)
   const rm = m % 60
-  return `${h}h ${rm}m ago`
+  return `${h}h ${rm}m elapsed`
+}
+
+function formatLocalTime(ageSeconds: number): string {
+  const eventTime = new Date(Date.now() - ageSeconds * 1000)
+  const formatted = eventTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+    timeZoneName: 'short',
+  })
+  return formatted.replace(/\bCST\b|\bCDT\b/, 'CT')
 }
 
 const SEVERITY_META: Record<
@@ -25,9 +37,9 @@ const SEVERITY_META: Record<
 > = {
   critical: {
     label: 'Critical',
-    rail: '#EF4444',
-    text: '#FCA5A5',
-    quietText: '#FCA5A5',
+    rail: '#FF453A',
+    text: '#FF453A',
+    quietText: '#FFB4AE',
   },
   high: {
     label: 'High',
@@ -57,6 +69,7 @@ interface AlertCardProps {
   onAccept: (a: Alert) => void
   onReview: (a: Alert) => void
   onOverride: (a: Alert) => void
+  highContrast?: boolean
 }
 
 function AlertCard({
@@ -64,74 +77,68 @@ function AlertCard({
   selected,
   resolution,
   onReview,
+  highContrast = false,
 }: AlertCardProps) {
   const isDeterrent = alert.type === 'deterrent'
   const meta = SEVERITY_META[alert.severity]
   const confidence = alert.nba ? Math.round(alert.nba.confidence * 100) : null
+  const criticalUnacknowledged = alert.severity === 'critical' && !resolution
+  const detailItems = [
+    alert.location,
+    `Local ${formatLocalTime(alert.ageSeconds)}`,
+    formatElapsed(alert.ageSeconds),
+    `${alert.sources.length} sources`,
+    alert.nba && confidence != null ? `AI ${confidence}%` : alert.status === 'enriching' ? 'AI enriching' : 'AI pending',
+  ]
 
   return (
     <div
-      className={`rounded-lg border p-4 transition-colors ${
+      className={`soc-surface rounded-lg border p-5 transition-colors ${
+        criticalUnacknowledged ? 'critical-unacknowledged' : ''
+      } ${
         selected
-          ? 'border-[#475569] bg-[#202838]'
-          : 'border-[#273142] bg-[#171D29] hover:bg-[#1D2533]'
+          ? highContrast
+            ? 'border-white bg-black'
+            : 'border-[#475569] bg-[#202838]'
+          : highContrast
+            ? 'border-[#64748B] bg-black hover:bg-[#111827]'
+            : 'border-[#273142] bg-[#171D29] hover:bg-[#1D2533]'
       }`}
-      style={{ borderLeft: `4px solid ${selected ? '#60A5FA' : meta.rail}` }}
+      style={{ borderLeft: `5px solid ${selected ? '#60A5FA' : meta.rail}` }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex items-center gap-2 text-xs">
-            <span className="font-semibold" style={{ color: meta.text }}>
+          <div className="mb-2 flex items-center gap-2 text-base leading-none">
+            <span className="font-extrabold" style={{ color: meta.text }}>
               {meta.label}
             </span>
-            <span className="text-[#4B5563]">/</span>
-            <span className="text-[#9CA3AF]">
+            <span className="soc-muted text-sm font-semibold text-[#9CA3AF]">
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
           </div>
-          <h3 className="text-[15px] font-semibold leading-snug text-[#F8FAFC]">
+          <h3 className="text-base font-semibold leading-[1.5] text-[#F8FAFC]">
             {alert.title}
           </h3>
-          <p className="mt-1 text-sm text-[#D1D5DB]">
-            {alert.location} · {formatAge(alert.ageSeconds)}
+          <p className="soc-muted mt-2 text-sm leading-[1.5] text-[#D1D5DB]">
+            Incident Detail: {detailItems.filter(Boolean).join(' · ')}
           </p>
         </div>
         <button
           onClick={() => onReview(alert)}
-          className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+          className={`min-h-12 shrink-0 rounded-md px-5 text-sm font-bold transition-colors ${
             selected
               ? 'bg-[#243B55] text-[#BFDBFE]'
-              : 'border border-[#374151] text-[#CBD5E0] hover:border-[#4B5563] hover:bg-[#1F2937]'
+              : alert.severity === 'critical'
+                ? 'bg-[#FF453A] text-black hover:bg-[#FF6B61]'
+                : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
           }`}
         >
-          {selected ? 'Selected' : 'Open'}
+          {selected ? 'Selected' : alert.severity === 'critical' ? 'Respond' : 'Open'}
         </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#273142] pt-2.5 text-sm text-[#9CA3AF]">
-        <span>{alert.sources.length} sources</span>
-        <span className="text-[#4B5563]">·</span>
-        {alert.status === 'enriching' ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="material-symbols-outlined animate-spin"
-              style={{ fontSize: '14px', lineHeight: 1 }}
-            >
-              sync
-            </span>
-            Enriching
-          </span>
-        ) : alert.nba ? (
-          <span className="text-[#CBD5E0]">
-            Recommendation ready{confidence != null ? ` · ${confidence}%` : ''}
-          </span>
-        ) : (
-          <span>Awaiting enrichment</span>
-        )}
-      </div>
-
       {resolution && (
-        <div className="mt-2.5 flex items-center gap-1.5 rounded-md border border-[#274235] bg-[#12221B] px-2.5 py-1.5 text-xs font-medium text-[#86EFAC]">
+        <div className="mt-3 flex items-center gap-1.5 rounded-md border border-[#274235] bg-[#12221B] px-2.5 py-1.5 text-sm font-medium text-[#86EFAC]">
           <span
             className="material-symbols-outlined"
             style={{ fontSize: '16px', lineHeight: 1 }}
@@ -165,7 +172,11 @@ const REASON_LABELS: Record<OverrideReason, string> = {
   other: 'Other',
 }
 
-export default function ResponseView() {
+export default function ResponseView({
+  highContrast = false,
+}: {
+  highContrast?: boolean
+}) {
   const { alerts } = useSimulation()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<Record<Severity, boolean>>({
@@ -230,10 +241,18 @@ export default function ResponseView() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 bg-[#0F1117] lg:grid-cols-[58%_42%]">
+    <div
+      className={`grid grid-cols-1 gap-5 lg:grid-cols-[58%_42%] ${
+        highContrast ? 'bg-black' : 'bg-[#0F1117]'
+      }`}
+    >
       {/* LEFT — Alert Queue */}
-      <div className="space-y-3">
-        <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
+      <div className="space-y-4">
+        <div
+          className={`soc-surface rounded-xl border p-5 ${
+            highContrast ? 'border-[#64748B] bg-black' : 'border-[#273142] bg-[#171D29]'
+          }`}
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-base font-semibold text-white">Alert Queue</h2>
@@ -242,13 +261,13 @@ export default function ResponseView() {
               </p>
             </div>
             {criticalCount > 0 && (
-              <span className="rounded-md border border-[#7F1D1D] bg-[#1C0A0A] px-2.5 py-1 text-xs font-semibold text-[#FCA5A5]">
+              <span className="rounded-md border border-[#FF453A] bg-[#210A08] px-3 py-1.5 text-base font-extrabold text-[#FF453A]">
                 Critical focus
               </span>
             )}
           </div>
           {criticalCount > 0 && (
-            <div className="mt-3 rounded-lg border border-[#7F1D1D]/70 bg-[#180D0D] px-3 py-2 text-sm text-[#FECACA]">
+            <div className="mt-4 rounded-lg border border-[#7F1D1D]/70 bg-[#180D0D] px-4 py-3 text-sm leading-[1.5] text-[#FECACA]">
               Keep attention on critical alerts first. Lower severity groups stay collapsed until needed.
             </div>
           )}
@@ -268,16 +287,20 @@ export default function ResponseView() {
                   setExpanded((prev) => ({ ...prev, [sev]: !prev[sev] }))
                 }
                 disabled={isCritical}
-                className="flex w-full items-center justify-between rounded-lg border border-[#273142] bg-[#151B26] px-3 py-2 text-left transition-colors hover:bg-[#1A2230]"
+                className={`flex min-h-[52px] w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors ${
+                  highContrast
+                    ? 'border-[#64748B] bg-black hover:bg-[#111827]'
+                    : 'border-[#273142] bg-[#151B26] hover:bg-[#1A2230]'
+                }`}
               >
                 <span
-                  className="flex items-center gap-1.5 text-sm font-semibold"
+                  className="flex items-center gap-2 text-base font-bold"
                   style={{ color: meta.headerText }}
                 >
                   {!isCritical && (
                     <span
                       className="material-symbols-outlined"
-                      style={{ fontSize: '18px', lineHeight: 1 }}
+                      style={{ fontSize: '24px', lineHeight: 1 }}
                     >
                       {isOpen ? 'expand_more' : 'chevron_right'}
                     </span>
@@ -286,18 +309,24 @@ export default function ResponseView() {
                 </span>
                 {list.length > 0 && (
                   <span
-                    className="rounded-full bg-[#273142] px-2 py-0.5 text-xs font-semibold"
+                    className={`rounded-full px-3 py-1 text-sm font-extrabold ${
+                      sev === 'critical'
+                        ? 'bg-[#210A08]'
+                        : highContrast
+                          ? 'bg-white text-black'
+                          : 'bg-[#273142]'
+                    }`}
                     style={{ color: meta.headerText }}
                   >
-                    {list.length}
+                    {list.length} {meta.label}
                   </span>
                 )}
               </button>
 
               {(isCritical || isOpen) && (
-                <div className="mt-2 space-y-2.5">
+                <div className="mt-4 space-y-5">
                   {list.length === 0 ? (
-                    <p className="px-3 py-2 text-xs text-[#6B7280]">
+                    <p className="px-3 py-2 text-sm text-[#9CA3AF]">
                       No {meta.label.toLowerCase()} alerts.
                     </p>
                   ) : (
@@ -310,6 +339,7 @@ export default function ResponseView() {
                         onAccept={handleAccept}
                         onReview={handleReview}
                         onOverride={handleOverride}
+                        highContrast={highContrast}
                       />
                     ))
                   )}
@@ -321,11 +351,14 @@ export default function ResponseView() {
       </div>
 
       {/* RIGHT — NBA + SOP */}
-      <div className="bg-[#0F1117] lg:sticky lg:top-4 lg:self-start">
+      <div
+        className={`${highContrast ? 'bg-black' : 'bg-[#0F1117]'} lg:sticky lg:top-4 lg:self-start`}
+      >
         <NBACard
           alert={nbaCardAlert}
           onAccept={handleAccept}
           onOverride={handleOverride}
+          highContrast={highContrast}
         />
       </div>
 
