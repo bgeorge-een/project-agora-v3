@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import type { Alert, AlertDetail, CorrelatedEvent, PersonDetails, Severity } from '@/lib/types'
 import { CameraStill } from './CameraStill'
 import { CameraClipModal } from './CameraClipModal'
@@ -18,6 +18,59 @@ const SEVERITY_BADGE: Record<Severity, { bg: string; text: string; label: string
   high: { bg: '#2A1706', text: '#FDBA74', label: 'High', rail: '#F97316' },
   medium: { bg: '#27200B', text: '#FCD34D', label: 'Medium', rail: '#FBBF24' },
   low: { bg: '#1E293B', text: '#CBD5E1', label: 'Low', rail: '#64748B' },
+}
+
+type ExecutionStatus = 'queued' | 'running' | 'needs_confirmation' | 'manual_required' | 'complete'
+
+type ExecutionAction = {
+  id: string
+  label: string
+  system: string
+  status: ExecutionStatus
+  detail: string
+  proof?: string
+  updatedAt?: string
+}
+
+const STATUS_META: Record<
+  ExecutionStatus,
+  { label: string; icon: string; text: string; bg: string; border: string }
+> = {
+  queued: {
+    label: 'Queued',
+    icon: 'schedule',
+    text: '#CBD5E1',
+    bg: '#111827',
+    border: '#334155',
+  },
+  running: {
+    label: 'Running',
+    icon: 'sync',
+    text: '#7DD3FC',
+    bg: '#082F49',
+    border: '#0369A1',
+  },
+  needs_confirmation: {
+    label: 'Needs confirmation',
+    icon: 'pending_actions',
+    text: '#FCD34D',
+    bg: '#27200B',
+    border: '#854D0E',
+  },
+  manual_required: {
+    label: 'Manual required',
+    icon: 'phone_in_talk',
+    text: '#FFB4AE',
+    bg: '#210A08',
+    border: '#7F1D1D',
+  },
+  complete: {
+    label: 'Complete',
+    icon: 'check_circle',
+    text: '#86EFAC',
+    bg: '#0C2714',
+    border: '#166534',
+  },
 }
 
 // ---- Confidence Ring (dark variant) ----
@@ -428,11 +481,130 @@ function eventDateTime(baseIso: string, hhmm: string): string {
   return `${centralDateForDateTime(baseIso)}T${safeTime}:00`
 }
 
+function splitRecommendation(action: string): string[] {
+  return action
+    .split(/\s+\+\s+|;\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+}
+
+function actionSignature(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b(immediately|remote|remotely|all|zones|zone|door|the|to|at|in|on)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function actionSystem(label: string): string {
+  const lower = label.toLowerCase()
+  if (lower.includes('camera') || lower.includes('evidence') || lower.includes('clip')) {
+    return 'Video Management'
+  }
+  if (lower.includes('badge') || lower.includes('access') || lower.includes('door') || lower.includes('lock')) {
+    return 'Access Control'
+  }
+  if (lower.includes('guard') || lower.includes('patrol') || lower.includes('intercept') || lower.includes('sweep')) {
+    return 'Guard Dispatch'
+  }
+  if (lower.includes('incident record') || lower.includes('ticket')) {
+    return 'Case System'
+  }
+  if (lower.includes('law enforcement') || lower.includes('lea')) {
+    return 'External Liaison'
+  }
+  if (lower.includes('hr') || lower.includes('legal')) {
+    return 'HR / Legal'
+  }
+  if (lower.includes('notify') || lower.includes('alert') || lower.includes('contact')) {
+    return 'Communications'
+  }
+  return 'Agora Orchestration'
+}
+
+function queuedDetail(label: string): string {
+  const system = actionSystem(label)
+  if (system === 'Access Control') return 'Waiting to submit command to Access Control.'
+  if (system === 'Guard Dispatch') return 'Waiting to notify the closest available guard.'
+  if (system === 'Video Management') return 'Waiting to lock supporting video evidence.'
+  if (system === 'Communications') return 'Waiting to send notifications to on-duty contacts.'
+  return `Waiting for ${system} acknowledgement.`
+}
+
+function runningDetail(action: ExecutionAction): string {
+  if (action.system === 'Access Control') return 'Submitting command and waiting for controller acknowledgement.'
+  if (action.system === 'Guard Dispatch') return 'Dispatch request sent. Waiting for guard acknowledgement.'
+  if (action.system === 'Video Management') return 'Retention lock command sent to video management.'
+  if (action.system === 'Communications') return 'Sending notification and collecting delivery receipt.'
+  return `Command sent to ${action.system}.`
+}
+
+function needsConfirmation(action: ExecutionAction): boolean {
+  return action.system === 'Guard Dispatch'
+}
+
+function needsManualResolution(action: ExecutionAction): boolean {
+  return action.system === 'External Liaison' || action.system === 'HR / Legal'
+}
+
+function completionProof(action: ExecutionAction): string {
+  const lower = action.label.toLowerCase()
+  if (lower.includes('restrict') && lower.includes('badge')) return 'Badge restriction acknowledged across configured access zones.'
+  if (lower.includes('lock') && lower.includes('door')) return 'Door controller acknowledged remote lock command.'
+  if (action.system === 'Guard Dispatch') return 'Guard Unit G-12 acknowledged dispatch; ETA 2 minutes.'
+  if (action.system === 'Video Management') return 'Evidence retained for the configured 30 minute window.'
+  if (action.system === 'Communications') return 'Notification delivered to on-duty recipients.'
+  if (action.system === 'Case System') return 'Incident record created and linked to this alert.'
+  return `${action.system} acknowledged command.`
+}
+
+function buildExecutionActions(alert: Alert): ExecutionAction[] {
+  if (!alert.nba) return []
+
+  const seen = new Set<string>()
+  const labels = [
+    ...splitRecommendation(alert.nba.recommendedAction),
+    ...alert.nba.gatedActions,
+    ...alert.nba.autoExecuteActions,
+  ].filter((label) => {
+    const signature = actionSignature(label)
+    if (!signature || seen.has(signature)) return false
+    seen.add(signature)
+    return true
+  })
+
+  return labels.map((label, index) => {
+    const id = `exec-${alert.id}-${index}`
+    return {
+      id,
+      label,
+      system: actionSystem(label),
+      status: 'queued',
+      detail: queuedDetail(label),
+    }
+  })
+}
+
+function formatActionTime(isoString?: string): string {
+  if (!isoString) return ''
+  return new Date(isoString)
+    .toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'America/Chicago',
+      timeZoneName: 'short',
+    })
+    .replace(/\bCST\b|\bCDT\b/, 'CT')
+}
+
 type OperatorEntry = {
   id: string
   ts: string     // HH:MM for display
   isoTs: string  // full ISO for date comparison
-  entryType: 'note' | 'accepted' | 'override'
+  entryType: 'note' | 'accepted' | 'override' | 'system'
   text: string
   author: string
 }
@@ -474,6 +646,16 @@ const OPERATOR_STYLE: Record<
     badge: 'Override',
     badgeBg: 'rgba(154, 52, 18, 0.6)',
     badgeText: '#FDBA74',
+  },
+  system: {
+    dot: '#38BDF8',
+    icon: 'verified',
+    iconColor: '#38BDF8',
+    cardBg: '#082F49',
+    cardBorder: '#0369A1',
+    badge: 'System Receipt',
+    badgeBg: 'rgba(3, 105, 161, 0.55)',
+    badgeText: '#BAE6FD',
   },
 }
 
@@ -531,21 +713,127 @@ function OperatorEntryRow({ entry, isLast }: { entry: OperatorEntry; isLast: boo
   )
 }
 
+function ExecutionTracker({
+  actions,
+  started,
+  onManualComplete,
+}: {
+  actions: ExecutionAction[]
+  started: boolean
+  onManualComplete: (id: string) => void
+}) {
+  if (!started || actions.length === 0) return null
+
+  const completeCount = actions.filter((action) => action.status === 'complete').length
+
+  return (
+    <section className="rounded-lg border border-[#334155] bg-[#151B26] p-5" aria-live="polite">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 className="text-base font-bold text-white">Action Execution</h4>
+          <p className="mt-1 text-sm text-[#CBD5E1]">
+            {completeCount} of {actions.length} actions complete
+          </p>
+        </div>
+        <span className="rounded-full border border-[#334155] bg-[#0F1117] px-3 py-1 text-sm font-bold text-[#D1D5DB]">
+          Execution assurance
+        </span>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {actions.map((action) => {
+          const meta = STATUS_META[action.status]
+          return (
+            <div
+              key={action.id}
+              className="rounded-lg border bg-[#0F1117] p-3"
+              style={{ borderColor: meta.border }}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`material-symbols-outlined mt-0.5 ${action.status === 'running' ? 'animate-spin' : ''}`}
+                  aria-hidden="true"
+                  style={{ color: meta.text, fontSize: '20px', lineHeight: 1 }}
+                >
+                  {meta.icon}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold leading-[1.5] text-white">{action.label}</p>
+                      <p className="text-xs font-semibold text-[#94A3B8]">{action.system}</p>
+                    </div>
+                    <span
+                      className="rounded-full border px-2.5 py-1 text-xs font-bold"
+                      style={{ backgroundColor: meta.bg, borderColor: meta.border, color: meta.text }}
+                    >
+                      {meta.label}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm leading-[1.5] text-[#CBD5E1]">{action.detail}</p>
+                  {action.proof && (
+                    <p className="mt-2 rounded-md border border-[#334155] bg-[#111827] px-3 py-2 text-sm leading-[1.5] text-[#E5E7EB]">
+                      {action.proof}
+                    </p>
+                  )}
+                  {action.updatedAt && (
+                    <time className="mt-2 block text-xs font-semibold text-[#94A3B8]" dateTime={action.updatedAt}>
+                      Updated {formatActionTime(action.updatedAt)}
+                    </time>
+                  )}
+
+                  {action.status === 'manual_required' && (
+                    <button
+                      type="button"
+                      onClick={() => onManualComplete(action.id)}
+                      aria-label={`Mark manual action complete: ${action.label}`}
+                      className="mt-3 min-h-10 rounded-md bg-[#D97706] px-3 text-sm font-bold text-black transition-all hover:bg-[#F59E0B] active:scale-[0.98]"
+                    >
+                      Mark Manual Complete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 // ---- Main Drawer ----
 export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverride }: Props) {
   const [clipEvent, setClipEvent] = useState<CorrelatedEvent | null>(null)
   const [whyOpen, setWhyOpen] = useState(false)
   const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
   const [noteText, setNoteText] = useState('')
+  const initialExecutionActions = useMemo(() => buildExecutionActions(alert), [alert])
+  const [executionActions, setExecutionActions] = useState<ExecutionAction[]>(initialExecutionActions)
+  const [executionStarted, setExecutionStarted] = useState(false)
+  const executionRunRef = useRef<string | null>(null)
   const sevBadge = SEVERITY_BADGE[alert.severity]
   const isDeterrent = alert.type === 'deterrent'
   const { nba, sop } = alert
   const actionJustificationId = `action-justification-${alert.id}`
+  const completedActionCount = executionActions.filter((action) => action.status === 'complete').length
+  const allActionsComplete = executionStarted && executionActions.length > 0 && completedActionCount === executionActions.length
 
   const allItems: TimelineItem[] = [
     ...detail.correlatedEvents.map((e) => ({ kind: 'event' as const, data: e })),
     ...operatorLog.map((e) => ({ kind: 'operator' as const, data: e })),
-  ].sort((a, b) => a.data.ts.localeCompare(b.data.ts))
+  ].sort((a, b) => {
+    const aTime =
+      a.kind === 'operator'
+        ? new Date(a.data.isoTs).getTime()
+        : new Date(eventDateTime(alert.timestamp, a.data.ts)).getTime()
+    const bTime =
+      b.kind === 'operator'
+        ? new Date(b.data.isoTs).getTime()
+        : new Date(eventDateTime(alert.timestamp, b.data.ts)).getTime()
+    return aTime - bTime
+  })
 
   const alertDateStr = new Date(alert.timestamp).toDateString()
 
@@ -566,7 +854,42 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     setNoteText('')
   }
 
+  function addSystemReceipt(text: string) {
+    setOperatorLog((prev) => [
+      ...prev,
+      {
+        id: `sys-${Date.now()}-${prev.length}`,
+        ...nowEntry(),
+        entryType: 'system',
+        text,
+        author: 'Agora Orchestration',
+      },
+    ])
+  }
+
+  function updateExecutionAction(id: string, patch: Partial<ExecutionAction>) {
+    setExecutionActions((prev) =>
+      prev.map((action) =>
+        action.id === id
+          ? {
+              ...action,
+              ...patch,
+              updatedAt: patch.updatedAt ?? new Date().toISOString(),
+            }
+          : action
+      )
+    )
+  }
+
   function handleAccept() {
+    if (!nba) return
+    if (executionStarted) {
+      if (allActionsComplete) {
+        onAccept()
+      }
+      return
+    }
+
     setOperatorLog((prev) => [
       ...prev,
       {
@@ -577,7 +900,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         author: CURRENT_OPERATOR,
       },
     ])
-    onAccept()
+    setExecutionStarted(true)
   }
 
   function handleOverride() {
@@ -593,6 +916,94 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     ])
     onOverride()
   }
+
+  function handleManualComplete(id: string) {
+    const action = executionActions.find((item) => item.id === id)
+    if (!action) return
+    const proof = `${action.system} confirmed manually by ${CURRENT_OPERATOR}.`
+    updateExecutionAction(id, {
+      status: 'complete',
+      detail: 'Manual confirmation recorded.',
+      proof,
+    })
+    addSystemReceipt(`${action.label} — ${proof}`)
+  }
+
+  useEffect(() => {
+    setExecutionActions(buildExecutionActions(alert))
+    setExecutionStarted(false)
+    executionRunRef.current = null
+  }, [alert])
+
+  useEffect(() => {
+    if (!executionStarted || executionRunRef.current === alert.id) return
+    executionRunRef.current = alert.id
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    executionActions.forEach((action, index) => {
+      const startDelay = 250 + index * 450
+      const outcomeDelay = 1000 + index * 700
+
+      timers.push(
+        setTimeout(() => {
+          updateExecutionAction(action.id, {
+            status: 'running',
+            detail: runningDetail(action),
+          })
+        }, startDelay)
+      )
+
+      timers.push(
+        setTimeout(() => {
+          if (needsManualResolution(action)) {
+            const proof = `${action.system} requires phone or policy confirmation outside Agora.`
+            updateExecutionAction(action.id, {
+              status: 'manual_required',
+              detail: 'Manual follow-up required before this action can be marked complete.',
+              proof,
+            })
+            addSystemReceipt(`${action.label} — manual confirmation required.`)
+            return
+          }
+
+          if (needsConfirmation(action)) {
+            updateExecutionAction(action.id, {
+              status: 'needs_confirmation',
+              detail: 'Dispatch request sent. Awaiting guard acknowledgement.',
+              proof: 'Dispatch request delivered to guard channel.',
+            })
+            addSystemReceipt(`${action.label} — dispatch request delivered; awaiting acknowledgement.`)
+            return
+          }
+
+          const proof = completionProof(action)
+          updateExecutionAction(action.id, {
+            status: 'complete',
+            detail: 'Action completed and acknowledged by the target system.',
+            proof,
+          })
+          addSystemReceipt(`${action.label} — ${proof}`)
+        }, outcomeDelay)
+      )
+
+      if (needsConfirmation(action)) {
+        timers.push(
+          setTimeout(() => {
+            const proof = completionProof(action)
+            updateExecutionAction(action.id, {
+              status: 'complete',
+              detail: 'Guard dispatch acknowledged.',
+              proof,
+            })
+            addSystemReceipt(`${action.label} — ${proof}`)
+          }, outcomeDelay + 1200)
+        )
+      }
+    })
+
+    return () => timers.forEach((timer) => clearTimeout(timer))
+  }, [alert.id, executionActions, executionStarted])
 
   useEffect(() => {
     function handleShortcut(event: KeyboardEvent) {
@@ -630,6 +1041,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       person: detail.person,
       agentSummary: detail.agentSummary,
       correlatedEvents: detail.correlatedEvents,
+      executionActions,
       operatorLog,
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
@@ -924,18 +1336,33 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   </h4>
                   <button
                     onClick={handleAccept}
+                    disabled={executionStarted}
                     role="button"
-                    aria-label={`Accept recommended action: ${nba.recommendedAction}`}
+                    aria-label={
+                      executionStarted
+                        ? `Recommendation accepted: ${nba.recommendedAction}`
+                        : `Accept recommended action: ${nba.recommendedAction}`
+                    }
                     aria-describedby={actionJustificationId}
                     aria-keyshortcuts="Meta+Enter Control+Enter"
-                    className="min-h-[52px] w-full rounded-lg bg-[#2563EB] px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-all hover:bg-[#1D4ED8] active:scale-[0.98]"
+                    className={`min-h-[52px] w-full rounded-lg px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-all ${
+                      executionStarted
+                        ? 'cursor-default border border-[#334155] bg-[#1F2937] text-[#D1D5DB]'
+                        : 'bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98]'
+                    }`}
                   >
-                    {nba.recommendedAction}
+                    {executionStarted ? 'Recommendation accepted' : nba.recommendedAction}
                   </button>
                   <p id={actionJustificationId} className="mt-2 text-sm font-medium leading-[1.5] text-[#CBD5E1]">
                     {nba.rationale}
                   </p>
                 </section>
+
+                <ExecutionTracker
+                  actions={executionActions}
+                  started={executionStarted}
+                  onManualComplete={handleManualComplete}
+                />
 
                 {/* Alternatives */}
                 {nba.alternatives.length > 0 && (
@@ -1051,23 +1478,42 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 <footer className="sticky bottom-0 z-10 -mx-6 -mb-6 border-t border-[#334155] bg-[#0F1117]/95 px-6 py-5 backdrop-blur transform-gpu will-change-transform">
                   <button
                     onClick={handleAccept}
-                    aria-label="Confirm and accept AI recommendation"
+                    disabled={executionStarted && !allActionsComplete}
+                    aria-label={
+                      executionStarted
+                        ? allActionsComplete
+                          ? 'Complete response after verified execution'
+                          : `Execution in progress: ${completedActionCount} of ${executionActions.length} actions complete`
+                        : 'Confirm and accept AI recommendation'
+                    }
                     aria-describedby={actionJustificationId}
                     aria-keyshortcuts="Meta+Enter Control+Enter"
-                    className="flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 text-sm font-bold text-white transition-all hover:bg-[#2563EB] active:scale-[0.98]"
+                    className={`flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-all ${
+                      executionStarted && !allActionsComplete
+                        ? 'cursor-not-allowed border border-[#334155] bg-[#1F2937] text-[#94A3B8]'
+                        : 'bg-[#1D4ED8] text-white hover:bg-[#2563EB] active:scale-[0.98]'
+                    }`}
                   >
                     <span
                       className="material-symbols-outlined"
                       aria-hidden="true"
                       style={{ fontSize: '18px', lineHeight: 1 }}
                     >
-                      check_circle
+                      {executionStarted && !allActionsComplete ? 'sync' : 'check_circle'}
                     </span>
                     <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-                      <span>Accept AI Recommendation</span>
-                      <kbd className="rounded border border-white/25 px-1.5 py-0.5 text-[11px] font-semibold text-white/80">
-                        Cmd/Ctrl+Enter
-                      </kbd>
+                      <span>
+                        {executionStarted
+                          ? allActionsComplete
+                            ? 'Complete Response'
+                            : `Executing ${completedActionCount}/${executionActions.length}`
+                          : 'Accept AI Recommendation'}
+                      </span>
+                      {!executionStarted && (
+                        <kbd className="rounded border border-white/25 px-1.5 py-0.5 text-[11px] font-semibold text-white/80">
+                          Cmd/Ctrl+Enter
+                        </kbd>
+                      )}
                     </span>
                   </button>
                   <button
