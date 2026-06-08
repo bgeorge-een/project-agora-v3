@@ -6,16 +6,15 @@ interface StatCard {
   label: string
   value: string
   trend?: string
-  trendColor?: string
+  state?: 'critical' | 'neutral' | 'positive'
   trendIcon?: string
-  accent: string
 }
 
 const STATS: StatCard[] = [
-  { label: 'Open Incidents', value: '4', trend: 'trending up', trendColor: '#F87171', trendIcon: 'trending_up', accent: '#EF4444' },
-  { label: 'MTTA', value: '2.3 min', trend: '0.4m wk', trendColor: '#34D399', trendIcon: 'trending_down', accent: '#2563EB' },
-  { label: 'AI Acceptance Rate', value: '87%', trend: '3% wk', trendColor: '#34D399', trendIcon: 'trending_up', accent: '#7C3AED' },
-  { label: 'Active Campaigns', value: '1', accent: '#D97706' },
+  { label: 'Open Incidents', value: '4', trend: 'requires triage', state: 'critical', trendIcon: 'priority_high' },
+  { label: 'MTTA', value: '2.3 min', trend: '0.4m faster wk', state: 'neutral', trendIcon: 'trending_down' },
+  { label: 'AI Acceptance Rate', value: '87%', trend: '3% wk', state: 'neutral', trendIcon: 'trending_up' },
+  { label: 'Active Campaigns', value: '1', state: 'neutral' },
 ]
 
 interface SiteRow {
@@ -41,17 +40,17 @@ interface BarRow {
 }
 
 const AI_BARS: BarRow[] = [
-  { label: 'Recommendation Acceptance Rate', pct: 87, color: '#2563EB' },
-  { label: 'Override: Wrong Severity', pct: 6, color: '#F59E0B' },
-  { label: 'Override: False Positive', pct: 4, color: '#F97316' },
+  { label: 'Recommendation Acceptance Rate', pct: 87, color: '#94A3B8' },
+  { label: 'Override: Wrong Severity', pct: 6, color: '#D97706' },
+  { label: 'Override: False Positive', pct: 4, color: '#D97706' },
   { label: 'Override: Other', pct: 3, color: '#9CA3AF' },
 ]
 
 const SIGNAL_SEV_STYLE: Record<string, { bg: string; text: string }> = {
-  high: { bg: '#7F1D1D', text: '#FCA5A5' },
-  medium: { bg: '#78350F', text: '#FCD34D' },
-  low: { bg: '#334155', text: '#CBD5E1' },
-  critical: { bg: '#7F1D1D', text: '#FCA5A5' },
+  high: { bg: 'transparent', text: '#FCA5A5' },
+  medium: { bg: 'transparent', text: '#FBBF24' },
+  low: { bg: 'transparent', text: '#9CA3AF' },
+  critical: { bg: 'transparent', text: '#FCA5A5' },
 }
 
 function siteNames(ids: string[]): string {
@@ -71,17 +70,18 @@ export default function InsightsView() {
         {STATS.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4"
-            style={{ borderTop: `3px solid ${s.accent}` }}
+            className={`rounded-xl border bg-[#171D29] p-4 ${
+              s.state === 'critical' ? 'border-[#7F1D1D]' : 'border-[#273142]'
+            }`}
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-[#9CA3AF]">
+            <p className="text-xs font-medium text-[#9CA3AF]">
               {s.label}
             </p>
             <p className="mt-1 text-2xl font-bold text-white">{s.value}</p>
             {s.trend && (
               <p
                 className="mt-0.5 flex items-center gap-1 text-xs font-semibold"
-                style={{ color: s.trendColor }}
+                style={{ color: s.state === 'critical' ? '#FCA5A5' : '#9CA3AF' }}
               >
                 {s.trendIcon && (
                   <span
@@ -102,11 +102,11 @@ export default function InsightsView() {
       {MOCK_CAMPAIGNS.map((c) => (
         <div
           key={c.id}
-          className="rounded-xl border border-[#1E40AF] bg-[#0C1A2A] p-4"
+          className="rounded-xl border border-[#273142] bg-[#171D29] p-4"
         >
           <div className="flex items-start gap-3">
             <span
-              className="material-symbols-outlined text-[#60A5FA]"
+              className="material-symbols-outlined text-[#9CA3AF]"
               style={{ fontSize: '20px', lineHeight: 1 }}
             >
               hub
@@ -121,7 +121,7 @@ export default function InsightsView() {
             </div>
             <a
               href="/case-management"
-              className="flex shrink-0 items-center gap-1 rounded-md bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]"
+              className="flex shrink-0 items-center gap-1 rounded-md border border-[#374151] px-3 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
             >
               View Campaign
               <span
@@ -137,13 +137,13 @@ export default function InsightsView() {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {/* Site Health */}
-        <section className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
-          <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
+        <section className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
+          <h2 className="mb-3 text-base font-semibold text-white">
             Site Health
           </h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748] bg-[#111827] text-left text-xs uppercase tracking-wide text-[#9CA3AF]">
+              <tr className="border-b border-[#273142] bg-[#111827] text-left text-xs text-[#9CA3AF]">
                 <th className="px-2 py-2 font-semibold">Site</th>
                 <th className="py-2 text-center font-semibold">Open</th>
                 <th className="py-2 text-center font-semibold">MTTA</th>
@@ -154,7 +154,7 @@ export default function InsightsView() {
             </thead>
             <tbody>
               {SITE_ROWS.map((r) => (
-                <tr key={r.site} className="border-b border-[#2D3748] last:border-0">
+                <tr key={r.site} className="border-b border-[#273142] last:border-0">
                   <td className="px-2 py-2.5 font-medium text-white">{r.site}</td>
                   <td className="py-2.5 text-center text-[#CBD5E0]">{r.open}</td>
                   <td className="py-2.5 text-center text-[#CBD5E0]">{r.mtta}</td>
@@ -162,7 +162,7 @@ export default function InsightsView() {
                   <td className="py-2.5 text-center">
                     {r.sla && (
                       <span
-                        className="material-symbols-outlined text-[#22C55E]"
+                        className="material-symbols-outlined text-[#9CA3AF]"
                         style={{ fontSize: '18px', lineHeight: 1 }}
                       >
                         check_circle
@@ -190,8 +190,8 @@ export default function InsightsView() {
         </section>
 
         {/* AI Quality */}
-        <section className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-white">
+        <section className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
+          <h2 className="mb-4 text-base font-semibold text-white">
             AI Quality
           </h2>
           <div className="space-y-3">
@@ -214,8 +214,8 @@ export default function InsightsView() {
       </div>
 
       {/* External Risk */}
-      <section className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
+      <section className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
+        <h2 className="mb-3 text-base font-semibold text-white">
           External Risk
         </h2>
         <div className="space-y-3">
@@ -224,10 +224,10 @@ export default function InsightsView() {
             return (
               <div
                 key={sig.id}
-                className="flex items-start gap-3 rounded-lg border border-[#2D3748] bg-[#111827] p-3"
+                className="flex items-start gap-3 rounded-lg border border-[#273142] bg-[#111827] p-3"
               >
                 <span
-                  className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
+                  className="shrink-0 rounded-full border border-[#374151] px-2 py-0.5 text-xs font-semibold"
                   style={{ backgroundColor: sev.bg, color: sev.text }}
                 >
                   {sig.severity}

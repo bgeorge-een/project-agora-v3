@@ -24,9 +24,9 @@ export default function IncidentManagementPage() {
   return (
     <div className="min-h-screen bg-[#0F1117]">
       {/* Top bar */}
-      <header className="sticky top-0 z-20 border-b border-[#2D3748] bg-[#1A1F2E]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-[#273142] bg-[#171D29]/95 backdrop-blur-sm">
         <div className="flex flex-wrap items-center gap-4 px-6 py-4">
-          <h1 className="text-lg font-bold text-white">
+          <h1 className="text-lg font-semibold text-white">
             Real-time Incident Management
           </h1>
 
@@ -35,7 +35,7 @@ export default function IncidentManagementPage() {
               <select
                 value={site}
                 onChange={(e) => setSite(e.target.value)}
-                className="appearance-none rounded-lg border border-[#374151] bg-[#1F2937] py-1.5 pl-3 pr-8 text-sm font-medium text-[#CBD5E0] outline-none transition-colors hover:border-[#4B5563] focus:border-[#2563EB]"
+                className="appearance-none rounded-lg border border-[#374151] bg-[#111827] py-1.5 pl-3 pr-8 text-sm font-medium text-[#CBD5E0] outline-none transition-colors hover:border-[#4B5563] focus:border-[#2563EB]"
               >
                 {SITES.map((s) => (
                   <option key={s} value={s}>
@@ -51,9 +51,8 @@ export default function IncidentManagementPage() {
               </span>
             </div>
 
-            <span className="flex items-center gap-1.5 rounded-full bg-[#0C2714] px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-[#22C55E]">
+            <span className="flex items-center gap-1.5 rounded-full border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0]">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E] opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22C55E]" />
               </span>
               Live
@@ -62,20 +61,23 @@ export default function IncidentManagementPage() {
         </div>
 
         {/* View toggle tabs */}
-        <nav className="flex gap-1 px-6 pb-2">
+        <nav className="flex gap-1 px-6">
           {TABS.map((t) => {
             const active = tab === t.id
             return (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-[#243048] text-white'
+                    ? 'text-white'
                     : 'text-[#9CA3AF] hover:text-white'
                 }`}
               >
                 {t.label}
+                {active && (
+                  <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#60A5FA]" />
+                )}
               </button>
             )
           })}

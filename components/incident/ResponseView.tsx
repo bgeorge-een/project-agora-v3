@@ -19,11 +19,34 @@ function formatAge(seconds: number): string {
   return `${h}h ${rm}m ago`
 }
 
-const SEVERITY_DOT: Record<Severity, string> = {
-  critical: '#EF4444',
-  high: '#F97316',
-  medium: '#F59E0B',
-  low: '#9CA3AF',
+const SEVERITY_META: Record<
+  Severity,
+  { label: string; rail: string; text: string; quietText: string }
+> = {
+  critical: {
+    label: 'Critical',
+    rail: '#EF4444',
+    text: '#FCA5A5',
+    quietText: '#FCA5A5',
+  },
+  high: {
+    label: 'High',
+    rail: '#D97706',
+    text: '#FCD34D',
+    quietText: '#FBBF24',
+  },
+  medium: {
+    label: 'Medium',
+    rail: '#6B7280',
+    text: '#D1D5DB',
+    quietText: '#9CA3AF',
+  },
+  low: {
+    label: 'Low',
+    rail: '#4B5563',
+    text: '#9CA3AF',
+    quietText: '#6B7280',
+  },
 }
 
 // ---- AlertCard ----
@@ -40,99 +63,75 @@ function AlertCard({
   alert,
   selected,
   resolution,
-  onAccept,
   onReview,
-  onOverride,
 }: AlertCardProps) {
   const isDeterrent = alert.type === 'deterrent'
-  const borderColor = isDeterrent ? '#D97706' : '#EF4444'
-  const dotColor = SEVERITY_DOT[alert.severity]
+  const meta = SEVERITY_META[alert.severity]
+  const confidence = alert.nba ? Math.round(alert.nba.confidence * 100) : null
 
   return (
     <div
       className={`rounded-lg border p-4 transition-colors ${
         selected
-          ? 'border-[#2D3748] border-l-4 border-l-[#2563EB] bg-[#243048]'
-          : 'border-[#2D3748] bg-[#1A1F2E] hover:bg-[#243048]'
+          ? 'border-[#475569] bg-[#202838]'
+          : 'border-[#273142] bg-[#171D29] hover:bg-[#1D2533]'
       }`}
-      style={selected ? undefined : { borderLeft: `4px solid ${borderColor}` }}
+      style={{ borderLeft: `4px solid ${selected ? '#60A5FA' : meta.rail}` }}
     >
-      {/* Row 1 */}
-      <div className="flex items-start gap-2">
-        <span
-          className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: dotColor }}
-        />
-        <span
-          className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-          style={{
-            backgroundColor: isDeterrent ? '#78350F' : '#7F1D1D',
-            color: isDeterrent ? '#FDE68A' : '#FCA5A5',
-          }}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5 flex items-center gap-2 text-xs">
+            <span className="font-semibold" style={{ color: meta.text }}>
+              {meta.label}
+            </span>
+            <span className="text-[#4B5563]">/</span>
+            <span className="text-[#9CA3AF]">
+              {isDeterrent ? 'Deterrent' : 'Reactive'}
+            </span>
+          </div>
+          <h4 className="text-[15px] font-semibold leading-snug text-[#F8FAFC]">
+            {alert.title}
+          </h4>
+          <p className="mt-1 text-[13px] text-[#9CA3AF]">
+            {alert.location} · {formatAge(alert.ageSeconds)}
+          </p>
+        </div>
+        <button
+          onClick={() => onReview(alert)}
+          className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+            selected
+              ? 'bg-[#243B55] text-[#BFDBFE]'
+              : 'border border-[#374151] text-[#CBD5E0] hover:border-[#4B5563] hover:bg-[#1F2937]'
+          }`}
         >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: '14px', lineHeight: 1 }}
-          >
-            {isDeterrent ? 'shield' : 'bolt'}
-          </span>
-          {isDeterrent ? 'Deterrent' : 'Reactive'}
-        </span>
-        <h4 className="min-w-0 flex-1 text-sm font-medium leading-snug text-white">
-          {alert.title}
-        </h4>
+          {selected ? 'Selected' : 'Open'}
+        </button>
       </div>
 
-      {/* Row 2 */}
-      <p className="mt-1.5 pl-4 text-xs text-[#9CA3AF]">
-        {alert.location} · {formatAge(alert.ageSeconds)}
-      </p>
-
-      {/* Row 3 — sources */}
-      <div className="mt-2 flex flex-wrap gap-1.5 pl-4">
-        {alert.sources.map((s) => (
-          <span
-            key={s}
-            className="rounded bg-[#2D3748] px-2 py-0.5 text-xs font-medium text-[#CBD5E0]"
-          >
-            {s}
-          </span>
-        ))}
-      </div>
-
-      {/* Row 4 — status / NBA */}
-      <div className="mt-2.5 pl-4">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#273142] pt-2.5 text-xs text-[#9CA3AF]">
+        <span>{alert.sources.length} sources</span>
+        <span className="text-[#4B5563]">·</span>
         {alert.status === 'enriching' ? (
-          <div className="flex items-center gap-1.5 text-xs font-medium text-[#9CA3AF]">
+          <span className="inline-flex items-center gap-1.5">
             <span
               className="material-symbols-outlined animate-spin"
-              style={{ fontSize: '16px', lineHeight: 1 }}
+              style={{ fontSize: '14px', lineHeight: 1 }}
             >
               sync
             </span>
-            Enriching…
-          </div>
+            Enriching
+          </span>
         ) : alert.nba ? (
-          <div className="flex items-start gap-1.5 text-xs font-medium text-[#38BDF8]">
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '16px', lineHeight: 1 }}
-            >
-              smart_toy
-            </span>
-            <span className="min-w-0 flex-1">
-              {alert.nba.recommendedAction.length > 48
-                ? `${alert.nba.recommendedAction.slice(0, 48)}…`
-                : alert.nba.recommendedAction}{' '}
-              · {Math.round(alert.nba.confidence * 100)}%
-            </span>
-          </div>
-        ) : null}
+          <span className="text-[#CBD5E0]">
+            Recommendation ready{confidence != null ? ` · ${confidence}%` : ''}
+          </span>
+        ) : (
+          <span>Awaiting enrichment</span>
+        )}
       </div>
 
-      {/* Resolution banner */}
       {resolution && (
-        <div className="mt-2.5 ml-4 flex items-center gap-1.5 rounded-md bg-[#0C2714] px-2.5 py-1.5 text-xs font-medium text-[#34D399]">
+        <div className="mt-2.5 flex items-center gap-1.5 rounded-md border border-[#274235] bg-[#12221B] px-2.5 py-1.5 text-xs font-medium text-[#86EFAC]">
           <span
             className="material-symbols-outlined"
             style={{ fontSize: '16px', lineHeight: 1 }}
@@ -142,52 +141,6 @@ function AlertCard({
           {resolution}
         </div>
       )}
-
-      {/* Row 5 — buttons */}
-      <div className="mt-3 flex flex-wrap items-center gap-2 pl-4">
-        {!resolution && (
-          <>
-            <button
-              onClick={() => onAccept(alert)}
-              disabled={alert.status === 'enriching' || !alert.nba}
-              className="flex items-center gap-1.5 rounded-md bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '16px', lineHeight: 1 }}
-              >
-                check_circle
-              </span>
-              Accept AI Recommendation
-            </button>
-            <button
-              onClick={() => onOverride(alert)}
-              disabled={!alert.nba}
-              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-[#9CA3AF] transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '16px', lineHeight: 1 }}
-              >
-                edit_note
-              </span>
-              Override
-            </button>
-          </>
-        )}
-        <button
-          onClick={() => onReview(alert)}
-          className="flex items-center gap-1.5 rounded-md border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]"
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: '16px', lineHeight: 1 }}
-          >
-            folder_open
-          </span>
-          {resolution ? 'View Incident' : 'Review Detail'}
-        </button>
-      </div>
     </div>
   )
 }
@@ -198,10 +151,10 @@ const GROUP_META: Record<
   Severity,
   { label: string; headerText: string }
 > = {
-  critical: { label: 'CRITICAL', headerText: '#FCA5A5' },
-  high: { label: 'HIGH', headerText: '#FDBA74' },
-  medium: { label: 'MEDIUM', headerText: '#FCD34D' },
-  low: { label: 'LOW', headerText: '#9CA3AF' },
+  critical: { label: 'Critical', headerText: '#FCA5A5' },
+  high: { label: 'High', headerText: '#FBBF24' },
+  medium: { label: 'Medium', headerText: '#9CA3AF' },
+  low: { label: 'Low', headerText: '#6B7280' },
 }
 
 const REASON_LABELS: Record<OverrideReason, string> = {
@@ -246,6 +199,8 @@ export default function ResponseView() {
   // The right-column NBACard only reflects a selection that has NO rich detail
   // (alerts without ALERT_DETAILS). Detailed alerts open in the overlay drawer.
   const nbaCardAlert = drawerDetail ? null : selectedAlert
+  const criticalCount = grouped.critical.length
+  const highCount = grouped.high.length
 
   function handleAccept(a: Alert) {
     setResolutions((prev) => ({
@@ -275,16 +230,28 @@ export default function ResponseView() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 bg-[#0F1117] lg:grid-cols-[60%_40%]">
+    <div className="grid grid-cols-1 gap-5 bg-[#0F1117] lg:grid-cols-[58%_42%]">
       {/* LEFT — Alert Queue */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-white">
-            Alert Queue
-          </h2>
-          <span className="text-xs font-medium text-[#9CA3AF]">
-            {alerts.length} active
-          </span>
+        <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-white">Alert Queue</h2>
+              <p className="mt-1 text-sm text-[#9CA3AF]">
+                {alerts.length} active · {criticalCount} critical · {highCount} high
+              </p>
+            </div>
+            {criticalCount > 0 && (
+              <span className="rounded-md border border-[#7F1D1D] bg-[#1C0A0A] px-2.5 py-1 text-xs font-semibold text-[#FCA5A5]">
+                Critical focus
+              </span>
+            )}
+          </div>
+          {criticalCount > 0 && (
+            <div className="mt-3 rounded-lg border border-[#7F1D1D]/70 bg-[#180D0D] px-3 py-2 text-sm text-[#FECACA]">
+              Keep attention on critical alerts first. Lower severity groups stay collapsed until needed.
+            </div>
+          )}
         </div>
 
         {SEVERITY_ORDER.map((sev) => {
@@ -301,10 +268,10 @@ export default function ResponseView() {
                   setExpanded((prev) => ({ ...prev, [sev]: !prev[sev] }))
                 }
                 disabled={isCritical}
-                className="flex w-full items-center justify-between rounded-lg border-b border-[#2D3748] bg-[#1A1F2E] px-3 py-2 text-left transition-colors"
+                className="flex w-full items-center justify-between rounded-lg border border-[#273142] bg-[#151B26] px-3 py-2 text-left transition-colors hover:bg-[#1A2230]"
               >
                 <span
-                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide"
+                  className="flex items-center gap-1.5 text-sm font-semibold"
                   style={{ color: meta.headerText }}
                 >
                   {!isCritical && (
@@ -315,11 +282,11 @@ export default function ResponseView() {
                       {isOpen ? 'expand_more' : 'chevron_right'}
                     </span>
                   )}
-                  {meta.label} ({list.length})
+                  {meta.label}
                 </span>
                 {list.length > 0 && (
                   <span
-                    className="rounded-full bg-[#2D3748] px-2 py-0.5 text-[10px] font-bold"
+                    className="rounded-full bg-[#273142] px-2 py-0.5 text-xs font-semibold"
                     style={{ color: meta.headerText }}
                   >
                     {list.length}

@@ -133,9 +133,9 @@ const INITIAL_VIOLATIONS: Violation[] = [
 ]
 
 const SEVERITY_STYLE: Record<string, { bg: string; text: string }> = {
-  critical: { bg: '#2A1212', text: '#F87171' },
-  high: { bg: '#2A1B0E', text: '#FB923C' },
-  medium: { bg: '#2A2310', text: '#FBBF24' },
+  critical: { bg: '#181010', text: '#FCA5A5' },
+  high: { bg: '#171D29', text: '#FBBF24' },
+  medium: { bg: '#171D29', text: '#CBD5E0' },
   low: { bg: '#1F2937', text: '#9CA3AF' },
 }
 
@@ -171,8 +171,8 @@ function SOPLibrary() {
   })
 
   const STATUS_STYLE: Record<SOPRow['status'], { bg: string; text: string }> = {
-    Active: { bg: '#0C2714', text: '#22C55E' },
-    Draft: { bg: '#2A2310', text: '#FBBF24' },
+    Active: { bg: 'transparent', text: '#9CA3AF' },
+    Draft: { bg: 'transparent', text: '#FBBF24' },
     Retired: { bg: '#1F2937', text: '#9CA3AF' },
   }
 
@@ -206,22 +206,22 @@ function SOPLibrary() {
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-      <div className="flex items-center justify-between border-b border-[#2D3748] px-5 py-3.5">
+    <section className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="flex items-center justify-between border-b border-[#273142] px-5 py-3.5">
         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
-          <Icon name="checklist" size={18} className="text-[#38BDF8]" /> SOP
+          <Icon name="checklist" size={18} className="text-[#9CA3AF]" /> SOP
           Library
         </h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1E40AF]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#374151] px-3 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
         >
           <Icon name="add" size={16} /> Author New SOP
         </button>
       </div>
 
       {showForm && (
-        <div className="border-b border-[#2D3748] bg-[#1A1530] p-4">
+        <div className="border-b border-[#273142] bg-[#111827] p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               type="text"
@@ -298,7 +298,7 @@ function SOPLibrary() {
             return (
               <tr
                 key={s.id}
-                className="bg-[#1A1F2E] transition-colors hover:bg-[#243048]"
+                className="bg-[#171D29] transition-colors hover:bg-[#1D2533]"
               >
                 <td className="px-5 py-3 font-mono font-semibold text-[#A78BFA]">
                   {s.id.toUpperCase().startsWith('SOP')
@@ -360,8 +360,8 @@ function PlaybookLibrary() {
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-      <div className="border-b border-[#2D3748] px-5 py-3.5">
+    <section className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="border-b border-[#273142] px-5 py-3.5">
         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
           <Icon name="policy" size={18} className="text-[#FBBF24]" /> Playbook
           Library
@@ -383,8 +383,8 @@ function PlaybookLibrary() {
                     <span
                       className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                         p.type === 'response'
-                          ? 'bg-[#0C1A2A] text-[#38BDF8]'
-                          : 'bg-[#2A2310] text-[#FBBF24]'
+                          ? 'border border-[#374151] text-[#9CA3AF]'
+                          : 'border border-[#4A3520] text-[#FBBF24]'
                       }`}
                     >
                       {p.type}
@@ -453,7 +453,7 @@ function PlaybookLibrary() {
               </div>
 
               {simResult[p.id] && (
-                <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#166534] bg-[#0C2714] px-3 py-2 text-xs font-medium text-[#86EFAC]">
+                <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#274235] bg-[#12221B] px-3 py-2 text-xs font-medium text-[#86EFAC]">
                   <Icon name="check_circle" size={15} />
                   {simResult[p.id]}
                 </div>
@@ -508,8 +508,8 @@ function ViolationsQueue() {
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-      <div className="border-b border-[#2D3748] px-5 py-3.5">
+    <section className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="border-b border-[#273142] px-5 py-3.5">
         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
           <Icon name="gavel" size={18} className="text-[#EF4444]" /> Violations
           Queue
@@ -532,7 +532,7 @@ function ViolationsQueue() {
             const sev = SEVERITY_STYLE[v.severity]
             const st = STATUS_STYLE[v.status]
             const rowBg =
-              v.severity === 'critical' ? 'bg-[#1C0A0A]' : 'bg-[#1A1F2E]'
+              v.severity === 'critical' ? 'bg-[#181010]' : 'bg-[#171D29]'
             return (
               <tr
                 key={v.id}
@@ -604,8 +604,8 @@ function ViolationsQueue() {
       {/* Assign CA modal */}
       {caModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-[#2D3748] bg-[#1A1F2E] shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-            <div className="flex items-center gap-2 border-b border-[#2D3748] px-5 py-4">
+          <div className="w-full max-w-md rounded-2xl border border-[#273142] bg-[#171D29] shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+            <div className="flex items-center gap-2 border-b border-[#273142] px-5 py-4">
               <Icon
                 name="assignment_turned_in"
                 size={18}
@@ -643,7 +643,7 @@ function ViolationsQueue() {
                 />
               </label>
             </div>
-            <div className="flex justify-end gap-2 border-t border-[#2D3748] px-5 py-3">
+            <div className="flex justify-end gap-2 border-t border-[#273142] px-5 py-3">
               <button
                 onClick={() => setCaModal(null)}
                 className="rounded-lg border border-[#374151] px-4 py-2 text-sm font-medium text-[#CBD5E0] hover:bg-[#243048]"

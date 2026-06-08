@@ -4,4 +4,10 @@ node_modules
 .vercel
 *.tsbuildinfo
 
+# Local WSL Node runtime workaround
+.local-node
+.local-node-official
+.cache
+*.deb
+
 .vercel

@@ -50,10 +50,10 @@ export function PersonCard({ person }: { person: PersonDetails }) {
   if (person.type === 'known') {
     const isHighRisk = person.avatarColor === '#DC2626'
     return (
-      <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-        <div className="border-b border-[#2D3748] px-5 py-3">
-          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
-            <span className="text-[#A78BFA]">
+      <div className="rounded-xl border border-[#273142] bg-[#171D29]">
+        <div className="border-b border-[#273142] px-5 py-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+            <span className="text-[#9CA3AF]">
               <Icon name="person" size={16} />
             </span>
             Subject of Investigation
@@ -62,7 +62,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
         <div className="p-4">
           <div className="flex items-start gap-3">
             <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white ring-2 ring-[#7C3AED]"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#374151] text-lg font-bold text-white"
               style={{ backgroundColor: person.avatarColor }}
             >
               {person.avatarInitials}
@@ -84,7 +84,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-3">
             <Field label="Badge ID" value={person.badgeId} mono icon="key" />
             <Field label="Access Level" value={person.accessLevel} icon="security" />
             <Field label="Department" value={person.department} />
@@ -101,7 +101,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
 
   // Unknown person — red-tinted card
   return (
-    <div className="rounded-xl border border-[#7F1D1D] bg-[#1C0A0A] p-4">
+    <div className="rounded-xl border border-[#7F1D1D] border-l-4 border-l-[#EF4444] bg-[#181010] p-4">
       <div className="flex items-start gap-3">
         <div
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white"
@@ -115,7 +115,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
             {person.label ?? 'Unknown Individual'}
           </h4>
           {person.watchlistCategory && (
-            <span className="mt-1 inline-block rounded-full bg-red-900/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-300">
+            <span className="mt-1 inline-block rounded-full border border-[#7F1D1D] px-2 py-0.5 text-xs font-semibold text-red-300">
               {person.watchlistCategory}
             </span>
           )}
@@ -125,7 +125,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
       <div className="mt-4 space-y-2.5">
         {person.confidence != null && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
               Face Match Confidence
             </p>
             <div className="flex items-center gap-2">
@@ -146,14 +146,14 @@ export function PersonCard({ person }: { person: PersonDetails }) {
 
         {person.cameraSightings && person.cameraSightings.length > 0 && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
               Camera Sightings
             </p>
             <div className="flex flex-wrap gap-1.5">
               {person.cameraSightings.map((c) => (
                 <span
                   key={c}
-                  className="flex items-center gap-1 rounded border border-[#2D3748] bg-[#1A1F2E] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0]"
+                  className="flex items-center gap-1 rounded border border-[#273142] bg-[#171D29] px-2 py-0.5 text-xs font-medium text-[#CBD5E0]"
                 >
                   <Icon name="videocam" size={13} />
                   {c}
@@ -165,7 +165,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
 
         {person.vehiclePlate && (
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
               Vehicle Plate
             </p>
             <span className="inline-block rounded border border-gray-600 bg-gray-800 px-2 py-1 font-mono text-sm font-bold tracking-widest text-white">

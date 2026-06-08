@@ -19,10 +19,10 @@ export default function CaseManagementPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0F1117]">
       {/* Top bar */}
-      <header className="sticky top-0 z-20 border-b border-[#2D3748] bg-[#1A1F2E]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-[#273142] bg-[#171D29]/95 backdrop-blur-sm">
         <div className="flex items-center justify-between px-8 pt-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#243048] text-[#7C3AED]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#273142] bg-[#111827] text-[#9CA3AF]">
               <span
                 className="material-symbols-outlined"
                 style={{ fontSize: '20px', lineHeight: 1 }}
@@ -35,7 +35,7 @@ export default function CaseManagementPage() {
                 <h1 className="text-lg font-bold tracking-tight text-white">
                   Case Management
                 </h1>
-                <span className="rounded-full bg-[#2D1F47] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#A78BFA]">
+                <span className="rounded-full border border-[#374151] px-2 py-0.5 text-xs font-medium text-[#9CA3AF]">
                   Forensics
                 </span>
               </div>
@@ -49,7 +49,7 @@ export default function CaseManagementPage() {
             </div>
           </div>
           <div className="hidden items-center gap-2 text-xs text-[#9CA3AF] md:flex">
-            <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
+            <span className="h-2 w-2 rounded-full bg-[#64748B]" />
             Post-incident forensics &amp; investigation
           </div>
         </div>
@@ -63,9 +63,7 @@ export default function CaseManagementPage() {
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`relative px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  active
-                    ? 'bg-[#243048] text-white'
-                    : 'text-[#9CA3AF] hover:text-white'
+                  active ? 'text-white' : 'text-[#9CA3AF] hover:text-white'
                 }`}
               >
                 {t.label}

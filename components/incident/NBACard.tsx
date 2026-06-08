@@ -2,52 +2,6 @@
 
 import type { Alert } from '@/lib/types'
 
-interface ConfidenceRingProps {
-  value: number // 0..1
-}
-
-function ConfidenceRing({ value }: ConfidenceRingProps) {
-  const pct = Math.round(value * 100)
-  const radius = 26
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - value)
-  const color = value >= 0.8 ? '#22C55E' : value >= 0.6 ? '#FBBF24' : '#EF4444'
-
-  return (
-    <div className="relative h-16 w-16 shrink-0">
-      <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
-        <circle
-          cx="32"
-          cy="32"
-          r={radius}
-          fill="none"
-          stroke="#1A1F2E"
-          strokeWidth="6"
-        />
-        <circle
-          cx="32"
-          cy="32"
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-sm font-bold leading-none text-white">
-          {pct}%
-        </span>
-        <span className="text-[8px] font-medium uppercase tracking-wide text-[#6B7280]">
-          conf
-        </span>
-      </div>
-    </div>
-  )
-}
-
 interface NBACardProps {
   alert: Alert | null
   onAccept: (alert: Alert) => void
@@ -57,79 +11,80 @@ interface NBACardProps {
 export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
   if (!alert || !alert.nba) {
     return (
-      <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-8 text-center">
+      <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-[#273142] bg-[#171D29] p-8 text-center">
         <span
           className="material-symbols-outlined mb-3 text-[#6B7280]"
-          style={{ fontSize: '40px', lineHeight: 1 }}
+          style={{ fontSize: '32px', lineHeight: 1 }}
         >
           touch_app
         </span>
-        <p className="text-sm font-semibold text-[#9CA3AF]">
+        <p className="text-sm font-semibold text-[#CBD5E0]">
           No alert selected
         </p>
-        <p className="mt-1 max-w-[220px] text-xs text-[#6B7280]">
-          Select &ldquo;Review Detail&rdquo; on an alert to see the recommended
-          next best action and standard operating procedure.
+        <p className="mt-1 max-w-[240px] text-sm leading-relaxed text-[#6B7280]">
+          Open an alert to review the recommended action, supporting rationale,
+          and approval gates.
         </p>
       </div>
     )
   }
 
   const { nba, sop } = alert
+  const confidencePct = Math.round(nba.confidence * 100)
+  const confidenceLabel =
+    nba.confidence >= 0.8 ? 'High confidence' : nba.confidence >= 0.6 ? 'Medium confidence' : 'Low confidence'
+  const phaseLabel = nba.responsePhase
+    ? nba.responsePhase.charAt(0).toUpperCase() + nba.responsePhase.slice(1)
+    : 'Review'
 
   return (
-    <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+    <div className="rounded-xl border border-[#273142] bg-[#171D29]">
       {/* Header */}
-      <div className="flex items-start gap-4 border-b border-[#2D3748] p-5">
-        <ConfidenceRing value={nba.confidence} />
+      <div className="border-b border-[#273142] p-5">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             <span
-              className="material-symbols-outlined text-[#38BDF8]"
-              style={{ fontSize: '18px', lineHeight: 1 }}
+              className="material-symbols-outlined text-[#9CA3AF]"
+              style={{ fontSize: '17px', lineHeight: 1 }}
             >
               smart_toy
             </span>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
+            <h3 className="text-sm font-semibold text-[#CBD5E0]">
               Next Best Action
             </h3>
-            {alert.id.startsWith('alert-sim-') && alert.nba && (
-              <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-[#0C2714] text-[#22C55E]">
-                AI LIVE
-              </span>
-            )}
-            {nba.responsePhase && (
-              <span className={`ml-auto rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
-                nba.responsePhase === 'contain'
-                  ? 'bg-[#7F1D1D] text-[#FCA5A5]'
-                  : nba.responsePhase === 'communicate'
-                  ? 'bg-[#78350F] text-[#FDE68A]'
-                  : 'bg-[#1F2937] text-[#9CA3AF]'
-              }`}>
-                {nba.responsePhase === 'contain' ? '⬤ CONTAIN' : nba.responsePhase === 'communicate' ? '⬤ COMMUNICATE' : '⬤ DOCUMENT'}
-              </span>
-            )}
+            <span className="ml-auto rounded-md border border-[#374151] px-2 py-0.5 text-xs font-medium text-[#9CA3AF]">
+              {phaseLabel}
+            </span>
           </div>
-          <p className="mt-1 text-sm font-semibold leading-snug text-white">
+          <p className="mt-2 text-[15px] font-semibold leading-snug text-white">
             {alert.title}
           </p>
-          <p className="mt-0.5 text-xs text-[#9CA3AF]">{alert.location}</p>
+          <p className="mt-1 text-sm text-[#9CA3AF]">{alert.location}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9CA3AF]">
+            <span>{confidenceLabel} · {confidencePct}%</span>
+            {alert.id.startsWith('alert-sim-') && (
+              <>
+                <span className="text-[#4B5563]">·</span>
+                <span>Live enrichment</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="space-y-5 p-5">
         {/* Recommended action */}
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+          <p className="mb-2 text-xs font-semibold text-[#9CA3AF]">
             Recommended Action
           </p>
           <button
             onClick={() => onAccept(alert)}
-            className="w-full rounded-lg bg-[#1D4ED8] px-4 py-3 text-left text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+            className="w-full rounded-lg bg-[#2563EB] px-4 py-3 text-left text-[15px] font-semibold leading-snug text-white transition-colors hover:bg-[#1D4ED8]"
           >
             {nba.recommendedAction}
           </button>
-          <p className="mt-2 text-xs italic leading-relaxed text-[#9CA3AF]">
+          <p className="mt-3 text-sm leading-relaxed text-[#CBD5E0]">
             {nba.rationale}
           </p>
         </div>
@@ -137,14 +92,14 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
         {/* Alternatives */}
         {nba.alternatives.length > 0 && (
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+            <p className="mb-2 text-xs font-semibold text-[#9CA3AF]">
               Alternatives
             </p>
             <div className="flex flex-wrap gap-2">
               {nba.alternatives.map((alt) => (
                 <button
                   key={alt}
-                  className="rounded-lg border border-[#374151] bg-[#1F2937] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]"
+                  className="rounded-md border border-[#374151] px-3 py-1.5 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
                 >
                   {alt}
                 </button>
@@ -155,8 +110,8 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
 
         {/* SOP */}
         {sop && (
-          <div className="rounded-lg border border-[#2D3748] bg-[#0F1117] p-4">
-            <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#FCD34D]">
+          <div className="rounded-lg border border-[#273142] bg-[#111827] p-4">
+            <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-[#CBD5E0]">
               <span
                 className="material-symbols-outlined"
                 style={{ fontSize: '18px', lineHeight: 1 }}
@@ -169,9 +124,9 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
               {sop.steps.map((s) => (
                 <li
                   key={s.step}
-                  className="flex gap-2.5 rounded-md bg-[#1A1F2E] px-3 py-2 text-xs leading-relaxed text-[#CBD5E0]"
+                  className="flex gap-2.5 rounded-md bg-[#171D29] px-3 py-2 text-sm leading-relaxed text-[#CBD5E0]"
                 >
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#78350F] text-[10px] font-bold text-[#FDE68A]">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#4B5563] text-xs font-semibold text-[#9CA3AF]">
                     {s.step}
                   </span>
                   <span>{s.instruction}</span>
@@ -184,8 +139,8 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
         {/* Two-tier execution */}
         <div className="grid grid-cols-1 gap-3">
           {nba.autoExecuteActions.length > 0 && (
-            <div className="rounded-lg border border-[#166534] bg-[#0C2714] p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#34D399]">
+            <div className="rounded-lg border border-[#274235] bg-[#12221B] p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#86EFAC]">
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '16px', lineHeight: 1 }}
@@ -198,13 +153,12 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
                 {nba.autoExecuteActions.map((a) => (
                   <li
                     key={a}
-                    className="flex items-center gap-2 text-xs text-[#86EFAC]"
+                    className="flex items-center gap-2 text-sm text-[#CDEFD8]"
                   >
                     <span
-                      className="material-symbols-outlined text-[#22C55E]"
-                      style={{ fontSize: '16px', lineHeight: 1 }}
+                      className="h-1.5 w-1.5 rounded-full bg-[#86EFAC]"
+                      aria-hidden
                     >
-                      check_circle
                     </span>
                     {a}
                   </li>
@@ -214,8 +168,8 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
           )}
 
           {nba.gatedActions.length > 0 && (
-            <div className="rounded-lg border border-[#7F1D1D] bg-[#2D1515] p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#FCA5A5]">
+            <div className="rounded-lg border border-[#7F1D1D] bg-[#1C0A0A] p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#FCA5A5]">
                 <span
                   className="material-symbols-outlined"
                   style={{ fontSize: '16px', lineHeight: 1 }}
@@ -228,13 +182,12 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
                 {nba.gatedActions.map((a) => (
                   <li
                     key={a}
-                    className="flex items-center gap-2 text-xs text-[#FCA5A5]"
+                    className="flex items-center gap-2 text-sm text-[#FECACA]"
                   >
                     <span
-                      className="material-symbols-outlined text-[#EF4444]"
-                      style={{ fontSize: '16px', lineHeight: 1 }}
+                      className="h-1.5 w-1.5 rounded-full bg-[#EF4444]"
+                      aria-hidden
                     >
-                      lock
                     </span>
                     {a}
                   </li>
@@ -245,7 +198,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 border-t border-[#2D3748] pt-5">
+        <div className="flex gap-2 border-t border-[#273142] pt-5">
           <button
             onClick={() => onAccept(alert)}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"

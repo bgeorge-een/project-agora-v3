@@ -113,21 +113,21 @@ const EDGES: GraphEdge[] = [
 
 // Dark node fills per risk level
 const RISK_FILL: Record<'low' | 'medium' | 'high', string> = {
-  high: '#7F1D1D',
-  medium: '#1D4ED8',
-  low: '#166534',
+  high: '#181010',
+  medium: '#171D29',
+  low: '#171D29',
 }
 
 const RISK_RING: Record<'low' | 'medium' | 'high', string> = {
   high: '#EF4444',
-  medium: '#3B82F6',
-  low: '#22C55E',
+  medium: '#64748B',
+  low: '#4B5563',
 }
 
 const RISK_GLOW: Record<'low' | 'medium' | 'high', string> = {
-  high: '0 0 0 3px rgba(239,68,68,0.25), 0 0 18px rgba(239,68,68,0.45)',
-  medium: '0 0 0 3px rgba(59,130,246,0.22)',
-  low: '0 0 0 3px rgba(34,197,94,0.20)',
+  high: 'none',
+  medium: 'none',
+  low: 'none',
 }
 
 export default function EntityGraph({
@@ -152,7 +152,7 @@ export default function EntityGraph({
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_240px]">
       {/* Graph canvas */}
-      <div className="relative h-[420px] overflow-hidden rounded-xl border border-[#2D3748] bg-[radial-gradient(circle_at_50%_45%,#15192480_0%,#0F1117_70%)]">
+      <div className="relative h-[420px] overflow-hidden rounded-xl border border-[#273142] bg-[#111827]">
         {/* Edges */}
         <svg className="absolute inset-0 h-full w-full" aria-hidden>
           {EDGES.map((edge) => {
@@ -168,7 +168,7 @@ export default function EntityGraph({
                   x2={`${b.x}%`}
                   y2={`${b.y}%`}
                   stroke="#374151"
-                  strokeWidth={1.5}
+                  strokeWidth={1}
                   strokeDasharray="4 4"
                 />
                 <foreignObject
@@ -179,7 +179,7 @@ export default function EntityGraph({
                   style={{ overflow: 'visible' }}
                 >
                   <div className="flex justify-center">
-                    <span className="rounded-full bg-[#1A1F2E] px-2 py-0.5 text-[9px] font-medium text-[#9CA3AF] ring-1 ring-[#2D3748]">
+                    <span className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#9CA3AF] ring-1 ring-[#273142]">
                       {edge.label}
                     </span>
                   </div>
@@ -201,19 +201,19 @@ export default function EntityGraph({
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
             >
               <span
-                className={`flex items-center justify-center rounded-full text-white transition-transform hover:scale-105 ${
+                className={`flex items-center justify-center rounded-full text-[#CBD5E0] transition-transform hover:scale-105 ${
                   node.isCenter ? 'h-16 w-16' : 'h-12 w-12'
                 } ${active ? 'scale-110' : ''}`}
                 style={{
                   backgroundColor: RISK_FILL[node.risk],
                   boxShadow: RISK_GLOW[node.risk],
-                  border: `2px solid ${active ? '#7C3AED' : RISK_RING[node.risk]}`,
+                  border: `2px solid ${active ? '#A78BFA' : RISK_RING[node.risk]}`,
                 }}
               >
                 <Icon name={ENTITY_ICON[node.type]} size={node.isCenter ? 28 : 20} />
               </span>
               <span
-                className="max-w-[110px] rounded-md bg-[#1A1F2E]/90 px-1.5 py-0.5 text-center text-[10px] font-semibold leading-tight text-white"
+                className="max-w-[110px] rounded-md bg-[#171D29]/95 px-1.5 py-0.5 text-center text-xs font-semibold leading-tight text-white"
               >
                 {node.label}
               </span>
@@ -226,20 +226,20 @@ export default function EntityGraph({
             <span className="h-2 w-2 rounded-full bg-[#EF4444]" /> High risk
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#3B82F6]" /> Medium
+            <span className="h-2 w-2 rounded-full bg-[#64748B]" /> Medium
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#22C55E]" /> Low
+            <span className="h-2 w-2 rounded-full bg-[#4B5563]" /> Low
           </span>
         </div>
       </div>
 
       {/* Detail panel */}
-      <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4">
+      <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
         {selectedEntity ? (
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111827] text-[#9CA3AF] ring-1 ring-[#2D3748]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111827] text-[#9CA3AF] ring-1 ring-[#273142]">
                 <Icon name={ENTITY_ICON[selectedEntity.type]} size={20} />
               </span>
               <div className="min-w-0">

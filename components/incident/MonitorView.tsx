@@ -30,9 +30,9 @@ const STATUS_STYLE: Record<
   DeviceStatus,
   { bg: string; text: string; icon: string; label: string }
 > = {
-  online: { bg: '#0C2714', text: '#34D399', icon: 'check_circle', label: 'Online' },
-  offline: { bg: '#2D1515', text: '#FCA5A5', icon: 'cancel', label: 'Offline' },
-  degraded: { bg: '#3A2A0A', text: '#FCD34D', icon: 'warning', label: 'Degraded' },
+  online: { bg: 'transparent', text: '#9CA3AF', icon: 'check_circle', label: 'Online' },
+  offline: { bg: '#1C0A0A', text: '#FCA5A5', icon: 'cancel', label: 'Offline' },
+  degraded: { bg: '#1A1502', text: '#FBBF24', icon: 'warning', label: 'Degraded' },
 }
 
 interface MosaicTile {
@@ -53,7 +53,7 @@ export default function MonitorView() {
     <div className="space-y-6 bg-[#0F1117]">
       {/* Devices */}
       <section>
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
+        <h2 className="mb-3 text-base font-semibold text-white">
           Devices ({DEVICES.length})
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -62,7 +62,7 @@ export default function MonitorView() {
             return (
               <div
                 key={d.id}
-                className="rounded-lg border border-[#2D3748] bg-[#1A1F2E] p-4"
+                className="rounded-lg border border-[#273142] bg-[#171D29] p-4"
                 style={
                   d.status === 'offline'
                     ? { borderLeft: '4px solid #EF4444' }
@@ -81,11 +81,13 @@ export default function MonitorView() {
                       <p className="truncate text-sm font-semibold text-white">
                         {d.name}
                       </p>
-                      <p className="truncate text-xs text-[#9CA3AF]">{d.zone}</p>
+                      <p className="truncate text-sm text-[#9CA3AF]">{d.zone}</p>
                     </div>
                   </div>
                   <span
-                    className="flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      d.status === 'online' ? '' : 'border border-[#374151]'
+                    }`}
                     style={{ backgroundColor: s.bg, color: s.text }}
                   >
                     <span
@@ -98,13 +100,13 @@ export default function MonitorView() {
                   </span>
                 </div>
 
-                <div className="mt-3 flex gap-2 border-t border-[#2D3748] pt-3">
+                <div className="mt-3 flex gap-2 border-t border-[#273142] pt-3">
                   {d.kind === 'access' ? (
                     <>
-                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
+                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         Lock
                       </button>
-                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
+                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         Unlock
                       </button>
                       <button className="rounded-md bg-[#1D4ED8] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]">
@@ -113,18 +115,18 @@ export default function MonitorView() {
                     </>
                   ) : d.kind === 'camera' ? (
                     <>
-                      <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
+                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         View Feed
                       </button>
                       <button
                         disabled={d.status === 'offline'}
-                        className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Reboot
                       </button>
                     </>
                   ) : (
-                    <button className="rounded-md border border-[#374151] bg-[#1F2937] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#2D3748]">
+                    <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                       Test Sensor
                     </button>
                   )}
@@ -137,7 +139,7 @@ export default function MonitorView() {
 
       {/* Video Mosaic */}
       <section>
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-white">
+        <h2 className="mb-3 text-base font-semibold text-white">
           Video Mosaic
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -162,12 +164,12 @@ export default function MonitorView() {
                 {tile.name}
               </span>
               {tile.active ? (
-                <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-[#EF4444] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-black/45 px-1.5 py-0.5 text-[10px] font-semibold text-[#E5E7EB]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
                   Live
                 </span>
               ) : (
-                <span className="absolute right-2 top-2 rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#9CA3AF]">
+                <span className="absolute right-2 top-2 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
                   No Signal
                 </span>
               )}

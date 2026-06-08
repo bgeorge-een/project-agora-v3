@@ -25,15 +25,15 @@ function Icon({
 
 // ---- Stat cards ----
 const STATS = [
-  { label: 'Open Cases', value: '1', accent: '#7C3AED', icon: 'folder_open' },
-  { label: 'Active Campaigns', value: '1', accent: '#38BDF8', icon: 'hub' },
+  { label: 'Open Cases', value: '1', accent: '#E5E7EB', icon: 'folder_open' },
+  { label: 'Active Campaigns', value: '1', accent: '#E5E7EB', icon: 'hub' },
   {
     label: 'Compliance Score',
     value: '94%',
-    accent: '#22C55E',
+    accent: '#E5E7EB',
     icon: 'verified_user',
   },
-  { label: 'AI Quality', value: '87%', accent: '#2DD4BF', icon: 'smart_toy' },
+  { label: 'AI Quality', value: '87%', accent: '#E5E7EB', icon: 'smart_toy' },
 ]
 
 // ---- Risk by site ----
@@ -44,8 +44,8 @@ const RISK_BY_SITE: {
   color: string
 }[] = [
   { name: 'Austin HQ', level: 'Critical', pct: 92, color: '#EF4444' },
-  { name: 'Dallas Office', level: 'Medium', pct: 48, color: '#F59E0B' },
-  { name: 'Cedar Park Warehouse', level: 'Low', pct: 22, color: '#22C55E' },
+  { name: 'Dallas Office', level: 'Medium', pct: 48, color: '#94A3B8' },
+  { name: 'Cedar Park Warehouse', level: 'Low', pct: 22, color: '#64748B' },
 ]
 
 // ---- Feedback breakdown ----
@@ -59,11 +59,11 @@ const FEEDBACK: {
     label: 'correct_override',
     display: 'Correct override',
     pct: 77,
-    color: '#22C55E',
+    color: '#94A3B8',
   },
   { label: 'model_problem', display: 'Model problem', pct: 12, color: '#EF4444' },
-  { label: 'policy_gap', display: 'Policy gap', pct: 8, color: '#F59E0B' },
-  { label: 'data_quality', display: 'Data quality', pct: 3, color: '#2563EB' },
+  { label: 'policy_gap', display: 'Policy gap', pct: 8, color: '#D97706' },
+  { label: 'data_quality', display: 'Data quality', pct: 3, color: '#64748B' },
 ]
 
 function buildConicGradient() {
@@ -126,14 +126,11 @@ export default function ExecutiveReporting() {
         {STATS.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5"
+            className="rounded-xl border border-[#273142] bg-[#171D29] p-5"
           >
             <div className="flex items-center justify-between">
               <Icon name={s.icon} size={20} className="text-[#9CA3AF]" />
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: s.accent }}
-              />
+              <span className="h-2 w-2 rounded-full bg-[#4B5563]" />
             </div>
             <p
               className="mt-3 text-2xl font-bold tracking-tight"
@@ -150,7 +147,7 @@ export default function ExecutiveReporting() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Risk by site */}
-        <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
+        <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-white">
             <Icon name="shield" size={18} className="text-[#9CA3AF]" /> Risk by
             Site
@@ -179,7 +176,7 @@ export default function ExecutiveReporting() {
         </div>
 
         {/* Feedback donut */}
-        <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
+        <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
           <h3 className="mb-4 text-sm font-bold text-white">
             AI Feedback Breakdown
           </h3>
@@ -189,7 +186,7 @@ export default function ExecutiveReporting() {
                 className="h-full w-full rounded-full"
                 style={{ background: buildConicGradient() }}
               />
-              <div className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-[#1A1F2E]">
+              <div className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-[#171D29]">
                 <span className="text-lg font-extrabold text-white">87%</span>
                 <span className="text-[9px] uppercase tracking-wide text-[#6B7280]">
                   AI Quality
@@ -218,9 +215,9 @@ export default function ExecutiveReporting() {
       </div>
 
       {/* Campaign summary */}
-      <div className="rounded-xl border border-[#1E40AF] bg-[#0C1A2A] p-5">
+      <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
         <div className="flex items-start gap-3">
-          <Icon name="hub" size={22} className="text-[#38BDF8]" />
+          <Icon name="hub" size={22} className="text-[#9CA3AF]" />
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold text-white">
               Campaign {campaign.title.split(' ')[0]}: {campaign.title}
@@ -228,7 +225,7 @@ export default function ExecutiveReporting() {
             <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
               {campaign.hypothesis}
             </p>
-            <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold text-[#60A5FA]">
+            <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold text-[#9CA3AF]">
               <span>{campaign.incidentIds.length} incidents</span>
               <span>·</span>
               <span>2 sites</span>
@@ -242,12 +239,12 @@ export default function ExecutiveReporting() {
       </div>
 
       {/* Executive brief */}
-      <div className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-        <div className="flex items-center justify-between border-b border-[#2D3748] px-5 py-3.5">
+      <div className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
+        <div className="flex items-center justify-between border-b border-[#273142] px-5 py-3.5">
           <h3 className="flex items-center gap-2 text-sm font-bold text-white">
             <Icon name="summarize" size={18} className="text-[#A78BFA]" />{' '}
             Executive Brief
-            <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
+            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
               AI-generated
             </span>
           </h3>

@@ -7,15 +7,15 @@ import { SITES, EXTERNAL_SIGNALS } from '@/lib/mock-data/scenarios'
 
 const RISK_COLOR: Record<Site['riskLevel'], string> = {
   critical: '#EF4444',
-  high: '#F97316',
-  medium: '#F59E0B',
-  low: '#22C55E',
+  high: '#D97706',
+  medium: '#9CA3AF',
+  low: '#6B7280',
 }
 
 function MapSkeleton() {
   return (
     <div
-      className="flex items-center justify-center rounded-xl border border-[#2D3748] bg-[#0B0E14]"
+      className="flex items-center justify-center rounded-xl border border-[#273142] bg-[#0B0E14]"
       style={{ height: 560 }}
     >
       <div className="flex flex-col items-center gap-3 text-[#6B7280]">
@@ -41,19 +41,19 @@ export default function MapView() {
   return (
     <div className="space-y-4 bg-[#0F1117]">
       {/* Top stats bar */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-4 py-3 text-sm">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-[#273142] bg-[#171D29] px-4 py-3 text-sm">
         <span className="font-semibold text-white">{SITES.length} Sites</span>
         <span className="text-[#6B7280]">·</span>
         <span className="text-[#CBD5E0]">
-          <span className="font-semibold text-[#F87171]">{totalOpen}</span> Open
+          <span className="font-semibold text-[#FCA5A5]">{totalOpen}</span> open
           Incidents
         </span>
         <span className="text-[#6B7280]">·</span>
         <span className="text-[#CBD5E0]">
-          <span className="font-semibold text-[#FBBF24]">
+          <span className="font-semibold text-[#CBD5E0]">
             {EXTERNAL_SIGNALS.length}
           </span>{' '}
-          External Signals Active
+          external signals
         </span>
         <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs font-medium text-[#CBD5E0]">
           <input
@@ -69,7 +69,7 @@ export default function MapView() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
         {/* Map */}
         <div
-          className="relative min-h-[500px] overflow-hidden rounded-xl border border-[#2D3748]"
+          className="relative min-h-[500px] overflow-hidden rounded-xl border border-[#273142]"
           style={{ backgroundColor: '#0B0E14' }}
         >
           <MapWithNoSSR
@@ -82,7 +82,7 @@ export default function MapView() {
         {/* Site detail panel */}
         <div className="space-y-3">
           {selected ? (
-            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4">
+            <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-white">
                   {selected.name}
@@ -101,50 +101,50 @@ export default function MapView() {
                 {selected.city}, {selected.state}
               </p>
               <dl className="mt-3 grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-lg bg-[#0F1117] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                <div className="rounded-lg bg-[#111827] py-2">
+                  <dt className="text-xs text-[#6B7280]">
                     Open Incidents
                   </dt>
                   <dd className="text-lg font-bold text-[#F87171]">
                     {selected.openIncidents}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#0F1117] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                <div className="rounded-lg bg-[#111827] py-2">
+                  <dt className="text-xs text-[#6B7280]">
                     Active Alerts
                   </dt>
-                  <dd className="text-lg font-bold text-[#FBBF24]">
+                  <dd className="text-lg font-bold text-[#E5E7EB]">
                     {selected.activeAlerts}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#0F1117] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                <div className="rounded-lg bg-[#111827] py-2">
+                  <dt className="text-xs text-[#6B7280]">
                     Offline Devices
                   </dt>
                   <dd className="text-lg font-bold text-white">
                     {selected.offlineDevices}
                   </dd>
                 </div>
-                <div className="rounded-lg bg-[#0F1117] py-2">
-                  <dt className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                <div className="rounded-lg bg-[#111827] py-2">
+                  <dt className="text-xs text-[#6B7280]">
                     Ext. Signals
                   </dt>
-                  <dd className="text-lg font-bold text-[#A78BFA]">
+                  <dd className="text-lg font-bold text-[#E5E7EB]">
                     {selected.externalSignals}
                   </dd>
                 </div>
               </dl>
             </div>
           ) : (
-            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4 text-center text-xs text-[#9CA3AF]">
+            <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4 text-center text-xs text-[#9CA3AF]">
               Click a site pin to view details.
             </div>
           )}
 
           {/* Active signals affecting selected site */}
           {selected && (
-            <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-4">
-              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-white">
+            <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
+              <h4 className="mb-2 text-sm font-semibold text-white">
                 External Signals
               </h4>
               <div className="space-y-2">
@@ -153,7 +153,7 @@ export default function MapView() {
                 ).map((sig) => (
                   <div
                     key={sig.id}
-                    className="rounded-lg border border-[#2D3748] bg-[#111827] p-2"
+                    className="rounded-lg border border-[#273142] bg-[#111827] p-2"
                     style={{
                       borderLeft: `3px solid ${
                         sig.severity === 'high' ? '#EF4444' : '#F59E0B'

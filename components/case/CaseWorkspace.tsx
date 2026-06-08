@@ -235,17 +235,17 @@ export default function CaseWorkspace() {
         {/* ===================== LEFT COLUMN ===================== */}
         <div className="space-y-5">
           {/* Case header card */}
-          <div className="overflow-hidden rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
+          <div className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
             <div className="p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+                    <span className="font-mono text-xs font-semibold text-[#9CA3AF]">
                       {baseCase.id}
                     </span>
                     <span
-                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
-                      style={{ backgroundColor: sev.bg, color: sev.text }}
+                      className="inline-flex items-center rounded-full border border-[#374151] px-2.5 py-0.5 text-xs font-semibold"
+                      style={{ color: sev.text }}
                     >
                       {baseCase.severity}
                     </span>
@@ -254,8 +254,8 @@ export default function CaseWorkspace() {
                     {baseCase.title}
                   </h2>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0C1A2A] px-3 py-1 text-xs font-semibold text-[#38BDF8]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#374151] px-3 py-1 text-xs font-medium text-[#CBD5E0]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
                   Investigating
                 </span>
               </div>
@@ -275,8 +275,8 @@ export default function CaseWorkspace() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-[#6B7280]">SLA</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#0C2714] px-2 py-0.5 font-semibold text-[#22C55E]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#374151] px-2 py-0.5 font-semibold text-[#CBD5E0]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
                     {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
                     {fmtDateTime(baseCase.sla.dueAt)}
                   </span>
@@ -285,16 +285,16 @@ export default function CaseWorkspace() {
             </div>
 
             {campaign && (
-              <div className="flex items-center gap-2 border-t border-[#78350F] bg-[#1C1500] px-5 py-2.5 text-xs">
-                <Icon name="hub" size={16} className="text-[#FBBF24]" />
-                <span className="font-semibold uppercase tracking-wide text-[#FDE68A]">
+              <div className="flex items-center gap-2 border-t border-[#273142] bg-[#111827] px-5 py-2.5 text-xs">
+                <Icon name="hub" size={16} className="text-[#9CA3AF]" />
+                <span className="font-semibold text-[#9CA3AF]">
                   Campaign Linked:
                 </span>
-                <span className="font-semibold text-[#FDE68A]">
+                <span className="font-semibold text-[#CBD5E0]">
                   HXT-7291 Multi-Site Activity
                 </span>
-                <span className="text-[#FBBF24]">·</span>
-                <span className="text-[#FDE68A]">
+                <span className="text-[#4B5563]">·</span>
+                <span className="text-[#9CA3AF]">
                   {campaign.incidentIds.length} incidents
                 </span>
               </div>
@@ -302,8 +302,8 @@ export default function CaseWorkspace() {
           </div>
 
           {/* Workspace tabs */}
-          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-            <div className="flex gap-1 border-b border-[#2D3748] bg-[#111827] px-3 pt-2">
+          <div className="rounded-xl border border-[#273142] bg-[#171D29]">
+            <div className="flex gap-1 border-b border-[#273142] bg-[#111827] px-3 pt-2">
               {WORKSPACE_TABS.map((t) => {
                 const active = tab === t.key
                 return (
@@ -312,14 +312,14 @@ export default function CaseWorkspace() {
                     onClick={() => setTab(t.key)}
                     className={`relative flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
                       active
-                        ? 'text-[#38BDF8]'
+                        ? 'text-white'
                         : 'text-[#6B7280] hover:text-[#9CA3AF]'
                     }`}
                   >
                     <Icon name={t.icon} size={16} />
                     {t.label}
                     {active && (
-                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#38BDF8]" />
+                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#A78BFA]" />
                     )}
                   </button>
                 )
@@ -360,14 +360,14 @@ export default function CaseWorkspace() {
           {baseCase.person && <PersonCard person={baseCase.person} />}
 
           {/* Open Questions */}
-          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E]">
-            <div className="border-b border-[#2D3748] px-5 py-3">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
-                <Icon name="help" size={16} className="text-[#9CA3AF]" /> Open
+          <div className="rounded-xl border border-[#4A3520] bg-[#171D29]">
+            <div className="border-b border-[#273142] px-5 py-3">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Icon name="help" size={16} className="text-[#FBBF24]" /> Open
                 Questions
               </h3>
             </div>
-            <ul className="divide-y divide-[#2D3748]">
+            <ul className="divide-y divide-[#273142]">
               {baseCase.openQuestions.map((q) => {
                 const resolved = resolvedQuestions.includes(q)
                 return (
@@ -379,7 +379,7 @@ export default function CaseWorkspace() {
                     />
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`text-xs leading-relaxed ${
+                        className={`text-sm leading-relaxed ${
                           resolved
                             ? 'text-[#6B7280] line-through'
                             : 'text-[#CBD5E0]'
@@ -390,7 +390,7 @@ export default function CaseWorkspace() {
                       {!resolved && (
                         <button
                           onClick={() => handleResolveQuestion(q)}
-                          className="mt-1 text-[11px] font-semibold text-[#38BDF8] transition-colors hover:text-white"
+                          className="mt-1 text-xs font-semibold text-[#CBD5E0] underline-offset-4 transition-colors hover:text-white hover:underline"
                         >
                           Mark Resolved
                         </button>
@@ -405,14 +405,14 @@ export default function CaseWorkspace() {
           {/* Generate Report */}
           <button
             onClick={() => setShowReport(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#6D28D9]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#374151] px-4 py-3 text-sm font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
           >
             <Icon name="auto_awesome" size={18} /> Generate Report
           </button>
 
           {/* Case Details */}
-          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+          <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
+            <h3 className="mb-3 text-sm font-semibold text-white">
               Case Details
             </h3>
             <dl className="space-y-2.5 text-xs">
@@ -443,7 +443,7 @@ export default function CaseWorkspace() {
                 {baseCase.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded-full bg-[#2D1F47] px-2 py-0.5 text-[11px] font-medium text-[#A78BFA]"
+                    className="rounded-full border border-[#374151] px-2 py-0.5 text-[11px] font-medium text-[#9CA3AF]"
                   >
                     {t}
                   </span>
@@ -453,15 +453,15 @@ export default function CaseWorkspace() {
           </div>
 
           {/* Entity refs */}
-          <div className="rounded-xl border border-[#2D3748] bg-[#1A1F2E] p-5">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#9CA3AF]">
+          <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
+            <h3 className="mb-3 text-sm font-semibold text-white">
               Involved Entities
             </h3>
             <ul className="space-y-2">
               {baseCase.entityRefs.map((e) => (
                 <li
                   key={e.id}
-                  className="flex items-center gap-2.5 rounded-lg border border-[#2D3748] bg-[#111827] px-3 py-2"
+                  className="flex items-center gap-2.5 rounded-lg border border-[#273142] bg-[#111827] px-3 py-2"
                 >
                   <Icon
                     name={ENTITY_ICON[e.type]}
@@ -590,13 +590,13 @@ function TimelineTab({
   }
 
   const inputCls =
-    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
 
   return (
     <div>
       {/* Quick operator note */}
-      <div className="mb-5 rounded-lg border border-[#2D3748] bg-[#111827] p-3">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
+      <div className="mb-5 rounded-lg border border-[#273142] bg-[#111827] p-3">
+        <p className="mb-2 text-xs font-semibold text-[#9CA3AF]">
           Add Operator Note
         </p>
         <textarea
@@ -604,12 +604,12 @@ function TimelineTab({
           rows={2}
           placeholder="Jot down a quick observation…"
           onChange={(e) => setQuickNote(e.target.value)}
-          className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]"
+          className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]"
         />
         <div className="mt-2 flex justify-end">
           <button
             onClick={submitQuickNote}
-            className="rounded-lg bg-[#7C3AED] px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9]"
+            className="rounded-lg border border-[#374151] px-4 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
           >
             Add Note
           </button>
@@ -617,24 +617,24 @@ function TimelineTab({
       </div>
 
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+        <p className="text-sm font-semibold text-[#CBD5E0]">
           Investigation Timeline · {timeline.length} events
         </p>
         <button
           onClick={() => setShowEventForm(!showEventForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#2D3748] bg-[#1A1F2E] px-3 py-1.5 text-xs font-semibold text-[#9CA3AF] transition-colors hover:border-[#7C3AED] hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#374151] px-3 py-1.5 text-xs font-semibold text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white"
         >
           <Icon name="add" size={16} /> Add Manual Event
         </button>
       </div>
 
       {showEventForm && (
-        <div className="mb-5 rounded-lg border border-dashed border-[#5B4691] bg-[#1A1530] p-4">
-          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-[#A78BFA]">
+        <div className="mb-5 rounded-lg border border-dashed border-[#4B5563] bg-[#111827] p-4">
+          <p className="mb-3 text-sm font-semibold text-[#CBD5E0]">
             New Manual Event
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-[11px] font-semibold text-[#9CA3AF]">
+            <label className="text-xs font-semibold text-[#9CA3AF]">
               Timestamp
               <input
                 type="datetime-local"
@@ -645,7 +645,7 @@ function TimelineTab({
                 className={inputCls}
               />
             </label>
-            <label className="text-[11px] font-semibold text-[#9CA3AF]">
+            <label className="text-xs font-semibold text-[#9CA3AF]">
               Event Type
               <select
                 value={form.type}
@@ -665,7 +665,7 @@ function TimelineTab({
               </select>
             </label>
           </div>
-          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
+          <label className="mt-3 block text-xs font-semibold text-[#9CA3AF]">
             Title
             <input
               type="text"
@@ -675,7 +675,7 @@ function TimelineTab({
               className={inputCls}
             />
           </label>
-          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
+          <label className="mt-3 block text-xs font-semibold text-[#9CA3AF]">
             Description
             <textarea
               value={form.detail}
@@ -685,7 +685,7 @@ function TimelineTab({
               className={`${inputCls} resize-none`}
             />
           </label>
-          <label className="mt-3 block text-[11px] font-semibold text-[#9CA3AF]">
+          <label className="mt-3 block text-xs font-semibold text-[#9CA3AF]">
             Source Attribution
             <input
               type="text"
@@ -724,16 +724,16 @@ function TimelineTab({
                 ev.title.startsWith('Question resolved'))
             const isOperatorNote = !!ev.isManual && ev.title === 'Operator Note'
             const cardCls = ev.flagged
-              ? 'bg-[#1C0A0A] border border-[#7F1D1D]'
+              ? 'bg-[#181010] border border-[#7F1D1D] border-l-4 border-l-[#EF4444]'
               : isDisposition
-                ? 'bg-[#0C2714] border border-dashed border-[#166534]'
+                ? 'bg-[#111827] border border-dashed border-[#274235]'
                 : isOperatorNote
-                  ? 'bg-[#1A1502] border border-dashed border-[#78350F]'
+                  ? 'bg-[#111827] border border-dashed border-[#4A3520]'
                   : ev.isManual
-                    ? 'bg-[#1A1F2E] border border-dashed border-[#374151]'
+                    ? 'bg-[#171D29] border border-dashed border-[#374151]'
                     : ev.isAIGenerated
-                      ? 'bg-[#0A1F1F] border-l-2 border-l-[#2DD4BF] border-y border-r border-[#143A3A]'
-                      : 'bg-[#1A1F2E] border border-[#2D3748]'
+                      ? 'bg-[#171D29] border-l-2 border-l-[#64748B] border-y border-r border-[#273142]'
+                      : 'bg-[#171D29] border border-[#273142]'
             const titleIcon = ev.flagged
               ? 'warning'
               : isDisposition
@@ -760,7 +760,7 @@ function TimelineTab({
                     >
                       calendar_today
                     </span>
-                    <span className="whitespace-nowrap text-[11px] font-semibold text-[#6B7280]">
+                    <span className="whitespace-nowrap text-xs font-semibold text-[#6B7280]">
                       {fmtCaseDateHeader(ev.timestamp)}
                     </span>
                     <span className="flex-1 border-t border-dashed border-[#2D3748]" />
@@ -778,7 +778,7 @@ function TimelineTab({
                   </span>
                 </div>
                 <div className="relative flex flex-col items-center">
-                  <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#2D3748] bg-[#111827]">
+                  <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#273142] bg-[#111827]">
                     <Icon
                       name={titleIcon}
                       size={15}
@@ -800,7 +800,7 @@ function TimelineTab({
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="flex items-start gap-1.5 text-sm font-semibold leading-snug text-white">
+                        <p className="flex items-start gap-1.5 text-[15px] font-semibold leading-snug text-white">
                           <Icon
                             name={titleIcon}
                             size={16}
@@ -818,28 +818,28 @@ function TimelineTab({
                         </p>
                         <div className="flex shrink-0 gap-1">
                           {ev.isAIGenerated && (
-                            <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
+                            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
                               AI
                             </span>
                           )}
                           {isDisposition && (
-                            <span className="rounded border border-dashed border-[#166534] bg-[#0C2714] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#22C55E]">
+                            <span className="rounded border border-dashed border-[#274235] px-1.5 py-0.5 text-[10px] font-semibold text-[#86EFAC]">
                               Action
                             </span>
                           )}
                           {isOperatorNote && (
-                            <span className="rounded border border-dashed border-[#78350F] bg-[#1A1502] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#F59E0B]">
+                            <span className="rounded border border-dashed border-[#4A3520] px-1.5 py-0.5 text-[10px] font-semibold text-[#FBBF24]">
                               Operator Note
                             </span>
                           )}
                           {ev.isManual && !isDisposition && !isOperatorNote && (
-                            <span className="rounded border border-dashed border-[#5B4691] bg-[#1A1530] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A78BFA]">
+                            <span className="rounded border border-dashed border-[#4B5563] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
                               Manual Evidence
                             </span>
                           )}
                         </div>
                       </div>
-                      <p className="mt-1 text-xs leading-relaxed text-[#9CA3AF]">
+                      <p className="mt-1 text-sm leading-relaxed text-[#CBD5E0]">
                         {ev.detail}
                       </p>
                       {isOperatorNote && (
@@ -852,7 +852,7 @@ function TimelineTab({
                           {ev.entityRefs.map((e) => (
                             <span
                               key={e.id}
-                              className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#CBD5E0] ring-1 ring-[#2D3748]"
+                              className="inline-flex items-center gap-1 rounded-full bg-[#111827] px-2 py-0.5 text-xs font-medium text-[#CBD5E0] ring-1 ring-[#273142]"
                             >
                               <Icon name={ENTITY_ICON[e.type]} size={12} /> {e.label}
                             </span>
@@ -910,12 +910,12 @@ const EVIDENCE_ICON: Record<Evidence['type'], string> = {
 function EvidenceTab() {
   return (
     <div>
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+      <p className="mb-4 text-sm font-semibold text-[#CBD5E0]">
         Linked Evidence · {EVIDENCE.length} items · chain of custody preserved
       </p>
-      <div className="overflow-hidden rounded-lg border border-[#2D3748]">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+      <div className="overflow-hidden rounded-lg border border-[#273142]">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-[#111827] text-xs text-[#9CA3AF]">
             <tr>
               <th className="px-3 py-2.5 font-semibold">Type</th>
               <th className="px-3 py-2.5 font-semibold">Label</th>
@@ -925,11 +925,11 @@ function EvidenceTab() {
               <th className="px-3 py-2.5 text-right font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#2D3748]">
+          <tbody className="divide-y divide-[#273142]">
             {EVIDENCE.map((ev) => (
               <tr
                 key={ev.id}
-                className="bg-[#1A1F2E] transition-colors hover:bg-[#243048]"
+                className="bg-[#171D29] transition-colors hover:bg-[#1D2533]"
               >
                 <td className="px-3 py-3">
                   <Icon
@@ -951,11 +951,7 @@ function EvidenceTab() {
                         style={{
                           width: `${ev.confidence * 100}%`,
                           backgroundColor:
-                            ev.confidence >= 0.9
-                              ? '#22C55E'
-                              : ev.confidence >= 0.8
-                                ? '#2563EB'
-                                : '#F59E0B',
+                            ev.confidence >= 0.8 ? '#94A3B8' : '#D97706',
                         }}
                       />
                     </div>
@@ -965,7 +961,7 @@ function EvidenceTab() {
                   </div>
                 </td>
                 <td className="px-3 py-3 text-right">
-                  <button className="rounded-md border border-[#374151] px-2.5 py-1 text-[11px] font-semibold text-[#CBD5E0] transition-colors hover:border-[#7C3AED] hover:text-[#A78BFA]">
+                  <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white">
                     View
                   </button>
                 </td>
