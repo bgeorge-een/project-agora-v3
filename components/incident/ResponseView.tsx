@@ -45,7 +45,7 @@ const SEVERITY_META: Record<
     label: 'Low',
     rail: '#4B5563',
     text: '#9CA3AF',
-    quietText: '#6B7280',
+    quietText: '#9CA3AF',
   },
 }
 
@@ -89,10 +89,10 @@ function AlertCard({
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
           </div>
-          <h4 className="text-[15px] font-semibold leading-snug text-[#F8FAFC]">
+          <h3 className="text-[15px] font-semibold leading-snug text-[#F8FAFC]">
             {alert.title}
-          </h4>
-          <p className="mt-1 text-[13px] text-[#9CA3AF]">
+          </h3>
+          <p className="mt-1 text-sm text-[#D1D5DB]">
             {alert.location} · {formatAge(alert.ageSeconds)}
           </p>
         </div>
@@ -108,7 +108,7 @@ function AlertCard({
         </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#273142] pt-2.5 text-xs text-[#9CA3AF]">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#273142] pt-2.5 text-sm text-[#9CA3AF]">
         <span>{alert.sources.length} sources</span>
         <span className="text-[#4B5563]">·</span>
         {alert.status === 'enriching' ? (
@@ -154,7 +154,7 @@ const GROUP_META: Record<
   critical: { label: 'Critical', headerText: '#FCA5A5' },
   high: { label: 'High', headerText: '#FBBF24' },
   medium: { label: 'Medium', headerText: '#9CA3AF' },
-  low: { label: 'Low', headerText: '#6B7280' },
+  low: { label: 'Low', headerText: '#9CA3AF' },
 }
 
 const REASON_LABELS: Record<OverrideReason, string> = {

@@ -29,7 +29,7 @@ export default function Sidebar() {
             V3
           </span>
         </Link>
-        <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#4B5A70]">
+        <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-[#94A3B8]">
           Physical Intelligence
         </p>
       </div>
@@ -55,7 +55,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-[#243349] px-6 py-4">
-        <p className="text-xs font-medium text-[#4B5A70]">V3 · Agora Platform</p>
+        <p className="text-xs font-medium text-[#94A3B8]">V3 · Agora Platform</p>
       </div>
     </aside>
   )

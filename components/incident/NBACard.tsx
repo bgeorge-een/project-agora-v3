@@ -13,7 +13,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
     return (
       <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-[#273142] bg-[#171D29] p-8 text-center">
         <span
-          className="material-symbols-outlined mb-3 text-[#6B7280]"
+          className="material-symbols-outlined mb-3 text-[#9CA3AF]"
           style={{ fontSize: '32px', lineHeight: 1 }}
         >
           touch_app
@@ -21,7 +21,7 @@ export default function NBACard({ alert, onAccept, onOverride }: NBACardProps) {
         <p className="text-sm font-semibold text-[#CBD5E0]">
           No alert selected
         </p>
-        <p className="mt-1 max-w-[240px] text-sm leading-relaxed text-[#6B7280]">
+        <p className="mt-1 max-w-[240px] text-sm leading-relaxed text-[#D1D5DB]">
           Open an alert to review the recommended action, supporting rationale,
           and approval gates.
         </p>

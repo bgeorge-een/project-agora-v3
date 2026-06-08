@@ -35,6 +35,7 @@ export default function IncidentManagementPage() {
               <select
                 value={site}
                 onChange={(e) => setSite(e.target.value)}
+                aria-label="Select facility location"
                 className="appearance-none rounded-lg border border-[#374151] bg-[#111827] py-1.5 pl-3 pr-8 text-sm font-medium text-[#CBD5E0] outline-none transition-colors hover:border-[#4B5563] focus:border-[#2563EB]"
               >
                 {SITES.map((s) => (
