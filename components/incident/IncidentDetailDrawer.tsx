@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import type { Alert, AlertDetail, CorrelatedEvent, PersonDetails, Severity } from '@/lib/types'
 import { CameraStill } from './CameraStill'
 import { CameraClipModal } from './CameraClipModal'
@@ -559,14 +559,14 @@ function completionProof(action: ExecutionAction): string {
   return `${action.system} acknowledged command.`
 }
 
-function buildExecutionActions(alert: Alert): ExecutionAction[] {
-  if (!alert.nba) return []
+function buildExecutionActions(alertId: string, nba: Alert['nba']): ExecutionAction[] {
+  if (!nba) return []
 
   const seen = new Set<string>()
   const labels = [
-    ...splitRecommendation(alert.nba.recommendedAction),
-    ...alert.nba.gatedActions,
-    ...alert.nba.autoExecuteActions,
+    ...splitRecommendation(nba.recommendedAction),
+    ...nba.gatedActions,
+    ...nba.autoExecuteActions,
   ].filter((label) => {
     const signature = actionSignature(label)
     if (!signature || seen.has(signature)) return false
@@ -575,7 +575,7 @@ function buildExecutionActions(alert: Alert): ExecutionAction[] {
   })
 
   return labels.map((label, index) => {
-    const id = `exec-${alert.id}-${index}`
+    const id = `exec-${alertId}-${index}`
     return {
       id,
       label,
@@ -809,10 +809,22 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   const [whyOpen, setWhyOpen] = useState(false)
   const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
   const [noteText, setNoteText] = useState('')
-  const initialExecutionActions = useMemo(() => buildExecutionActions(alert), [alert])
+  const actionPlanKey = useMemo(
+    () =>
+      [
+        alert.id,
+        alert.nba?.recommendedAction ?? '',
+        ...(alert.nba?.gatedActions ?? []),
+        ...(alert.nba?.autoExecuteActions ?? []),
+      ].join('|'),
+    [alert.id, alert.nba?.autoExecuteActions, alert.nba?.gatedActions, alert.nba?.recommendedAction]
+  )
+  const initialExecutionActions = useMemo(
+    () => buildExecutionActions(alert.id, alert.nba),
+    [actionPlanKey]
+  )
   const [executionActions, setExecutionActions] = useState<ExecutionAction[]>(initialExecutionActions)
   const [executionStarted, setExecutionStarted] = useState(false)
-  const executionRunRef = useRef<string | null>(null)
   const sevBadge = SEVERITY_BADGE[alert.severity]
   const isDeterrent = alert.type === 'deterrent'
   const { nba, sop } = alert
@@ -930,18 +942,17 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   }
 
   useEffect(() => {
-    setExecutionActions(buildExecutionActions(alert))
+    setExecutionActions(initialExecutionActions)
     setExecutionStarted(false)
-    executionRunRef.current = null
-  }, [alert])
+  }, [actionPlanKey, initialExecutionActions])
 
   useEffect(() => {
-    if (!executionStarted || executionRunRef.current === alert.id) return
-    executionRunRef.current = alert.id
+    if (!executionStarted) return
 
     const timers: ReturnType<typeof setTimeout>[] = []
+    const actionsToExecute = executionActions
 
-    executionActions.forEach((action, index) => {
+    actionsToExecute.forEach((action, index) => {
       const startDelay = 250 + index * 450
       const outcomeDelay = 1000 + index * 700
 
@@ -1003,7 +1014,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     })
 
     return () => timers.forEach((timer) => clearTimeout(timer))
-  }, [alert.id, executionActions, executionStarted])
+  }, [alert.id, executionStarted])
 
   useEffect(() => {
     function handleShortcut(event: KeyboardEvent) {
