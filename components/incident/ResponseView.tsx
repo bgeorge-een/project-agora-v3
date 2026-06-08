@@ -26,6 +26,7 @@ function formatLocalTime(ageSeconds: number): string {
     minute: '2-digit',
     second: '2-digit',
     hour12: true,
+    timeZone: 'America/Chicago',
     timeZoneName: 'short',
   })
   return formatted.replace(/\bCST\b|\bCDT\b/, 'CT')
@@ -158,7 +159,7 @@ const GROUP_META: Record<
   Severity,
   { label: string; headerText: string }
 > = {
-  critical: { label: 'Critical', headerText: '#FCA5A5' },
+  critical: { label: 'Critical', headerText: '#FF453A' },
   high: { label: 'High', headerText: '#FBBF24' },
   medium: { label: 'Medium', headerText: '#9CA3AF' },
   low: { label: 'Low', headerText: '#9CA3AF' },
