@@ -13,6 +13,7 @@ import {
   linkedDevicesForIncident,
   regionById,
   siteById,
+  hasHealthEvents,
   type MapDevice,
   type MapPanelSelection,
 } from './mapOperationsData'
@@ -44,6 +45,11 @@ const DEVICE_STATUS: Record<
   online: { label: 'Online', text: '#86EFAC', bg: '#0C2714', border: '#166534' },
   degraded: { label: 'Degraded', text: '#FCD34D', bg: '#27200B', border: '#854D0E' },
   offline: { label: 'Offline', text: '#FFB4AE', bg: '#210A08', border: '#7F1D1D' },
+}
+
+const HEALTH_EVENT_STYLE = {
+  warning: { text: '#FCD34D', bg: '#27200B', border: '#854D0E', icon: 'warning' },
+  critical: { text: '#FF453A', bg: '#210A08', border: '#7F1D1D', icon: 'error' },
 }
 
 function PanelShell({
@@ -159,6 +165,44 @@ function DeviceStatusBadge({ status }: { status: MapDevice['status'] }) {
   )
 }
 
+function HealthEventList({ device, compact = false }: { device: MapDevice; compact?: boolean }) {
+  if (!device.healthEvents?.length) return null
+
+  return (
+    <div className={compact ? 'mt-2 space-y-1.5' : 'space-y-2'}>
+      {device.healthEvents.map((event) => {
+        const style = HEALTH_EVENT_STYLE[event.severity]
+        return (
+          <div
+            key={event.id}
+            className="rounded-md border px-2.5 py-2"
+            style={{ backgroundColor: style.bg, borderColor: style.border }}
+          >
+            <div className="flex items-start gap-2">
+              <span
+                className="material-symbols-outlined mt-0.5"
+                aria-hidden="true"
+                style={{ color: style.text, fontSize: '16px', lineHeight: 1 }}
+              >
+                {style.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold leading-[1.4]" style={{ color: style.text }}>
+                  {event.label}
+                </p>
+                {!compact && (
+                  <p className="mt-1 text-sm leading-[1.5] text-[#E5E7EB]">{event.detail}</p>
+                )}
+                <p className="mt-1 text-xs font-semibold text-[#CBD5E1]">Observed {event.observedAt}</p>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function DeviceRow({
   device,
   onSelectDevice,
@@ -181,7 +225,14 @@ function DeviceRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-bold leading-[1.4] text-white">{device.name}</p>
-            <DeviceStatusBadge status={device.status} />
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <DeviceStatusBadge status={device.status} />
+              {device.healthEvents?.length ? (
+                <span className="rounded-full border border-[#854D0E] bg-[#27200B] px-2 py-0.5 text-[11px] font-bold text-[#FCD34D]">
+                  Health warning
+                </span>
+              ) : null}
+            </div>
           </div>
           <p className="mt-1 text-sm leading-[1.5] text-[#CBD5E1]">
             {device.floor} · {device.zone}
@@ -189,6 +240,12 @@ function DeviceRow({
           <p className="mt-1 text-xs font-medium text-[#94A3B8]">
             Last heartbeat {device.lastHeartbeat}
           </p>
+          {device.responseContext && !hasHealthEvents(device) && (
+            <p className="mt-2 rounded-md border border-[#334155] bg-[#0F1117] px-2.5 py-2 text-sm leading-[1.5] text-[#CBD5E1]">
+              {device.responseContext}
+            </p>
+          )}
+          <HealthEventList device={device} compact />
           <div className="mt-3 grid grid-cols-2 gap-2">
             <ActionButton icon="info" onClick={() => onSelectDevice(device.id)}>
               Details
@@ -364,6 +421,10 @@ function SitePanel({
   const incidents = incidentsForSite(site.id)
   const signals = EXTERNAL_SIGNALS.filter((signal) => signal.affectedSiteIds.includes(site.id))
   const offline = devices.filter((device) => device.status === 'offline').length
+  const healthExceptionDevices = devices.filter(hasHealthEvents)
+  const responseDevices = devices.filter(
+    (device) => device.linkedIncidentIds.length > 0 && !hasHealthEvents(device)
+  )
 
   return (
     <PanelShell title={site.name} eyebrow={`${site.city}, ${site.state}`} icon="location_city">
@@ -419,19 +480,42 @@ function SitePanel({
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-bold text-white">Devices Needing Attention</h3>
+        <h3 className="mb-2 text-sm font-bold text-white">Device Health Exceptions</h3>
         <div className="space-y-2">
-          {devices
-            .filter((device) => device.status !== 'online' || device.linkedIncidentIds.length > 0)
-            .slice(0, 4)
-            .map((device) => (
+          {healthExceptionDevices.length > 0 ? (
+            healthExceptionDevices.slice(0, 4).map((device) => (
               <DeviceRow
                 key={device.id}
                 device={device}
                 onSelectDevice={onSelectDevice}
                 onOpenLiveView={onOpenLiveView}
               />
-            ))}
+            ))
+          ) : (
+            <p className="rounded-lg border border-[#273142] bg-[#111827] p-3 text-sm leading-[1.5] text-[#94A3B8]">
+              No active device health exceptions at this site.
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Incident-Linked Devices</h3>
+        <div className="space-y-2">
+          {responseDevices.length > 0 ? (
+            responseDevices.slice(0, 4).map((device) => (
+              <DeviceRow
+                key={device.id}
+                device={device}
+                onSelectDevice={onSelectDevice}
+                onOpenLiveView={onOpenLiveView}
+              />
+            ))
+          ) : (
+            <p className="rounded-lg border border-[#273142] bg-[#111827] p-3 text-sm leading-[1.5] text-[#94A3B8]">
+              No additional healthy devices are attached to active incidents.
+            </p>
+          )}
         </div>
       </section>
 
@@ -483,6 +567,18 @@ function DevicePanel({
           { label: 'State', value: device.state ?? device.streamHealth ?? 'Nominal' },
         ]}
       />
+      {device.healthEvents?.length ? (
+        <section>
+          <h3 className="mb-2 text-sm font-bold text-white">Health Events</h3>
+          <HealthEventList device={device} />
+        </section>
+      ) : (
+        device.responseContext && (
+          <p className="rounded-lg border border-[#334155] bg-[#111827] p-3 text-sm leading-[1.5] text-[#CBD5E1]">
+            {device.responseContext}
+          </p>
+        )
+      )}
       {device.kind === 'camera' && (
         <CameraTile camera={device} onOpenLiveView={onOpenLiveView} />
       )}

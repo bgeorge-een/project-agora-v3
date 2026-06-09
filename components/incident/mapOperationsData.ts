@@ -9,6 +9,15 @@ export type MapLayerPreset = 'response' | 'health' | 'external' | 'investigation
 export type DeviceKind = 'camera' | 'access' | 'sensor'
 export type DeviceStatus = 'online' | 'offline' | 'degraded'
 export type PanelMode = 'region' | 'site' | 'device' | 'incident' | 'camera-wall' | 'live-view'
+export type DeviceHealthSeverity = 'warning' | 'critical'
+
+export interface DeviceHealthEvent {
+  id: string
+  severity: DeviceHealthSeverity
+  label: string
+  detail: string
+  observedAt: string
+}
 
 export interface MapDevice {
   id: string
@@ -28,6 +37,8 @@ export interface MapDevice {
   channel?: string
   coverage?: string
   state?: string
+  responseContext?: string
+  healthEvents?: DeviceHealthEvent[]
   linkedIncidentIds: string[]
   recentEvents: string[]
 }
@@ -139,6 +150,7 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'restricted',
     channel: 'C4',
     coverage: 'Server Room 2B approach',
+    responseContext: 'Primary camera for unauthorized server room access review.',
     linkedIncidentIds: ['alert-001'],
     recentEvents: ['14:38 badge denial confirmed on camera', '14:34 contractor observed near Server Room 2B'],
   },
@@ -159,6 +171,7 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'hallway',
     channel: 'A7',
     coverage: 'Executive Suite entrance and elevator lobby',
+    responseContext: 'Linked to after-hours motion review; no current device health exception.',
     linkedIncidentIds: ['alert-003'],
     recentEvents: ['02:14 after-hours motion detected', '02:13 motion sensor wake event'],
   },
@@ -179,6 +192,23 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'exterior',
     channel: 'E2',
     coverage: 'Employee entrance doors and badge reader',
+    healthEvents: [
+      {
+        id: 'health-cam-e2-bandwidth',
+        severity: 'warning',
+        label: 'Bandwidth below threshold',
+        detail: 'Average stream bandwidth is 38% below baseline for the last 6 minutes.',
+        observedAt: '09:55 CT',
+      },
+      {
+        id: 'health-cam-e2-previews',
+        severity: 'warning',
+        label: 'Missed preview images',
+        detail: '3 of the last 12 preview frames failed to generate during the active incident.',
+        observedAt: '09:56 CT',
+      },
+    ],
+    responseContext: 'Active forced-entry camera; verify stream quality before relying on live view.',
     linkedIncidentIds: ['alert-006'],
     recentEvents: ['09:53 door pressure sensor triggered', '09:52 unauthorized vehicle arrived'],
   },
@@ -199,6 +229,16 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'exterior',
     channel: 'E1',
     coverage: 'East perimeter entry and approach path',
+    healthEvents: [
+      {
+        id: 'health-east-entry-preview',
+        severity: 'warning',
+        label: 'Preview latency elevated',
+        detail: 'Preview generation is delayed by 9 seconds; live stream is still available.',
+        observedAt: '14:36 CT',
+      },
+    ],
+    responseContext: 'Perimeter camera linked to watchlist deterrence event.',
     linkedIncidentIds: ['alert-002'],
     recentEvents: ['14:35 watchlist match at perimeter', '14:34 secondary angle requested'],
   },
@@ -219,6 +259,15 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'parking',
     channel: 'P2-04',
     coverage: 'Parking row C and elevator vestibule',
+    healthEvents: [
+      {
+        id: 'health-p204-offline',
+        severity: 'critical',
+        label: 'Camera offline',
+        detail: 'No stream heartbeat for 2h 14m; recording gap is active for Parking Level 2.',
+        observedAt: '12:30 CT',
+      },
+    ],
     linkedIncidentIds: ['alert-005'],
     recentEvents: ['12:30 camera health monitor marked offline', '12:29 last frame received'],
   },
@@ -235,6 +284,7 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     zone: 'Server Room 2B',
     lastHeartbeat: '8s ago',
     state: 'Locked · badge restricted',
+    responseContext: 'Access point involved in denied badge attempts; controller healthy.',
     linkedIncidentIds: ['alert-001'],
     recentEvents: ['14:38 access denied for Badge B-4421', '14:34 access denied for Badge B-4421'],
   },
@@ -251,6 +301,16 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     zone: 'Employee Entrance',
     lastHeartbeat: '3s ago',
     state: 'Remote lock available',
+    healthEvents: [
+      {
+        id: 'health-door-employee-pressure',
+        severity: 'warning',
+        label: 'Pressure sensor noisy',
+        detail: 'Door pressure sensor is reporting repeated high-force spikes; verify latch after response.',
+        observedAt: '09:54 CT',
+      },
+    ],
+    responseContext: 'Primary forced-entry access point; remote lock action available.',
     linkedIncidentIds: ['alert-006'],
     recentEvents: ['09:53 forced-entry pressure detected', '09:52 no badge presented'],
   },
@@ -267,6 +327,7 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     zone: 'Executive Suite',
     lastHeartbeat: '21s ago',
     state: 'Motion quiet',
+    responseContext: 'Sensor triggered after-hours motion alert; currently quiet.',
     linkedIncidentIds: ['alert-003'],
     recentEvents: ['02:14 after-hours motion event', '02:15 no follow-up motion'],
   },
@@ -327,6 +388,16 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     sceneType: 'hallway',
     channel: 'W5',
     coverage: 'Aisle 5 and cross-dock corridor',
+    healthEvents: [
+      {
+        id: 'health-w5-packet-loss',
+        severity: 'warning',
+        label: 'Packet loss above threshold',
+        detail: 'Video packet loss is averaging 14%; incident tracking may miss fast movement.',
+        observedAt: '13:54 CT',
+      },
+    ],
+    responseContext: 'Tracking handoff camera for warehouse tailgating incident.',
     linkedIncidentIds: ['alert-004'],
     recentEvents: ['13:54 tracking handoff requested from W2', 'Packet loss above normal threshold'],
   },
@@ -343,6 +414,7 @@ export const OPERATIONAL_DEVICES: MapDevice[] = [
     zone: 'Loading Dock B',
     lastHeartbeat: '11s ago',
     state: 'Unlocked · guard intercept pending',
+    responseContext: 'Loading dock access point associated with tailgate event.',
     linkedIncidentIds: ['alert-004'],
     recentEvents: ['13:52 tailgate event', '13:52 valid badge followed by unknown entry'],
   },
@@ -380,6 +452,10 @@ export function deviceById(deviceId: string): MapDevice | null {
 
 export function linkedDevicesForIncident(alertId: string): MapDevice[] {
   return OPERATIONAL_DEVICES.filter((device) => device.linkedIncidentIds.includes(alertId))
+}
+
+export function hasHealthEvents(device: MapDevice): boolean {
+  return device.status !== 'online' || Boolean(device.healthEvents?.length)
 }
 
 export function highestSeverity(alerts: Alert[]): Severity {
