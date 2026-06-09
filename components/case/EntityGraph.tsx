@@ -179,7 +179,7 @@ export default function EntityGraph({
                   style={{ overflow: 'visible' }}
                 >
                   <div className="flex justify-center">
-                    <span className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#9CA3AF] ring-1 ring-[#273142]">
+                    <span className="rounded-full bg-[#111827] px-2 py-0.5 text-xs font-medium text-[#9CA3AF] ring-1 ring-[#273142]">
                       {edge.label}
                     </span>
                   </div>
@@ -221,7 +221,7 @@ export default function EntityGraph({
           )
         })}
 
-        <div className="absolute bottom-2 left-3 flex items-center gap-3 text-[9px] text-[#6B7280]">
+        <div className="absolute bottom-2 left-3 flex items-center gap-3 text-xs text-[#94A3B8]">
           <span className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-[#EF4444]" /> High risk
           </span>
@@ -246,28 +246,28 @@ export default function EntityGraph({
                 <p className="truncate text-sm font-bold text-white">
                   {selectedEntity.label}
                 </p>
-                <p className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                <p className="text-xs uppercase tracking-wide text-[#94A3B8]">
                   {selectedEntity.type}
                 </p>
               </div>
             </div>
             <dl className="space-y-2 text-xs">
               <div className="flex justify-between gap-2">
-                <dt className="text-[#6B7280]">Site</dt>
+                <dt className="text-[#94A3B8]">Site</dt>
                 <dd className="font-medium text-[#CBD5E0]">
                   {selectedEntity.siteId}
                 </dd>
               </div>
               {selectedEntity.zoneId && (
                 <div className="flex justify-between gap-2">
-                  <dt className="text-[#6B7280]">Zone</dt>
+                  <dt className="text-[#94A3B8]">Zone</dt>
                   <dd className="font-medium text-[#CBD5E0]">
                     {selectedEntity.zoneId}
                   </dd>
                 </div>
               )}
               <div className="flex justify-between gap-2">
-                <dt className="text-[#6B7280]">Risk</dt>
+                <dt className="text-[#94A3B8]">Risk</dt>
                 <dd
                   className="font-bold uppercase"
                   style={{ color: RISK_RING[selectedEntity.riskLevel] }}
@@ -277,12 +277,12 @@ export default function EntityGraph({
               </div>
               {Object.entries(selectedEntity.metadata).map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-2">
-                  <dt className="capitalize text-[#6B7280]">{k}</dt>
+                  <dt className="capitalize text-[#94A3B8]">{k}</dt>
                   <dd className="font-medium text-[#CBD5E0]">{v}</dd>
                 </div>
               ))}
               {Object.keys(selectedEntity.metadata).length === 0 && (
-                <p className="text-[11px] italic text-[#6B7280]">
+                <p className="text-xs italic text-[#94A3B8]">
                   No additional metadata on file.
                 </p>
               )}
@@ -290,9 +290,9 @@ export default function EntityGraph({
           </div>
         ) : (
           <div className="flex h-full min-h-[280px] flex-col items-center justify-center text-center">
-            <Icon name="hub" size={28} className="text-[#6B7280]" />
+            <Icon name="hub" size={28} className="text-[#94A3B8]" />
             <p className="mt-2 text-xs font-semibold text-white">Click a node</p>
-            <p className="mt-1 text-[11px] text-[#9CA3AF]">
+            <p className="mt-1 text-xs text-[#9CA3AF]">
               Select any entity in the graph to inspect its details and risk
               profile.
             </p>

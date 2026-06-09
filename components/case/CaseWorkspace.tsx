@@ -364,27 +364,27 @@ export default function CaseWorkspace() {
                 </span>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
+              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs leading-relaxed">
                 <div>
-                  <span className="text-[#6B7280]">Owner</span>
+                  <span className="text-[#94A3B8]">Owner</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.owner}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#6B7280]">People</span>
+                  <span className="text-[#94A3B8]">People</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {participants.length}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[#6B7280]">Site</span>
+                  <span className="text-[#94A3B8]">Site</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.siteName}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[#6B7280]">SLA</span>
+                  <span className="text-[#94A3B8]">SLA</span>
                   <span className="inline-flex items-center gap-1 rounded-full border border-[#374151] px-2 py-0.5 font-semibold text-[#CBD5E0]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
                     {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
@@ -425,10 +425,10 @@ export default function CaseWorkspace() {
                   <button
                     key={t.key}
                     onClick={() => setTab(t.key)}
-                    className={`relative flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
+                    className={`relative flex items-center gap-1.5 rounded-t-md px-3 py-2.5 text-xs font-semibold transition-colors ${
                       active
                         ? 'text-white'
-                        : 'text-[#6B7280] hover:text-[#9CA3AF]'
+                        : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
                     }`}
                   >
                     <Icon name={t.icon} size={16} />
@@ -502,7 +502,7 @@ export default function CaseWorkspace() {
                       <p
                         className={`text-sm leading-relaxed ${
                           resolved
-                            ? 'text-[#6B7280] line-through'
+                            ? 'text-[#94A3B8] line-through'
                             : 'text-[#CBD5E0]'
                         }`}
                       >
@@ -556,8 +556,8 @@ function CaseContextStrip({
   const visibleTags = caseData.tags.slice(0, 4)
 
   return (
-    <div className="mt-4 grid gap-3 rounded-lg border border-[#273142] bg-[#111827] p-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <div className="grid grid-cols-3 gap-2">
+    <div className="mt-4 grid gap-y-3 gap-x-4 rounded-lg border border-[#273142] border-t-white/5 bg-[#111827] p-3 pt-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <div className="grid grid-cols-3 gap-y-3 gap-x-4">
         <CompactContextItem label="Created" value={fmtDateTime(caseData.createdAt)} />
         <CompactContextItem label="Updated" value={fmtDateTime(caseData.updatedAt)} />
         <CompactContextItem label="SLA Due" value={fmtDateTime(caseData.sla.dueAt)} />
@@ -577,7 +577,7 @@ function CaseContextStrip({
                 className="shrink-0 text-[#94A3B8]"
               />
               <span className="truncate">{entity.label}</span>
-              <span className="text-[10px] uppercase tracking-wide text-[#64748B]">
+              <span className="text-xs uppercase tracking-wide text-[#94A3B8]">
                 {entity.type}
               </span>
             </span>
@@ -587,7 +587,7 @@ function CaseContextStrip({
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-[#334155] px-2 py-0.5 text-[11px] font-medium text-[#94A3B8]"
+              className="rounded-full border border-[#334155] px-2 py-0.5 text-xs font-medium text-[#94A3B8]"
             >
               {tag}
             </span>
@@ -601,7 +601,7 @@ function CaseContextStrip({
 function CompactContextItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[#273142] bg-[#0F172A] px-2.5 py-2">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#64748B]">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
         {label}
       </p>
       <p className="mt-1 truncate text-xs font-semibold text-[#CBD5E0]" title={value}>
@@ -697,7 +697,7 @@ function CasePeoplePanel({
             >
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: role.tone }} />
               {role.label}
-              <span className="rounded bg-[#273142] px-1.5 py-0.5 text-[10px] text-white">
+              <span className="rounded bg-[#273142] px-1.5 py-0.5 text-xs text-white">
                 {role.count}
               </span>
             </span>
@@ -715,7 +715,7 @@ function CasePeoplePanel({
                   value={form.name}
                   onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
                   placeholder="e.g. Priya Shah"
-                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
                 />
               </label>
 
@@ -748,7 +748,7 @@ function CasePeoplePanel({
                   value={form.email}
                   onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
                   placeholder="name@company.com"
-                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
                 />
               </label>
 
@@ -761,7 +761,7 @@ function CasePeoplePanel({
                   value={form.phone}
                   onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
                   placeholder="+1 (512) 555-0123"
-                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
                 />
               </label>
             </div>
@@ -776,7 +776,7 @@ function CasePeoplePanel({
                   setForm((prev) => ({ ...prev, organization: event.target.value }))
                 }
                 placeholder="e.g. Human Resources, Legal, Facilities"
-                className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
               />
             </label>
 
@@ -789,7 +789,7 @@ function CasePeoplePanel({
                 onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
                 rows={2}
                 placeholder="Why this person is involved, access scope, interview status, or constraints."
-                className="w-full resize-none rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                className="w-full resize-none rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
               />
             </label>
 
@@ -969,7 +969,7 @@ function TimelineTab({
   }
 
   const inputCls =
-    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED]'
 
   return (
     <div>
@@ -983,7 +983,7 @@ function TimelineTab({
           rows={2}
           placeholder="Jot down a quick observation…"
           onChange={(e) => setQuickNote(e.target.value)}
-          className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]"
+          className="w-full resize-none rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED]"
         />
         <div className="mt-2 flex justify-end">
           <button
@@ -1127,19 +1127,19 @@ function TimelineTab({
             if (evDate !== currentDate) {
               currentDate = evDate
               items.push(
-                <li key={`date-sep-${evDate}`} className="flex items-center gap-2 pb-4">
+                <li key={`date-sep-${evDate}`} className="flex items-center gap-2 pb-6">
                   <div className="w-14 shrink-0" />
                   <div className="flex w-7 shrink-0 justify-center">
                     <span className="h-2 w-2 rounded-full bg-[#374151]" />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <span
-                      className="material-symbols-outlined text-[#6B7280]"
+                      className="material-symbols-outlined text-[#94A3B8]"
                       style={{ fontSize: '12px', lineHeight: 1 }}
                     >
                       calendar_today
                     </span>
-                    <span className="whitespace-nowrap text-xs font-semibold text-[#6B7280]">
+                    <span className="whitespace-nowrap text-xs font-semibold text-[#94A3B8]">
                       {fmtCaseDateHeader(ev.timestamp)}
                     </span>
                     <span className="flex-1 border-t border-dashed border-[#2D3748]" />
@@ -1149,10 +1149,10 @@ function TimelineTab({
             }
 
             items.push(
-              <li key={ev.id} className="relative flex gap-3 pb-5">
+              <li key={ev.id} className="relative flex gap-3 pb-6">
                 {/* Time + connector */}
                 <div className="flex w-14 shrink-0 flex-col items-end">
-                  <span className="font-mono text-[11px] font-semibold text-[#6B7280]">
+                  <span className="font-mono text-xs font-semibold text-[#94A3B8]">
                     {fmtTime(ev.timestamp)}
                   </span>
                 </div>
@@ -1197,22 +1197,22 @@ function TimelineTab({
                         </p>
                         <div className="flex shrink-0 gap-1">
                           {ev.isAIGenerated && (
-                            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
+                            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-xs font-semibold text-[#9CA3AF]">
                               AI
                             </span>
                           )}
                           {isDisposition && (
-                            <span className="rounded border border-dashed border-[#274235] px-1.5 py-0.5 text-[10px] font-semibold text-[#86EFAC]">
+                            <span className="rounded border border-dashed border-[#274235] px-1.5 py-0.5 text-xs font-semibold text-[#86EFAC]">
                               Action
                             </span>
                           )}
                           {isOperatorNote && (
-                            <span className="rounded border border-dashed border-[#4A3520] px-1.5 py-0.5 text-[10px] font-semibold text-[#FBBF24]">
+                            <span className="rounded border border-dashed border-[#4A3520] px-1.5 py-0.5 text-xs font-semibold text-[#FBBF24]">
                               Operator Note
                             </span>
                           )}
                           {ev.isManual && !isDisposition && !isOperatorNote && (
-                            <span className="rounded border border-dashed border-[#4B5563] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
+                            <span className="rounded border border-dashed border-[#4B5563] px-1.5 py-0.5 text-xs font-semibold text-[#9CA3AF]">
                               Manual Evidence
                             </span>
                           )}
@@ -1222,7 +1222,7 @@ function TimelineTab({
                         {ev.detail}
                       </p>
                       {isOperatorNote && (
-                        <p className="mt-1.5 text-[10px] font-medium text-[#F59E0B]">
+                        <p className="mt-1.5 text-xs font-medium text-[#F59E0B]">
                           — {CURRENT_CASE_OPERATOR}
                         </p>
                       )}
@@ -1319,7 +1319,7 @@ function EvidenceTab() {
                 </td>
                 <td className="px-3 py-3 font-medium text-white">{ev.label}</td>
                 <td className="px-3 py-3 text-[#9CA3AF]">{ev.sourceSystem}</td>
-                <td className="px-3 py-3 font-mono text-[#6B7280]">
+                <td className="px-3 py-3 font-mono text-[#94A3B8]">
                   {fmtTime(ev.timestamp)}
                 </td>
                 <td className="px-3 py-3">
@@ -1407,7 +1407,7 @@ function TasksTab({
   }
 
   const inputCls =
-    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED]'
 
   return (
     <div>
@@ -1481,20 +1481,20 @@ function TasksTab({
                 <p
                   className={`text-sm font-medium ${
                     t.status === 'done'
-                      ? 'text-[#6B7280] line-through'
+                      ? 'text-[#94A3B8] line-through'
                       : 'text-white'
                   }`}
                 >
                   {t.title}
                 </p>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#9CA3AF]">
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9CA3AF]">
                   <span>
                     Owner:{' '}
                     <span className="font-medium text-[#CBD5E0]">
                       {t.owner}
                     </span>
                     {t.ownerTag && (
-                      <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-[#1E1B4B] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#A5B4FC]">
+                      <span className="ml-1.5 inline-flex items-center gap-1 rounded bg-[#1E1B4B] px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-[#A5B4FC]">
                         <Icon name="group" size={11} /> {t.ownerTag}
                       </span>
                     )}
@@ -1507,7 +1507,7 @@ function TasksTab({
                 </div>
               </div>
               <span
-                className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold"
                 style={{ backgroundColor: s.bg, color: s.text }}
               >
                 {s.label}

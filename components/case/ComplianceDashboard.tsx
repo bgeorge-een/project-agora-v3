@@ -177,7 +177,7 @@ function SOPLibrary() {
   }
 
   const inputCls =
-    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+    'rounded-md border border-[#374151] bg-[#111827] px-2.5 py-1.5 text-xs text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED]'
 
   function add() {
     if (!form.title.trim()) return
@@ -252,7 +252,7 @@ function SOPLibrary() {
             className={`mt-3 w-full resize-none ${inputCls}`}
           />
           <div className="mt-3 flex items-center gap-3">
-            <label className="text-[11px] font-semibold text-[#9CA3AF]">
+            <label className="text-xs font-semibold text-[#9CA3AF]">
               Effective Date
               <input
                 type="date"
@@ -282,7 +282,7 @@ function SOPLibrary() {
       )}
 
       <table className="w-full text-left text-xs">
-        <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+        <thead className="bg-[#111827] text-xs uppercase tracking-wide text-[#9CA3AF]">
           <tr>
             <th className="px-5 py-2.5 font-semibold">ID</th>
             <th className="px-3 py-2.5 font-semibold">Title</th>
@@ -311,7 +311,7 @@ function SOPLibrary() {
                   <span className="inline-flex items-center gap-1.5 font-medium text-[#CBD5E0]">
                     v{s.version}
                     <span
-                      className="text-[10px] text-[#6B7280]"
+                      className="text-xs text-[#94A3B8]"
                       title={`${s.versionHistory} prior versions`}
                     >
                       ({s.versionHistory} rev)
@@ -321,7 +321,7 @@ function SOPLibrary() {
                 <td className="px-3 py-3 text-[#9CA3AF]">{s.lastUpdated}</td>
                 <td className="px-3 py-3">
                   <span
-                    className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                    className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
                     style={{ backgroundColor: st.bg, color: st.text }}
                   >
                     {s.status}
@@ -381,7 +381,7 @@ function PlaybookLibrary() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                      className={`rounded px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide ${
                         p.type === 'response'
                           ? 'border border-[#374151] text-[#9CA3AF]'
                           : 'border border-[#4A3520] text-[#FBBF24]'
@@ -400,7 +400,7 @@ function PlaybookLibrary() {
                     {p.triggers.map((t) => (
                       <span
                         key={t}
-                        className="rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-medium text-[#9CA3AF] ring-1 ring-[#2D3748]"
+                        className="rounded-full bg-[#111827] px-2 py-0.5 text-xs font-medium text-[#9CA3AF] ring-1 ring-[#2D3748]"
                       >
                         {t}
                       </span>
@@ -408,7 +408,7 @@ function PlaybookLibrary() {
                   </div>
                 </div>
                 <span
-                  className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                  className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold"
                   style={{ backgroundColor: st.bg, color: st.text }}
                 >
                   {p.status}
@@ -435,7 +435,7 @@ function PlaybookLibrary() {
                       ? 'Requires Approved status'
                       : undefined
                   }
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#1F2937] disabled:text-[#6B7280]"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#1F2937] disabled:text-[#94A3B8]"
                 >
                   {isDeployed ? (
                     <>
@@ -446,7 +446,7 @@ function PlaybookLibrary() {
                   )}
                 </button>
                 {p.status !== 'Approved' && (
-                  <span className="text-[11px] text-[#6B7280]">
+                  <span className="text-xs text-[#94A3B8]">
                     Deploy requires Approved status
                   </span>
                 )}
@@ -492,7 +492,7 @@ function ViolationsQueue() {
   }
 
   const inputCls =
-    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-2 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED]'
+    'mt-1 w-full rounded-md border border-[#374151] bg-[#111827] px-2.5 py-2 text-sm font-normal text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED]'
 
   function saveCA() {
     if (!caModal) return
@@ -516,7 +516,7 @@ function ViolationsQueue() {
         </h3>
       </div>
       <table className="w-full text-left text-xs">
-        <thead className="bg-[#111827] text-[10px] uppercase tracking-wide text-[#9CA3AF]">
+        <thead className="bg-[#111827] text-xs uppercase tracking-wide text-[#9CA3AF]">
           <tr>
             <th className="px-5 py-2.5 font-semibold">Violation</th>
             <th className="px-3 py-2.5 font-semibold">Rule</th>
@@ -541,7 +541,7 @@ function ViolationsQueue() {
                 <td className="px-5 py-3 font-medium text-white">
                   {v.description}
                   {assigned[v.id] && (
-                    <span className="mt-1 block text-[10px] font-normal text-[#A78BFA]">
+                    <span className="mt-1 block text-xs font-normal text-[#A78BFA]">
                       CA: {assigned[v.id]}
                     </span>
                   )}
@@ -551,7 +551,7 @@ function ViolationsQueue() {
                 </td>
                 <td className="px-3 py-3">
                   <span
-                    className="rounded-full px-2 py-0.5 text-[11px] font-bold uppercase"
+                    className="rounded-full px-2 py-0.5 text-xs font-bold uppercase"
                     style={{ backgroundColor: sev.bg, color: sev.text }}
                   >
                     {v.severity}
@@ -563,7 +563,7 @@ function ViolationsQueue() {
                 <td className="px-3 py-3 text-[#CBD5E0]">{v.zone}</td>
                 <td className="px-3 py-3">
                   <span
-                    className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize"
+                    className="rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize"
                     style={{ backgroundColor: st.bg, color: st.text }}
                   >
                     {v.status}
@@ -574,25 +574,25 @@ function ViolationsQueue() {
                     <div className="flex justify-end gap-1.5">
                       <button
                         onClick={() => setStatus(v.id, 'accepted')}
-                        className="rounded-md bg-[#166534] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#15803D]"
+                        className="rounded-md bg-[#166534] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#15803D]"
                       >
                         Accept
                       </button>
                       <button
                         onClick={() => setStatus(v.id, 'rejected')}
-                        className="rounded-md bg-[#7F1D1D] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[#991B1B]"
+                        className="rounded-md bg-[#7F1D1D] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#991B1B]"
                       >
                         Reject
                       </button>
                       <button
                         onClick={() => setCaModal(v)}
-                        className="inline-flex items-center gap-1 rounded-md border border-[#7C3AED] px-2.5 py-1 text-[11px] font-semibold text-[#A78BFA] transition-colors hover:bg-[#2D1F47]"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#7C3AED] px-2.5 py-1 text-xs font-semibold text-[#A78BFA] transition-colors hover:bg-[#2D1F47]"
                       >
                         <Icon name="assignment_turned_in" size={13} /> Assign CA
                       </button>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-[#6B7280]">—</span>
+                    <span className="text-xs text-[#94A3B8]">—</span>
                   )}
                 </td>
               </tr>

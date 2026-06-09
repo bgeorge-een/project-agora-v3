@@ -188,7 +188,7 @@ export default function ExecutiveReporting() {
               />
               <div className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-[#171D29]">
                 <span className="text-lg font-extrabold text-white">87%</span>
-                <span className="text-[9px] uppercase tracking-wide text-[#6B7280]">
+                <span className="text-xs uppercase tracking-wide text-[#94A3B8]">
                   AI Quality
                 </span>
               </div>
@@ -244,7 +244,7 @@ export default function ExecutiveReporting() {
           <h3 className="flex items-center gap-2 text-sm font-bold text-white">
             <Icon name="summarize" size={18} className="text-[#A78BFA]" />{' '}
             Executive Brief
-            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-[10px] font-semibold text-[#9CA3AF]">
+            <span className="rounded border border-[#374151] px-1.5 py-0.5 text-xs font-semibold text-[#9CA3AF]">
               AI-generated
             </span>
           </h3>
@@ -291,7 +291,7 @@ export default function ExecutiveReporting() {
             </div>
           ) : (
             <div className="flex h-32 flex-col items-center justify-center text-center">
-              <Icon name="summarize" size={28} className="text-[#6B7280]" />
+              <Icon name="summarize" size={28} className="text-[#94A3B8]" />
               <p className="mt-2 text-xs text-[#9CA3AF]">
                 Generate a leadership-ready brief synthesizing this week’s
                 operating picture, risks, and recommended actions.

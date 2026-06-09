@@ -33,7 +33,7 @@ function Field({
 }) {
   return (
     <div>
-      <p className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280]">
+      <p className="mb-0.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
         {icon && <Icon name={icon} size={12} />}
         {label}
       </p>
@@ -71,7 +71,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h4 className="text-base font-bold text-white">{person.name}</h4>
                 {isHighRisk && (
-                  <span className="flex items-center gap-1 rounded-full bg-red-950 px-2 py-0.5 text-[10px] font-bold text-red-400">
+                  <span className="flex items-center gap-1 rounded-full bg-red-950 px-2 py-0.5 text-xs font-bold text-red-400">
                     <Icon name="warning" size={14} />
                     High Risk
                   </span>
@@ -125,7 +125,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
       <div className="mt-4 space-y-2.5">
         {person.confidence != null && (
           <div>
-            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Face Match Confidence
             </p>
             <div className="flex items-center gap-2">
@@ -139,14 +139,14 @@ export function PersonCard({ person }: { person: PersonDetails }) {
 
         {person.firstSeen && (
           <div className="flex items-baseline justify-between text-xs">
-            <span className="text-[#6B7280]">First seen</span>
+            <span className="text-[#94A3B8]">First seen</span>
             <span className="font-mono text-[#CBD5E0]">{person.firstSeen}</span>
           </div>
         )}
 
         {person.cameraSightings && person.cameraSightings.length > 0 && (
           <div>
-            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Camera Sightings
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -165,7 +165,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
 
         {person.vehiclePlate && (
           <div>
-            <p className="mb-1 text-xs font-semibold text-[#6B7280]">
+            <p className="mb-1 text-xs font-semibold text-[#94A3B8]">
               Vehicle Plate
             </p>
             <span className="inline-block rounded border border-gray-600 bg-gray-800 px-2 py-1 font-mono text-sm font-bold tracking-widest text-white">

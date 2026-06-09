@@ -124,7 +124,7 @@ export default function AIAssistant() {
       >
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <Icon name="smart_toy" size={36} className="text-[#6B7280]" />
+            <Icon name="smart_toy" size={36} className="text-[#94A3B8]" />
             <p className="mt-3 text-sm font-semibold text-white">
               Case Investigation Assistant
             </p>
@@ -170,7 +170,7 @@ export default function AIAssistant() {
                   m.content &&
                   m.citedEvidenceIds &&
                   m.citedEvidenceIds.length > 0 && (
-                    <p className="mt-2 border-t border-[#273142] pt-1.5 text-xs text-[#6B7280]">
+                    <p className="mt-2 border-t border-[#273142] pt-1.5 text-xs text-[#94A3B8]">
                       Citing: {m.citedEvidenceIds.join(' · ')}
                     </p>
                   )}
@@ -209,7 +209,7 @@ export default function AIAssistant() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about Case-001 evidence…"
           disabled={streaming}
-          className="flex-1 rounded-lg border border-[#273142] bg-[#171D29] px-3.5 py-2.5 text-sm text-[#E5E7EB] outline-none placeholder:text-[#6B7280] focus:border-[#7C3AED] disabled:opacity-60"
+          className="flex-1 rounded-lg border border-[#273142] bg-[#171D29] px-3.5 py-2.5 text-sm text-[#E5E7EB] outline-none placeholder:text-[#94A3B8] focus:border-[#7C3AED] disabled:opacity-60"
         />
         <button
           type="submit"

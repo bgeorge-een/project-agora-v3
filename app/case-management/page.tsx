@@ -62,8 +62,8 @@ export default function CaseManagementPage() {
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`relative px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  active ? 'text-white' : 'text-[#9CA3AF] hover:text-white'
+                className={`relative rounded-t-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  active ? 'text-white' : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
                 }`}
               >
                 {t.label}

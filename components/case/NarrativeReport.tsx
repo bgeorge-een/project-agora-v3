@@ -115,7 +115,7 @@ export default function NarrativeReport({
               <section className="rounded-lg bg-[#0F1117] p-4">
                 <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-[#A78BFA]">
                   Executive Summary
-                  <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#2DD4BF]">
+                  <span className="rounded bg-[#0E2A2A] px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-[#2DD4BF]">
                     AI-generated
                   </span>
                 </h3>
@@ -135,7 +135,7 @@ export default function NarrativeReport({
                       key={ev.id}
                       className="flex gap-3 rounded-lg bg-[#0F1117] px-3 py-2"
                     >
-                      <span className="font-mono text-[11px] font-semibold text-[#6B7280]">
+                      <span className="font-mono text-xs font-semibold text-[#94A3B8]">
                         {fmtTime(ev.timestamp)}
                       </span>
                       <div className="min-w-0">
@@ -149,7 +149,7 @@ export default function NarrativeReport({
                           )}
                           {ev.title}
                         </p>
-                        <p className="text-[11px] text-[#9CA3AF]">{ev.detail}</p>
+                        <p className="text-xs text-[#9CA3AF]">{ev.detail}</p>
                       </div>
                     </li>
                   ))}
@@ -176,7 +176,7 @@ export default function NarrativeReport({
                         <p className="truncate text-xs font-semibold text-[#CBD5E0]">
                           {e.label}
                         </p>
-                        <p className="text-[10px] uppercase tracking-wide text-[#6B7280]">
+                        <p className="text-xs uppercase tracking-wide text-[#94A3B8]">
                           {e.type} · {e.riskLevel} risk
                         </p>
                       </div>
@@ -214,7 +214,7 @@ export default function NarrativeReport({
                       key={r}
                       className="flex gap-2.5 text-xs leading-relaxed text-[#CBD5E0]"
                     >
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-[10px] font-bold text-white">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-xs font-bold text-white">
                         {i + 1}
                       </span>
                       {r}
