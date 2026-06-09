@@ -15,13 +15,15 @@ const PRODUCTS: ProductCard[] = [
   {
     icon: 'bolt',
     title: 'Real-time Incident Management',
-    subtitle: 'Live SOC operations · L1 Operator → L5 Global Director',
+    subtitle:
+      'Role-aware SOC operations · Map workflows · Live video · Assured actions',
     variant: 'incident',
   },
   {
     icon: 'manage_search',
     title: 'Case Management',
-    subtitle: 'Post-incident forensics · L1 Investigator → L5 Global Director',
+    subtitle:
+      'Investigation continuity · Evidence timelines · Narrative and governance',
     variant: 'case',
   },
 ]
@@ -67,8 +69,9 @@ export default function HeroSection() {
           Physical Intelligence Platform
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#6B7280]">
-          The vendor-agnostic intelligence fabric for enterprise security — two
-          licensable apps, one shared platform.
+          The vendor-agnostic intelligence fabric for enterprise security —
+          reducing SOC cognitive load in the moment, then preserving the full
+          case record for investigation and improvement.
         </p>
 
         <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">

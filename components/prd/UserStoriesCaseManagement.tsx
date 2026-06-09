@@ -12,22 +12,22 @@ interface Theme {
 
 const THEMES: Theme[] = [
   {
-    name: 'Case Workspace',
+    name: 'Investigation Continuity',
     stories: [
+      {
+        story: 'Promote a resolved incident into a complete case',
+        criteria:
+          'Case inherits incident summary, correlated evidence, action execution history, map context, entities, notes, owners, and audit log; source incident remains linked.',
+      },
       {
         story: 'Manage a complete case without leaving the app',
         criteria:
           'Summary, timeline, evidence, entity graph, tasks, notes, reports, audit log in one workspace; every change logged.',
       },
       {
-        story: 'Reconstruct and edit the incident timeline',
+        story: 'Preserve investigation continuity across handoffs',
         criteria:
-          'System + agent + manual events on one timeline; AI-generated events visually distinct; add/remove/reorder/annotate; flag gaps and contradictions.',
-      },
-      {
-        story: 'Explore the entity graph',
-        criteria:
-          'One-hop expansion from any entity; selecting entity filters timeline; confidence and retention per evidence item.',
+          'Handoff summary shows what happened, what is known, what is disputed, pending actions, evidence gaps, and next owner; all updates append to case history.',
       },
       {
         story: 'Ask the case AI assistant grounded questions',
@@ -37,7 +37,27 @@ const THEMES: Theme[] = [
     ],
   },
   {
-    name: 'Evidence & Collaboration',
+    name: 'Evidence Timeline',
+    stories: [
+      {
+        story: 'Reconstruct and edit the incident timeline',
+        criteria:
+          'System + agent + manual events on one timeline; AI-generated events visually distinct; add/remove/reorder/annotate; flag gaps and contradictions.',
+      },
+      {
+        story: 'Review evidence with chain-of-custody',
+        criteria:
+          'Each evidence item shows source device/feed, timestamp, location, retention policy, access log, confidence, related entities, and export state.',
+      },
+      {
+        story: 'Explore the entity graph from evidence context',
+        criteria:
+          'One-hop expansion from any person, credential, vehicle, door, camera, zone, or sensor; selecting entity filters timeline; confidence and retention per evidence item.',
+      },
+    ],
+  },
+  {
+    name: 'Governance & Collaboration',
     stories: [
       {
         story: 'Add manual events and notes with chain-of-custody',
@@ -49,16 +69,6 @@ const THEMES: Theme[] = [
         criteria:
           'External Collaborator sees only granted evidence; can add notes and complete assigned task; cannot see other cases; all actions logged.',
       },
-      {
-        story: 'Generate a defensible narrative report',
-        criteria:
-          'Executive summary, timeline, involved parties, evidence table, policy impact, open questions, recommendations; editable before export.',
-      },
-    ],
-  },
-  {
-    name: 'Governance',
-    stories: [
       {
         story: 'Author and version SOPs that surface at triage',
         criteria:
@@ -77,17 +87,22 @@ const THEMES: Theme[] = [
     ],
   },
   {
-    name: 'Intelligence',
+    name: 'Reporting & Intelligence',
     stories: [
+      {
+        story: 'Generate a defensible narrative report',
+        criteria:
+          'Executive summary, evidence timeline, involved parties, action execution history, policy impact, open questions, recommendations; editable before export.',
+      },
       {
         story: 'Link cases to a Campaign and promote to master case',
         criteria:
           'System surfaces candidate links via shared entities; promotion creates master case with child cases; each child independently workable.',
       },
       {
-        story: 'Report enterprise risk and AI quality',
+        story: 'Report enterprise risk, AI quality, and action assurance',
         criteria:
-          'Open cases by severity, campaign count, FeedbackRecord breakdown (model/policy/data/correct), recommendation acceptance rate; executive brief generated.',
+          'Open cases by severity, campaign count, FeedbackRecord breakdown (model/policy/data/correct), recommendation acceptance rate, failed action trends; executive brief generated.',
       },
     ],
   },

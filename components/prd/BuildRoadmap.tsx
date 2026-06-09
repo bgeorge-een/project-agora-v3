@@ -36,23 +36,23 @@ const SLICES: Slice[] = [
   {
     num: 2,
     theme: 'Live Operations',
-    title: 'Real-time Alert Triage',
-    outcome: 'Operators see enriched, deduplicated alerts in real time.',
-    demo: 'Operator triages a severity-grouped queue and accepts an AI recommendation.',
+    title: 'SOC Load Reduction',
+    outcome: 'Operators see enriched, deduplicated, role-filtered alerts in real time.',
+    demo: 'Operator triages one incident-centered queue and sees the recommended next best action.',
   },
   {
     num: 3,
     theme: 'Live Operations',
-    title: 'SOP + Playbook Execution',
-    outcome: 'Guided response with policy-aware automation.',
-    demo: 'Operator works an SOP checklist while low-risk Playbook actions auto-execute.',
+    title: 'Map, Video & Action Assurance',
+    outcome: 'Guided response across map context, camera wall/live view, and verified playbook execution.',
+    demo: 'Operator opens a site from the regional map, verifies video, and watches each action reach acknowledged state.',
   },
   {
     num: 4,
     theme: 'Investigation',
-    title: 'Case Timeline & Evidence',
-    outcome: 'Before/during/after reconstruction from any source.',
-    demo: 'Investigator builds a timeline mixing system, agent, and manual events.',
+    title: 'Case Continuity & Evidence Timeline',
+    outcome: 'Resolved incidents promote into cases with evidence, actions, map context, and ownership intact.',
+    demo: 'Investigator continues from incident handoff into a timeline mixing system, agent, and manual events.',
   },
   {
     num: 5,
@@ -78,9 +78,9 @@ const SLICES: Slice[] = [
   {
     num: 8,
     theme: 'Enterprise Intelligence',
-    title: 'Closed-Loop Model Tuning',
-    outcome: 'Feedback records drive continuous model improvement.',
-    demo: 'An override is labeled and surfaced in the AI quality report.',
+    title: 'Closed-Loop Operations',
+    outcome: 'Feedback, failed actions, deterrence outcomes, and case findings drive continuous improvement.',
+    demo: 'An override and failed automation are labeled and surfaced in the AI quality report.',
   },
 ]
 

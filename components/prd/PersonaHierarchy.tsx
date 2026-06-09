@@ -11,24 +11,25 @@ const INCIDENT_PERSONAS: PersonaLevel[] = [
     level: 'L1',
     role: 'Site Operator',
     description:
-      'Triage live alert queue, verify incidents, follow AI-assisted response plans. Primary views: Response View, Monitor View.',
+      'Triage live alerts, verify with camera wall/live view, execute guided actions, and preserve evidence without context switching.',
   },
   {
     level: 'L2',
     role: 'Shift Supervisor',
     description:
-      'Oversee operator queue, approve high-risk escalations, manage shift handoff.',
+      'Oversee operator workload, approve high-risk actions, verify execution state, and manage shift handoff.',
   },
   {
     level: 'L3',
     role: 'Site SOC Director',
-    description: 'Monitor site health, operator performance, shift metrics.',
+    description:
+      'Monitor site health, device readiness, incident SLA, operator performance, and policy adherence.',
   },
   {
     level: 'L4',
     role: 'Regional SOC Director',
     description:
-      'Multi-site Map View, cross-site incident patterns, resource allocation.',
+      'Run map-based regional workflows across sites, incidents, devices, and resources.',
   },
   {
     level: 'L5',
@@ -43,12 +44,13 @@ const CASE_PERSONAS: PersonaLevel[] = [
     level: 'L1',
     role: 'Investigator',
     description:
-      'Case workspace: evidence, entity graph, timeline, AI-assisted narrative.',
+      'Continue from resolved incident to case workspace: evidence timeline, entity graph, tasks, notes, AI-assisted narrative.',
   },
   {
     level: 'L2',
     role: 'Case Supervisor',
-    description: 'Case queue management, assignment, SLA oversight.',
+    description:
+      'Manage case queue, assignments, SLA, investigation continuity, and escalation readiness.',
   },
   {
     level: 'L3',
@@ -65,7 +67,8 @@ const CASE_PERSONAS: PersonaLevel[] = [
   {
     level: 'L4',
     role: 'Regional Security Director',
-    description: 'Cross-site case trends, compliance posture.',
+    description:
+      'Review cross-site case trends, repeated entities, compliance posture, and corrective action progress.',
   },
   {
     level: 'L5',

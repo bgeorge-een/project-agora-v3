@@ -12,17 +12,17 @@ interface Theme {
 
 const THEMES: Theme[] = [
   {
-    name: 'Alert Queue & Triage',
+    name: 'SOC Load Reduction',
     stories: [
       {
-        story: 'Triage a severity-grouped live queue without missing critical work',
+        story: 'Triage a role-filtered live queue without missing critical work',
         criteria:
-          'Critical always expanded; High/Med/Low collapsible; new alerts enter correct group live; each card shows severity, type (⚡/🛡), location, age, sources, AI badge.',
+          'Critical always expanded; High/Med/Low collapsible; new alerts enter correct group live; each card shows severity, type (⚡/🛡), location, age, sources, confidence, AI badge, and assigned role lane.',
       },
       {
-        story: 'Accept AI recommendation with one click',
+        story: 'Suppress cognitive noise without losing accountability',
         criteria:
-          'Creates downstream action with agent attribution; auto-executes low-risk actions (lock evidence, notify on-call); FeedbackRecord written on accept.',
+          'Duplicate and low-signal events cluster under the primary incident; operator sees one recommended next best action, why it matters, and what evidence supports it.',
       },
       {
         story: 'Override with reason',
@@ -32,12 +32,12 @@ const THEMES: Theme[] = [
     ],
   },
   {
-    name: 'NBA + SOP Response',
+    name: 'Action Assurance',
     stories: [
       {
         story: 'See NBA recommendation and SOP steps side-by-side',
         criteria:
-          'NBA card shows action + confidence + 2 alternatives; SOP steps from SOP Library retrieved by incident type; two-tier execution clear.',
+          'NBA card shows action + confidence + 2 alternatives; SOP steps from SOP Library retrieved by incident type; two-tier human/system execution clear.',
       },
       {
         story: 'Gate high-risk actions behind approval',
@@ -45,14 +45,14 @@ const THEMES: Theme[] = [
           'Lock/restrict door, notify HR/Legal, lockdown, law-enforcement escalation require explicit operator approval; auto-execute items listed separately.',
       },
       {
-        story: 'Work a Playbook response checklist',
+        story: 'Confirm every response action reached its target system',
         criteria:
-          'Checklist drawn from active Playbook; each step completable / skippable with reason / escalatable; all timestamped.',
+          'Each Playbook action shows requested / sent / acknowledged / failed / retried state, target system, timestamp, owner, and exception path.',
       },
     ],
   },
   {
-    name: 'Evidence & Verification',
+    name: 'Visual Verification',
     stories: [
       {
         story: 'Verify an alert in one screen without pivoting',
@@ -65,34 +65,34 @@ const THEMES: Theme[] = [
           'Camera stills for before/during/after; click still to play mock clip; clip shows location, timestamp, playback controls.',
       },
       {
-        story: 'Annotate FP/FN outcome',
+        story: 'Operate a camera wall during active response',
         criteria:
-          'Mark true positive / false positive / duplicate / test / unresolved; FeedbackRecord written to platform.',
+          'Pin incident cameras, adjacent zone cameras, and officer body/device feeds; switch from wall to live view; preserve clips from the same surface.',
       },
     ],
   },
   {
-    name: 'Deterrence',
+    name: 'Map Workflows',
     stories: [
       {
-        story: 'Handle Deterrence Alerts distinctly',
+        story: 'Operate incidents from regional map to site detail',
         criteria:
-          '🛡 DETERRENT label vs ⚡ REACTIVE; deterrence-specific NBA and SOP; affected-site radius visible; outcome annotation distinguishes deterrence effectiveness.',
+          'Regional map clusters sites by active severity; selecting a site reveals buildings, zones, devices, incidents, and available responders.',
       },
       {
-        story: 'Configure deterrence playbook trigger',
+        story: 'Drill from site to device and incident context',
         criteria:
-          'Trigger conditions combine: signal type, severity threshold, proximity radius, internal corroborating signals; auto-execution configurable for pre-approved patterns.',
+          'Map selection can pivot between camera, door, sensor, responder, and incident; selected entity opens relevant live view, detail drawer, or response controls.',
       },
     ],
   },
   {
-    name: 'Multi-site & Leadership',
+    name: 'Role-aware Operations',
     stories: [
       {
-        story: 'Operate across sites from a map view',
+        story: 'Show each role the operational level it can act on',
         criteria:
-          'All sites plotted with severity; external signal overlays toggle; act on incident from map; resources reassignable.',
+          'L1 sees assigned queue and local site context; L2 sees shift workload and approval queue; L3-L5 see site, regional, and enterprise rollups with scoped actions.',
       },
       {
         story: 'Monitor site health and SLA',
@@ -100,9 +100,9 @@ const THEMES: Theme[] = [
           'MTTA, MTTR, false-positive rate, offline devices, SLA compliance by site; filterable.',
       },
       {
-        story: 'Review AI quality',
+        story: 'Review AI quality and deterrence outcomes',
         criteria:
-          'Recommendation acceptance rate, top override reasons, confidence distribution by detector; trends filterable.',
+          'Recommendation acceptance rate, top override reasons, confidence distribution by detector, deterrence effectiveness, and action failure trends filterable.',
       },
     ],
   },
