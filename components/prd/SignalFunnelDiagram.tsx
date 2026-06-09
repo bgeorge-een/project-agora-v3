@@ -163,8 +163,8 @@ function FunnelGraphic() {
         <line x1="42" y1="0" x2="170" y2="480" stroke="#1E6091" strokeWidth="3" />
         <line x1="378" y1="0" x2="250" y2="480" stroke="#1E6091" strokeWidth="3" />
 
-        <line x1="306" y1="400" x2="360" y2="400" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4 4" />
-        <text x="366" y="404" fill="#C2410C" fontSize="13" fontWeight="700">
+        <line x1="286" y1="400" x2="316" y2="400" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4 4" />
+        <text x="322" y="404" fill="#C2410C" fontSize="13" fontWeight="700">
           Notification
         </text>
       </svg>
