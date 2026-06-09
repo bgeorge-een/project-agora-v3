@@ -5,7 +5,10 @@ import L from 'leaflet'
 import { ImageOverlay, MapContainer, Marker, Polygon, Tooltip, useMap } from 'react-leaflet'
 import type { Alert, Severity } from '@/lib/types'
 import {
+  devicesForFloorPlan,
+  hasHealthEvents,
   incidentFloorPosition,
+  incidentsForFloorPlan,
   type FloorPosition,
   type MapDevice,
   type MapFloorPlan,
@@ -143,6 +146,8 @@ export function FloorPlanLeaflet({
   onSelectDevice,
   onOpenLiveView,
   onSelectIncident,
+  floorPlans,
+  onSelectFloorPlan,
 }: {
   floorPlan: MapFloorPlan
   devices: MapDevice[]
@@ -152,6 +157,8 @@ export function FloorPlanLeaflet({
   onSelectDevice: (id: string) => void
   onOpenLiveView: (id: string) => void
   onSelectIncident: (id: string) => void
+  floorPlans: MapFloorPlan[]
+  onSelectFloorPlan: (floorPlanId: string) => void
 }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -300,11 +307,64 @@ export function FloorPlanLeaflet({
         </MapContainer>
       </div>
 
-      <div className="pointer-events-none absolute left-4 top-4 z-[1000] max-w-[460px] rounded-lg border border-[#334155] bg-black/70 px-3 py-2 text-sm text-[#CBD5E1] backdrop-blur">
-        <p className="font-bold text-white">{floorPlan.label}</p>
-        <p className="mt-0.5 text-xs font-semibold text-[#94A3B8]">
-          Image floor plan · pan and zoom · click cameras for live view
-        </p>
+      <div className="absolute left-4 top-4 z-[1000] w-[min(520px,calc(100%-32px))] rounded-lg border border-[#334155] bg-black/75 px-3 py-3 text-sm text-[#CBD5E1] shadow-xl backdrop-blur">
+        <div className="flex flex-wrap items-start gap-3">
+          <div className="min-w-[180px] flex-1">
+            <p className="font-bold text-white">{floorPlan.label}</p>
+            <p className="mt-0.5 text-xs font-semibold text-[#94A3B8]">
+              Image floor plan · pan and zoom · click cameras for live view
+            </p>
+          </div>
+          <div className="min-w-[180px]">
+            <label className="mb-1 block text-[11px] font-extrabold uppercase tracking-wide text-[#94A3B8]" htmlFor="indoor-floor-selector">
+              Floor
+            </label>
+            <select
+              id="indoor-floor-selector"
+              aria-label="Select indoor floor plan"
+              value={floorPlan.id}
+              onChange={(event) => onSelectFloorPlan(event.target.value)}
+              className="min-h-10 w-full rounded-lg border border-[#475569] bg-[#111827] px-3 text-sm font-bold text-white outline-none transition-colors hover:border-[#64748B] focus:border-[#60A5FA]"
+            >
+              {floorPlans.map((plan) => {
+                const incidentCount = incidentsForFloorPlan(plan.id).length
+                const healthCount = devicesForFloorPlan(plan.id).filter(hasHealthEvents).length
+                const suffix = [
+                  incidentCount ? `${incidentCount} incident${incidentCount === 1 ? '' : 's'}` : null,
+                  healthCount ? `${healthCount} attention` : null,
+                ].filter(Boolean).join(' · ')
+                return (
+                  <option key={plan.id} value={plan.id}>
+                    {plan.building} · {plan.floor}{suffix ? ` · ${suffix}` : ''}
+                  </option>
+                )
+              })}
+            </select>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {floorPlans.map((plan) => {
+            const active = plan.id === floorPlan.id
+            const incidentCount = incidentsForFloorPlan(plan.id).length
+            const healthCount = devicesForFloorPlan(plan.id).filter(hasHealthEvents).length
+            return (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => onSelectFloorPlan(plan.id)}
+                className={`min-h-9 rounded-md border px-2.5 text-xs font-extrabold transition-colors ${
+                  active
+                    ? 'border-[#60A5FA] bg-[#1D4ED8] text-white'
+                    : 'border-[#334155] bg-[#111827] text-[#CBD5E1] hover:border-[#64748B] hover:text-white'
+                }`}
+              >
+                {plan.floor}
+                {incidentCount > 0 && <span className="ml-1 text-[#FFB4AE]">{incidentCount}</span>}
+                {healthCount > 0 && <span className="ml-1 text-[#FCD34D]">!</span>}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="pointer-events-none absolute right-3 top-3 z-[1000] rounded-lg border border-[#334155] bg-black/70 px-3 py-2 text-xs font-bold text-[#E5E7EB] backdrop-blur">

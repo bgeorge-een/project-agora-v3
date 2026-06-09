@@ -33,6 +33,8 @@ export function FloorPlanView({
   onSelectDevice,
   onOpenLiveView,
   onSelectIncident,
+  floorPlans,
+  onSelectFloorPlan,
 }: {
   floorPlan: MapFloorPlan
   devices: MapDevice[]
@@ -42,6 +44,8 @@ export function FloorPlanView({
   onSelectDevice: (id: string) => void
   onOpenLiveView: (id: string) => void
   onSelectIncident: (id: string) => void
+  floorPlans: MapFloorPlan[]
+  onSelectFloorPlan: (floorPlanId: string) => void
 }) {
   return (
     <FloorPlanLeaflet
@@ -53,6 +57,8 @@ export function FloorPlanView({
       onSelectDevice={onSelectDevice}
       onOpenLiveView={onOpenLiveView}
       onSelectIncident={onSelectIncident}
+      floorPlans={floorPlans}
+      onSelectFloorPlan={onSelectFloorPlan}
     />
   )
 }
