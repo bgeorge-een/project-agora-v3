@@ -123,6 +123,89 @@ const INITIAL_TASKS: CaseTask[] = [
   },
 ]
 
+type CasePersonRole =
+  | 'subject'
+  | 'case_investigator'
+  | 'hr_partner'
+  | 'legal'
+  | 'site_supervisor'
+  | 'witness'
+  | 'victim'
+  | 'reporting_party'
+  | 'security_officer'
+  | 'other'
+
+interface CaseParticipant {
+  id: string
+  name: string
+  role: CasePersonRole
+  email?: string
+  phone?: string
+  organization?: string
+  notes?: string
+}
+
+const CASE_PERSON_ROLES: { value: CasePersonRole; label: string; tone: string }[] = [
+  { value: 'case_investigator', label: 'Case Investigator', tone: '#A78BFA' },
+  { value: 'hr_partner', label: 'HR Partner', tone: '#60A5FA' },
+  { value: 'legal', label: 'Legal', tone: '#FBBF24' },
+  { value: 'site_supervisor', label: 'Site Supervisor', tone: '#34D399' },
+  { value: 'witness', label: 'Witness', tone: '#CBD5E1' },
+  { value: 'victim', label: 'Victim', tone: '#FFB4AE' },
+  { value: 'reporting_party', label: 'Reporting Party', tone: '#7DD3FC' },
+  { value: 'security_officer', label: 'Security Officer', tone: '#C4B5FD' },
+  { value: 'subject', label: 'Subject', tone: '#F87171' },
+  { value: 'other', label: 'Other', tone: '#94A3B8' },
+]
+
+const ROLE_LABEL = CASE_PERSON_ROLES.reduce(
+  (acc, role) => ({ ...acc, [role.value]: role.label }),
+  {} as Record<CasePersonRole, string>
+)
+
+const ROLE_TONE = CASE_PERSON_ROLES.reduce(
+  (acc, role) => ({ ...acc, [role.value]: role.tone }),
+  {} as Record<CasePersonRole, string>
+)
+
+const INITIAL_CASE_PARTICIPANTS: CaseParticipant[] = [
+  {
+    id: 'person-subject-marcus',
+    name: 'Marcus Webb',
+    role: 'subject',
+    email: 'marcus.webb@contractor.example',
+    phone: '+1 (512) 555-0134',
+    organization: 'Northstar Mechanical',
+    notes: 'Badge B-4421; contractor whose access attempt opened this case.',
+  },
+  {
+    id: 'person-investigator-torres',
+    name: 'J. Torres',
+    role: 'case_investigator',
+    email: 'j.torres@agora.example',
+    phone: '+1 (512) 555-0188',
+    organization: 'Corporate Security',
+    notes: 'Primary owner for evidence review and case closure recommendation.',
+  },
+  {
+    id: 'person-hr-nadia',
+    name: 'Nadia Patel',
+    role: 'hr_partner',
+    email: 'nadia.patel@agora.example',
+    organization: 'Human Resources',
+    notes: 'Reviews contractor authorization scope and HR action requirements.',
+  },
+  {
+    id: 'person-witness-chen',
+    name: 'Evan Chen',
+    role: 'witness',
+    email: 'evan.chen@agora.example',
+    phone: '+1 (512) 555-0172',
+    organization: 'IT Security',
+    notes: 'Reported seeing the contractor near the server corridor after the first denial.',
+  },
+]
+
 const SEVERITY_STYLE: Record<string, { bg: string; text: string }> = {
   critical: { bg: '#2A1212', text: '#F87171' },
   high: { bg: '#2A1B0E', text: '#FB923C' },
@@ -184,6 +267,7 @@ export default function CaseWorkspace() {
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null)
   const [resolvedQuestions, setResolvedQuestions] = useState<string[]>([])
   const [showReport, setShowReport] = useState(false)
+  const [participants, setParticipants] = useState<CaseParticipant[]>(INITIAL_CASE_PARTICIPANTS)
 
   const campaign = MOCK_CAMPAIGNS.find((c) => c.id === baseCase.campaignId)
   const sev = SEVERITY_STYLE[baseCase.severity]
@@ -216,6 +300,26 @@ export default function CaseWorkspace() {
       type: 'manual',
       title: 'Question resolved',
       detail: q,
+      entityRefs: [],
+      evidenceRefs: [],
+      isAIGenerated: false,
+      isManual: true,
+    }
+    setTimeline((prev) =>
+      [...prev, ev].sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
+    )
+  }
+
+  function handleParticipantAdded(participant: CaseParticipant) {
+    const ev: TimelineEvent = {
+      id: `tl-person-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'manual',
+      title: `Case person added: ${participant.name}`,
+      detail: `${participant.name} added as ${ROLE_LABEL[participant.role]}.`,
       entityRefs: [],
       evidenceRefs: [],
       isAIGenerated: false,
@@ -265,6 +369,12 @@ export default function CaseWorkspace() {
                   <span className="text-[#6B7280]">Owner</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.owner}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[#6B7280]">People</span>
+                  <span className="ml-1.5 font-semibold text-[#CBD5E0]">
+                    {participants.length}
                   </span>
                 </div>
                 <div>
@@ -358,6 +468,12 @@ export default function CaseWorkspace() {
         <div className="space-y-5">
           {/* Person profile */}
           {baseCase.person && <PersonCard person={baseCase.person} />}
+
+          <CasePeoplePanel
+            participants={participants}
+            setParticipants={setParticipants}
+            onParticipantAdded={handleParticipantAdded}
+          />
 
           {/* Open Questions */}
           <div className="rounded-xl border border-[#4A3520] bg-[#171D29]">
@@ -493,6 +609,270 @@ export default function CaseWorkspace() {
         />
       )}
     </div>
+  )
+}
+
+// ============================================================
+// CASE PEOPLE PANEL
+// ============================================================
+
+const EMPTY_PARTICIPANT_FORM = {
+  name: '',
+  role: 'witness' as CasePersonRole,
+  email: '',
+  phone: '',
+  organization: '',
+  notes: '',
+}
+
+function CasePeoplePanel({
+  participants,
+  setParticipants,
+  onParticipantAdded,
+}: {
+  participants: CaseParticipant[]
+  setParticipants: React.Dispatch<React.SetStateAction<CaseParticipant[]>>
+  onParticipantAdded: (participant: CaseParticipant) => void
+}) {
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState(EMPTY_PARTICIPANT_FORM)
+
+  const roleCounts = CASE_PERSON_ROLES.map((role) => ({
+    ...role,
+    count: participants.filter((person) => person.role === role.value).length,
+  })).filter((role) => role.count > 0)
+
+  function updateRole(personId: string, role: CasePersonRole) {
+    setParticipants((prev) =>
+      prev.map((person) => (person.id === personId ? { ...person, role } : person))
+    )
+  }
+
+  function addParticipant() {
+    if (!form.name.trim()) return
+
+    const participant: CaseParticipant = {
+      id: `person-${Date.now()}`,
+      name: form.name.trim(),
+      role: form.role,
+      email: form.email.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+      organization: form.organization.trim() || undefined,
+      notes: form.notes.trim() || undefined,
+    }
+
+    setParticipants((prev) => [...prev, participant])
+    onParticipantAdded(participant)
+    setForm(EMPTY_PARTICIPANT_FORM)
+    setShowForm(false)
+  }
+
+  return (
+    <section className="rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="flex items-start justify-between gap-3 border-b border-[#273142] px-5 py-4">
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Icon name="groups" size={17} className="text-[#A78BFA]" />
+            Case People
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-[#94A3B8]">
+            Participants, collaborators, witnesses, victims, and case owners.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowForm((value) => !value)}
+          className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-xs font-bold text-white transition-colors hover:bg-[#6D28D9]"
+        >
+          <Icon name={showForm ? 'close' : 'person_add'} size={16} />
+          {showForm ? 'Cancel' : 'Add Person'}
+        </button>
+      </div>
+
+      <div className="space-y-4 p-5">
+        <div className="flex flex-wrap gap-2">
+          {roleCounts.map((role) => (
+            <span
+              key={role.value}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#334155] bg-[#111827] px-2.5 py-1 text-xs font-semibold text-[#CBD5E0]"
+            >
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: role.tone }} />
+              {role.label}
+              <span className="rounded bg-[#273142] px-1.5 py-0.5 text-[10px] text-white">
+                {role.count}
+              </span>
+            </span>
+          ))}
+        </div>
+
+        {showForm && (
+          <div className="rounded-lg border border-[#334155] bg-[#111827] p-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                  Name
+                </span>
+                <input
+                  value={form.name}
+                  onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                  placeholder="e.g. Priya Shah"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                  Role
+                </span>
+                <select
+                  value={form.role}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, role: event.target.value as CasePersonRole }))
+                  }
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm font-semibold text-white outline-none focus:border-[#A78BFA]"
+                  aria-label="Select case person role"
+                >
+                  {CASE_PERSON_ROLES.map((role) => (
+                    <option key={role.value} value={role.value}>
+                      {role.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                  Email
+                </span>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                  placeholder="name@company.com"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                  Phone
+                </span>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+                  placeholder="+1 (512) 555-0123"
+                  className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+                />
+              </label>
+            </div>
+
+            <label className="mt-3 block">
+              <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                Organization / team
+              </span>
+              <input
+                value={form.organization}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, organization: event.target.value }))
+                }
+                placeholder="e.g. Human Resources, Legal, Facilities"
+                className="min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+              />
+            </label>
+
+            <label className="mt-3 block">
+              <span className="mb-1 block text-xs font-semibold text-[#CBD5E0]">
+                Case context
+              </span>
+              <textarea
+                value={form.notes}
+                onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+                rows={2}
+                placeholder="Why this person is involved, access scope, interview status, or constraints."
+                className="w-full resize-none rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-[#64748B] focus:border-[#A78BFA]"
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={addParticipant}
+              disabled={!form.name.trim()}
+              className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#7C3AED] px-4 text-sm font-bold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#374151] disabled:text-[#94A3B8]"
+            >
+              <Icon name="add" size={17} />
+              Add to Case
+            </button>
+          </div>
+        )}
+
+        <ul className="space-y-3">
+          {participants.map((person) => (
+            <li
+              key={person.id}
+              className="rounded-lg border border-[#273142] bg-[#111827] p-4"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black text-[#0F1117]"
+                  style={{ backgroundColor: ROLE_TONE[person.role] }}
+                >
+                  {person.name
+                    .split(' ')
+                    .map((part) => part[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-start gap-2">
+                    <p className="min-w-0 flex-1 truncate text-sm font-bold text-white">
+                      {person.name}
+                    </p>
+                    <select
+                      value={person.role}
+                      onChange={(event) => updateRole(person.id, event.target.value as CasePersonRole)}
+                      className="min-h-8 rounded-md border border-[#334155] bg-[#0F172A] px-2 text-xs font-bold text-[#E5E7EB] outline-none focus:border-[#A78BFA]"
+                      aria-label={`Assign role for ${person.name}`}
+                    >
+                      {CASE_PERSON_ROLES.map((role) => (
+                        <option key={role.value} value={role.value}>
+                          {role.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {person.organization && (
+                    <p className="mt-1 text-xs font-semibold text-[#94A3B8]">
+                      {person.organization}
+                    </p>
+                  )}
+                  <div className="mt-2 space-y-1 text-xs leading-relaxed text-[#CBD5E0]">
+                    {person.email && (
+                      <p className="flex items-center gap-1.5">
+                        <Icon name="mail" size={14} className="text-[#94A3B8]" />
+                        <span className="truncate">{person.email}</span>
+                      </p>
+                    )}
+                    {person.phone && (
+                      <p className="flex items-center gap-1.5">
+                        <Icon name="call" size={14} className="text-[#94A3B8]" />
+                        {person.phone}
+                      </p>
+                    )}
+                    {person.notes && (
+                      <p className="rounded-md border border-[#273142] bg-[#0F1117] px-3 py-2 text-[#D1D5DB]">
+                        {person.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   )
 }
 

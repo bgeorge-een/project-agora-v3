@@ -75,6 +75,11 @@ const THEMES: Theme[] = [
           'External Collaborator sees only granted evidence; can add notes and complete assigned task; cannot see other cases; all actions logged.',
       },
       {
+        story: 'Maintain a visible case people roster',
+        criteria:
+          'Investigator can add people with role, contact details, organization, and case context; supported roles include case investigator, HR, Legal, site supervisor, witness, victim, reporting party, security officer, subject, and other; roster remains visible in the workspace and role changes are easy to make.',
+      },
+      {
         story: 'Author and version SOPs that surface at triage',
         criteria:
           'Plain English; tagged by incident type; version control with effective date; approval workflow; SOP usage history visible.',
