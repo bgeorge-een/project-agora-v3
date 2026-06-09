@@ -10,31 +10,31 @@ interface Job {
 const JOBS: Job[] = [
   {
     icon: 'bolt',
-    question: 'What is happening right now, and is it real?',
+    question: 'What is happening right now, and what deserves attention first?',
     answeredBy: 'Real-time Incident Management',
     variant: 'incident',
   },
   {
     icon: 'policy',
-    question: 'What is the right response — and what does policy say?',
+    question: 'What should we do, what does policy require, and did the action take effect?',
     answeredBy: 'Real-time Incident Management',
     variant: 'incident',
   },
   {
-    icon: 'manage_search',
-    question: 'What happened before, during, and after?',
-    answeredBy: 'Case Management',
-    variant: 'case',
-  },
-  {
-    icon: 'analytics',
-    question: 'What pattern does this represent across sites?',
+    icon: 'map',
+    question: 'Where is the risk across sites, floors, devices, and cameras?',
     answeredBy: 'Both apps',
     variant: 'both',
   },
   {
+    icon: 'manage_search',
+    question: 'What happened before, during, and after, and who was involved?',
+    answeredBy: 'Case Management',
+    variant: 'case',
+  },
+  {
     icon: 'loop',
-    question: 'What rule, SOP, or model should change?',
+    question: 'What rule, SOP, playbook, device process, or model should improve?',
     answeredBy: 'Case Management → Platform',
     variant: 'loop',
   },

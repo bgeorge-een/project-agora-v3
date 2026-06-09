@@ -12,122 +12,127 @@ interface Theme {
 
 const THEMES: Theme[] = [
   {
-    name: 'SOC Load Reduction',
+    name: 'SOC Triage & Focus',
     stories: [
       {
-        story: 'Triage a role-filtered live queue without missing critical work',
+        story: 'Triage a live alert queue without losing critical focus',
         criteria:
-          'Critical always expanded; High/Med/Low collapsible; new alerts enter correct group live; each card shows severity, type (⚡/🛡), location, age, sources, confidence, AI badge, and assigned role lane.',
+          'Critical alerts remain expanded; lower-severity groups are collapsible; each incident card shows severity, incident type, location, local time, elapsed time, sources, confidence, and a solid Respond/Open action.',
       },
       {
-        story: 'Suppress cognitive noise without losing accountability',
+        story: 'Reduce cognitive load during long SOC shifts',
         criteria:
-          'Duplicate and low-signal events cluster under the primary incident; operator sees one recommended next best action, why it matters, and what evidence supports it.',
+          'Legible dark theme; high-contrast secondary text; 48px+ primary targets; inactive tabs remain readable; critical labels are saturated and glanceable; low-priority content is visually quieter.',
       },
       {
-        story: 'Override with reason',
+        story: 'Override or dismiss with a reason',
         criteria:
-          'Reason picker (wrong severity / false positive / escalating / handling differently); FeedbackRecord written; override visible in activity log.',
+          'Operator can override a recommendation with structured reason and notes; override creates a FeedbackRecord and remains visible in the incident/case history.',
       },
     ],
   },
   {
-    name: 'Action Assurance',
+    name: 'Response Execution',
     stories: [
       {
-        story: 'See NBA recommendation and SOP steps side-by-side',
+        story: 'Accept a recommended action and see implementation progress',
         criteria:
-          'NBA card shows action + confidence + 2 alternatives; SOP steps from SOP Library retrieved by incident type; two-tier human/system execution clear.',
+          'Recommended action opens an action execution view; each action, such as restricting a badge or dispatching a guard, shows queued/running/needs confirmation/manual required/complete state, owner, target system, and timestamp.',
       },
       {
-        story: 'Gate high-risk actions behind approval',
+        story: 'Understand why the recommendation was made before acting',
         criteria:
-          'Lock/restrict door, notify HR/Legal, lockdown, law-enforcement escalation require explicit operator approval; auto-execute items listed separately.',
+          'Next-best-action panel shows the recommendation, rationale, confidence, response phase, supporting/conflicting evidence, alternatives, and SOP checklist in one view.',
       },
       {
-        story: 'Confirm every response action reached its target system',
+        story: 'Gate high-risk physical actions behind confirmation',
         criteria:
-          'Each Playbook action shows requested / sent / acknowledged / failed / retried state, target system, timestamp, owner, and exception path.',
+          'Restrict badge, lock door, notify HR/Legal, dispatch guard, lockdown, and law-enforcement escalation remain explicit human-confirmation actions; auto-execute and manual-required actions are visually distinct.',
+      },
+      {
+        story: 'Recover when an action fails or needs manual follow-up',
+        criteria:
+          'Failed or manual-required actions expose the exception, next owner, retry path, and whether the incident can proceed or must be escalated.',
       },
     ],
   },
   {
-    name: 'Visual Verification',
+    name: 'Evidence & Video Verification',
     stories: [
       {
-        story: 'Verify an alert in one screen without pivoting',
+        story: 'Verify an incident without pivoting to another tool',
         criteria:
-          'Person identity card; correlated event timeline with camera stills; access event log with badge, door, denial reason; agent observations inline.',
+          'Incident side panel shows person identity, location, risk, correlated evidence, access events, camera evidence, agent analysis, action rationale, and operator notes.',
       },
       {
-        story: 'View camera evidence at the moment of incident',
+        story: 'Review the incident timeline and supporting evidence',
         criteria:
-          'Camera stills for before/during/after; click still to play mock clip; clip shows location, timestamp, playback controls.',
-      },
-      {
-        story: 'Operate a camera wall during active response',
-        criteria:
-          'World Monitor-style wall supports pinning incident, adjacent zone, and officer body/device feeds; switch from wall to live view; preserve clips from the same surface.',
+          'Timeline presents access, camera, agent, manual, and action events; camera stills/clips, badge denial reason, source count, and evidence provenance are visible.',
       },
       {
         story: 'Open live camera view with recent context',
         criteria:
-          'Clicking an indoor floor camera opens live view; recent camera events and detections visible beside the stream; current incident camera remains highlighted.',
+          'Clicking a camera opens live view when online; recent detections/events, stream health, recording status, coverage area, and linked incident context remain visible.',
+      },
+      {
+        story: 'Preserve useful clips and stills from the response surface',
+        criteria:
+          'Operator can review before/during/after evidence and preserve relevant clips/stills into the incident record for case handoff.',
       },
     ],
   },
   {
-    name: 'Map Workflows',
+    name: 'Map & Indoor Operations',
     stories: [
       {
-        story: 'Operate incidents across global, regional, site, and floor maps',
+        story: 'Operate across global, regional, site, and floor altitude',
         criteria:
-          'Role hierarchy scopes global, regional, site, and floor views; supervisors see the right rollups, queues, escalation paths, and actions for their level.',
+          'Role hierarchy scopes map altitude; operator/site/regional/global supervisors see rollups, sites, incidents, device health, external risk, and actions appropriate to their level.',
       },
       {
         story: 'Open site operations from the map',
         criteria:
-          'Site click opens cameras, devices, incidents, responders, and active workflows; site supervisor can filter by building, floor, severity, and owner.',
+          'Site click opens selected-site details, active incidents, camera list, device health, related devices, responders, and workflow actions.',
       },
       {
         story: 'Drill into devices with operational context',
         criteria:
-          'Device click opens health, details, controls, and live view when applicable; offline/failed states, owner, and recent events visible.',
+          'Device click opens health, details, owner/location, recent events, linked incidents, and live view when the device is an online camera.',
       },
       {
-        story: 'Switch from street map to indoor floor plan',
+        story: 'Switch between building floors without losing context',
         criteria:
-          'Floor altitude renders an image-based indoor floor plan with pan/zoom; floor selector swaps the plan image and active incidents, cameras, doors, sensors, and responders stay floor-scoped.',
+          'Floor altitude renders a CAD-style image floor plan with Leaflet pan/zoom; top selector swaps floors; markers, incidents, devices, health events, and camera coverage remain floor-scoped.',
       },
       {
-        story: 'Operate floor devices directly from the map',
+        story: 'Operate cameras, doors, and sensors from the floor plan',
         criteria:
-          'Floor cameras and devices are clickable; camera opens live view; door, sensor, and responder selections open relevant detail or action controls.',
+          'Floor markers are clickable; camera opens live view; door/sensor selections open details; incident marker opens incident review; selected marker remains visually highlighted.',
       },
       {
-        story: 'Review incident evidence from map context',
+        story: 'See device-health anomalies even when devices are online',
         criteria:
-          'Incident click opens timeline, evidence, and action review; operator can jump from floor marker to detections, clips, access logs, and response history.',
+          'Devices needing attention can show online status plus health events such as low bandwidth, missed preview frames, preview latency, packet loss, noisy sensors, or recording gaps.',
       },
     ],
   },
   {
-    name: 'Role-aware Operations',
+    name: 'Operational Intelligence',
     stories: [
       {
-        story: 'Show each role the operational level it can act on',
+        story: 'Monitor site and portfolio health',
         criteria:
-          'L1 sees assigned floor/site context; site supervisor manages site workload; regional/global supervisors see portfolio rollups with scoped actions.',
-      },
-      {
-        story: 'Monitor site health and SLA',
-        criteria:
-          'MTTA, MTTR, false-positive rate, offline devices, SLA compliance by site; filterable.',
+          'Map and insights views expose open incidents, oldest active incident, offline/degraded devices, risk level, site counts, external risk, SLA/response posture, and workload context.',
       },
       {
         story: 'Review AI quality and deterrence outcomes',
         criteria:
-          'Recommendation acceptance rate, top override reasons, confidence distribution by detector, deterrence effectiveness, and action failure trends filterable.',
+          'Insights summarize recommendation acceptance, override reasons, confidence, false-positive/quality trends, deterrence effectiveness, and failed-action trends.',
+      },
+      {
+        story: 'Promote a resolved incident into a case',
+        criteria:
+          'Incident record carries evidence, timeline, action execution history, entities, notes, operator decisions, and map/video context into Case Management.',
       },
     ],
   },

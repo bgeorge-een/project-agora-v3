@@ -2,6 +2,7 @@ import Link from 'next/link'
 import HeroSection from '@/components/prd/HeroSection'
 import ArchitectureDiagram from '@/components/prd/ArchitectureDiagram'
 import PlatformPillars from '@/components/prd/PlatformPillars'
+import JobsToBeDone from '@/components/prd/JobsToBeDone'
 import AgentPipelineDiagram from '@/components/prd/AgentPipelineDiagram'
 import DataModelTable from '@/components/prd/DataModelTable'
 import SignalFunnelDiagram from '@/components/prd/SignalFunnelDiagram'
@@ -48,6 +49,7 @@ export default function OverviewPage() {
   return (
     <div>
       <HeroSection />
+      <JobsToBeDone />
       <ArchitectureDiagram />
       <PlatformPillars />
       <AgentPipelineDiagram />

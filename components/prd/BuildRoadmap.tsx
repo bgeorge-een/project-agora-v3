@@ -43,16 +43,16 @@ const SLICES: Slice[] = [
   {
     num: 3,
     theme: 'Live Operations',
-    title: 'Map, Video & Action Assurance',
-    outcome: 'Role-scoped global, regional, site, and floor response across map context, camera wall/live view, and verified playbook execution.',
-    demo: 'Supervisor opens a site from the regional map, drills into devices/incidents, verifies video, and watches each action reach acknowledged state.',
+    title: 'Map, Indoor Floors & Action Assurance',
+    outcome: 'Role-scoped global, regional, site, and floor response across map context, CAD-style floor plans, live video, and verified playbook execution.',
+    demo: 'Supervisor opens a site, switches floors, clicks a camera for live view, reviews device health anomalies, and watches each response action reach acknowledged state.',
   },
   {
     num: 4,
     theme: 'Investigation',
     title: 'Case Continuity & Evidence Timeline',
-    outcome: 'Resolved incidents promote into cases with evidence, map evidence, actions, and ownership intact.',
-    demo: 'Investigator continues from incident handoff into a timeline mixing map, system, agent, and manual events.',
+    outcome: 'Resolved incidents promote into cases with evidence, map/video context, actions, people, open questions, and ownership intact.',
+    demo: 'Investigator continues from incident handoff into a compact case workspace with timeline, evidence, people roster, open questions, and entity graph.',
   },
   {
     num: 5,
@@ -71,9 +71,9 @@ const SLICES: Slice[] = [
   {
     num: 7,
     theme: 'Collaboration',
-    title: 'External Collaborator Access',
-    outcome: 'Scoped, secure case sharing with outside parties.',
-    demo: 'HR collaborator completes a task seeing only the granted evidence.',
+    title: 'Case People & External Collaboration',
+    outcome: 'Investigators manage people, roles, contacts, scoped tasks, and secure case sharing with outside parties.',
+    demo: 'Investigator adds HR, Legal, witness, victim, and site supervisor roles, assigns tasks, and limits future collaborator access to approved evidence.',
   },
   {
     num: 8,

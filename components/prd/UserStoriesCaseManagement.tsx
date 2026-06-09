@@ -12,17 +12,17 @@ interface Theme {
 
 const THEMES: Theme[] = [
   {
-    name: 'Investigation Continuity',
+    name: 'Case Continuity & Context',
     stories: [
       {
         story: 'Promote a resolved incident into a complete case',
         criteria:
-          'Case inherits incident summary, correlated evidence, map evidence, action execution history, entities, notes, owners, and audit log; source incident remains linked.',
+          'Case inherits incident summary, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',
       },
       {
-        story: 'Manage a complete case without leaving the app',
+        story: 'Read case context immediately at the top of the workspace',
         criteria:
-          'Summary, timeline, evidence, entity graph, tasks, notes, reports, audit log in one workspace; every change logged.',
+          'Header shows case ID, severity, status, owner, people count, site, SLA, created/updated/SLA dates, involved entity chips, tags, and campaign link without forcing the investigator into the side rail.',
       },
       {
         story: 'Preserve investigation continuity across handoffs',
@@ -30,24 +30,24 @@ const THEMES: Theme[] = [
           'Handoff summary shows what happened, what is known, what is disputed, pending actions, evidence gaps, and next owner; all updates append to case history.',
       },
       {
-        story: 'Ask the case AI assistant grounded questions',
+        story: 'Manage a complete case without leaving the app',
         criteria:
-          'Answers cite specific evidence objects; refuses unsupported claims; covers who/what/when/where/why-likely/what-next; suggests follow-up queries.',
+          'Summary context, timeline, evidence table, entity graph, tasks, case people, open questions, notes, AI assistant, narrative report, compliance, and executive reporting live in one workspace.',
       },
     ],
   },
   {
-    name: 'Evidence Timeline',
+    name: 'Evidence Timeline & Entity Analysis',
     stories: [
       {
-        story: 'Reconstruct and edit the incident timeline',
+        story: 'Reconstruct and annotate the incident timeline',
         criteria:
-          'System + agent + manual events on one timeline; AI-generated events visually distinct; add/remove/reorder/annotate; flag gaps and contradictions.',
+          'System, camera, access, agent, action, operator note, and manual events share one timeline; AI/manual/action badges are visible; timestamps are readable; gaps and contradictions can be flagged.',
       },
       {
         story: 'Review evidence with chain-of-custody',
         criteria:
-          'Each evidence item shows source device/feed, timestamp, location, retention policy, access log, confidence, related entities, and export state.',
+          'Each evidence item shows type, label, source system, timestamp, confidence, retention policy, related entities, and preview/clip access where applicable.',
       },
       {
         story: 'Consume incident map evidence into the case',
@@ -57,42 +57,67 @@ const THEMES: Theme[] = [
       {
         story: 'Explore the entity graph from evidence context',
         criteria:
-          'One-hop expansion from any person, credential, vehicle, door, camera, zone, or sensor; selecting entity filters timeline; confidence and retention per evidence item.',
+          'Entity graph links people, credentials, doors, cameras, zones, sensors, vehicles, and campaigns; selecting a node exposes metadata, risk, site/zone, and relationships.',
+      },
+      {
+        story: 'Ask the case AI assistant grounded questions',
+        criteria:
+          'Assistant answers are scoped to the case, cite evidence IDs, refuse unsupported claims, and help with timeline, entities, related incidents, and next investigative steps.',
       },
     ],
   },
   {
-    name: 'Governance & Collaboration',
+    name: 'People, Tasks & Collaboration',
     stories: [
-      {
-        story: 'Add manual events and notes with chain-of-custody',
-        criteria:
-          'Incident-level: lightweight note, no chain-of-custody; Case-level: formal manual event with type, timestamp, location, source attribution, file attachment, "Manual Evidence" badge.',
-      },
-      {
-        story: 'Collaborate with external parties (HR, Legal)',
-        criteria:
-          'External Collaborator sees only granted evidence; can add notes and complete assigned task; cannot see other cases; all actions logged.',
-      },
       {
         story: 'Maintain a visible case people roster',
         criteria:
-          'Investigator can add people with role, contact details, organization, and case context; supported roles include case investigator, HR, Legal, site supervisor, witness, victim, reporting party, security officer, subject, and other; roster remains visible in the workspace and role changes are easy to make.',
+          'Investigator can add people with role, contact details, organization, and case context; supported roles include case investigator, HR, Legal, site supervisor, witness, victim, reporting party, security officer, subject, and other; role can be changed directly from the roster.',
       },
+      {
+        story: 'Track investigation tasks and ownership',
+        criteria:
+          'Tasks show title, owner, due date, status, external-collaborator tag, and completion action; completed tasks append a timeline event.',
+      },
+      {
+        story: 'Resolve open investigative questions',
+        criteria:
+          'Open questions remain visible, can be marked resolved, and resolution is logged into case history.',
+      },
+      {
+        story: 'Collaborate with HR, Legal, Facilities, and IT',
+        criteria:
+          'External collaborator roles can be represented in the people roster and task owners; future scoped access should limit evidence visibility and log all collaborator actions.',
+      },
+      {
+        story: 'Add manual events and operator notes with case-grade provenance',
+        criteria:
+          'Manual event form captures type, timestamp, title, detail, source attribution, and timeline placement; quick notes and manual evidence remain visually distinct.',
+      },
+    ],
+  },
+  {
+    name: 'Governance, Playbooks & Compliance',
+    stories: [
       {
         story: 'Author and version SOPs that surface at triage',
         criteria:
-          'Plain English; tagged by incident type; version control with effective date; approval workflow; SOP usage history visible.',
+          'SOP library shows ID, title, incident type, version, update date, and approval status; SOPs support draft/pending/approved lifecycle and version history.',
       },
       {
         story: 'Author, simulate, and deploy Playbooks',
         criteria:
-          'Plain English → AI-structured conditions; simulate against historical events before deploy; Response and Deterrence types; approval required.',
+          'Playbook library supports response/deterrence types, trigger tags, simulation output, approved-only deploy gating, and deployed state.',
       },
       {
         story: 'Review violations and drive corrective actions',
         criteria:
-          'Each violation shows evidence + rule + involved party + severity; accept/reject/escalate; corrective actions tracked to closure.',
+          'Violations queue shows violation, rule, severity, person, zone, and status; investigator can accept/reject and assign corrective action owner/due date.',
+      },
+      {
+        story: 'Maintain a defensible audit and compliance posture',
+        criteria:
+          'Manual evidence, task completion, question resolution, playbook deployment, corrective action assignment, and overrides produce auditable case history.',
       },
     ],
   },
@@ -102,7 +127,7 @@ const THEMES: Theme[] = [
       {
         story: 'Generate a defensible narrative report',
         criteria:
-          'Executive summary, evidence timeline, involved parties, action execution history, policy impact, open questions, recommendations; editable before export.',
+          'Report modal generates an executive summary, timeline, involved parties, open questions, recommendations, and export/edit controls using case-scoped evidence.',
       },
       {
         story: 'Link cases to a Campaign and promote to master case',
@@ -112,7 +137,12 @@ const THEMES: Theme[] = [
       {
         story: 'Report enterprise risk, AI quality, and action assurance',
         criteria:
-          'Open cases by severity, campaign count, FeedbackRecord breakdown (model/policy/data/correct), recommendation acceptance rate, failed action trends; executive brief generated.',
+          'Executive Reporting shows open cases, active campaigns, compliance score, AI quality, risk by site, AI feedback breakdown, active campaign summary, and AI-generated executive brief.',
+      },
+      {
+        story: 'Keep the forensic UI readable under high information density',
+        criteria:
+          'Minimum 12px labels, high-contrast secondary text, readable inactive tabs, stronger metadata hierarchy, compact top case context, and increased timeline spacing reduce eye strain.',
       },
     ],
   },
