@@ -476,8 +476,6 @@ export default function MapView() {
               onSelectDevice={selectDevice}
               onOpenLiveView={openLiveView}
               onSelectIncident={selectIncident}
-              floorPlans={floorPlanOptions}
-              onSelectFloorPlan={selectFloorPlan}
             />
           ) : (
             <>

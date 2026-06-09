@@ -1,33 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1024" viewBox="0 0 100 64">
   <defs>
     <pattern id="rack" width="5" height="4" patternUnits="userSpaceOnUse">
-      <rect x=".6" y=".8" width="3.8" height=".7" fill="#334155"/>
-      <rect x=".6" y="2.5" width="3.8" height=".7" fill="#334155"/>
+      <rect x=".7" y=".9" width="3.6" height=".55" fill="#334155"/>
+      <rect x=".7" y="2.55" width="3.6" height=".55" fill="#334155"/>
     </pattern>
     <style>
-      .shell{fill:#0F172A;stroke:#E2E8F0;stroke-width:1.25}
-      .wall{fill:#111827;stroke:#CBD5E1;stroke-width:.62}
-      .corridor{fill:#172033;stroke:#94A3B8;stroke-width:.45}
-      .restricted{fill:#2A1115;stroke:#FF453A;stroke-width:.78}
-      .service{fill:#18212F;stroke:#64748B;stroke-width:.52}
-      .label{fill:#CBD5E1;font-family:Inter,Arial,sans-serif;font-size:2px;font-weight:700}
-      .small{fill:#94A3B8;font-family:Inter,Arial,sans-serif;font-size:1.45px;font-weight:600}
-      .door{stroke:#60A5FA;stroke-width:.65;stroke-linecap:round}
+      .paper{fill:#0D1420}
+      .slab{fill:#111827;stroke:#D8E1EC;stroke-width:.36}
+      .room{fill:#141C2A;stroke:#A7B4C6;stroke-width:.28}
+      .dock{fill:#201D18;stroke:#A7B4C6;stroke-width:.28}
+      .aisle{fill:#121C2B;stroke:#8FA2B8;stroke-width:.22}
+      .service{fill:#101824;stroke:#6F8196;stroke-width:.24}
+      .wall{fill:none;stroke:#E5E7EB;stroke-width:.34;stroke-linejoin:round}
+      .partition{fill:none;stroke:#8FA2B8;stroke-width:.22;stroke-linejoin:round}
+      .door{fill:none;stroke:#60A5FA;stroke-width:.26;stroke-linecap:round}
+      .label{fill:#AAB7C8;font-family:Inter,Arial,sans-serif;font-size:1.35px;font-weight:700;letter-spacing:.04px}
+      .small{fill:#7F8EA3;font-family:Inter,Arial,sans-serif;font-size:.95px;font-weight:700;letter-spacing:.04px}
     </style>
   </defs>
-  <rect width="100" height="64" fill="#0B0E14"/>
-  <rect x="4" y="6" width="92" height="52" rx="1.4" class="shell"/>
-  <rect x="8" y="20" width="24" height="22" class="restricted"/>
-  <rect x="38" y="12" width="12" height="42" class="corridor"/>
-  <rect x="32" y="29" width="52" height="8" class="corridor"/>
-  <rect x="55" y="12" width="30" height="16" class="wall"/>
-  <rect x="55" y="40" width="30" height="14" class="service"/>
-  <rect x="10" y="44" width="22" height="10" fill="url(#rack)" stroke="#64748B" stroke-width=".45"/>
-  <path d="M8 31H4 M32 31h6 M50 31h5 M84 33h10 M50 48h5" class="door"/>
-  <text x="10" y="25" class="label">LOADING DOCK B</text>
-  <text x="45" y="33" text-anchor="middle" class="label">AISLE 5</text>
-  <text x="68" y="34" text-anchor="middle" class="label">CROSS-DOCK</text>
+  <rect width="100" height="64" fill="#070A0F"/>
+  <rect x="5" y="6" width="90" height="52" rx="1.1" class="paper"/>
+  <rect x="7" y="8" width="86" height="48" rx=".6" class="slab"/>
+  <path class="wall" d="M9 10H91V54H9Z"/>
+  <rect x="11" y="20" width="22" height="20" class="dock"/>
+  <rect x="39" y="12" width="10" height="40" class="aisle"/>
+  <rect x="33" y="29" width="50" height="7" class="aisle"/>
+  <rect x="55" y="12" width="29" height="15" class="room"/>
+  <rect x="55" y="40" width="29" height="12" class="service"/>
+  <rect x="11" y="43" width="22" height="9" fill="url(#rack)" stroke="#6F8196" stroke-width=".18"/>
+  <path class="partition" d="M33 10V54M49 10V54M55 10V27H84V10M55 40H84V54M33 29H83V36H33"/>
+  <path class="door" d="M9 31H5M33 31h6M49 31h6M84 32h8M49 47h6"/>
+  <text x="13" y="25" class="label">LOADING DOCK B</text>
+  <text x="42" y="33.5" class="label">AISLE 5</text>
+  <text x="63" y="33.5" class="label">CROSS-DOCK</text>
   <text x="58" y="17" class="label">STORAGE</text>
   <text x="58" y="45" class="label">SHIFT OFFICE</text>
-  <text x="12" y="50" class="small">RACKS</text>
+  <text x="13" y="49" class="small">RACKS</text>
 </svg>
