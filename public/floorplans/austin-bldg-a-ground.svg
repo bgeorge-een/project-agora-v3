@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1024" viewBox="0 0 100 64">
+  <defs>
+    <pattern id="grid" width="2" height="2" patternUnits="userSpaceOnUse">
+      <path d="M 2 0 L 0 0 0 2" fill="none" stroke="#1E293B" stroke-width="0.12"/>
+    </pattern>
+    <style>
+      .shell{fill:#0F172A;stroke:#E2E8F0;stroke-width:1.25}
+      .wall{fill:#111827;stroke:#CBD5E1;stroke-width:.62}
+      .corridor{fill:#172033;stroke:#94A3B8;stroke-width:.45}
+      .lobby{fill:#102437;stroke:#60A5FA;stroke-width:.62}
+      .restricted{fill:#2A1115;stroke:#FF453A;stroke-width:.78}
+      .service{fill:#18212F;stroke:#64748B;stroke-width:.52}
+      .label{fill:#CBD5E1;font-family:Inter,Arial,sans-serif;font-size:2px;font-weight:700}
+      .small{fill:#94A3B8;font-family:Inter,Arial,sans-serif;font-size:1.45px;font-weight:600}
+      .door{stroke:#60A5FA;stroke-width:.55;stroke-linecap:round}
+    </style>
+  </defs>
+  <rect width="100" height="64" fill="#0B0E14"/>
+  <rect x="5" y="6" width="90" height="52" rx="1.4" class="shell"/>
+  <rect x="5" y="6" width="90" height="52" fill="url(#grid)" opacity=".55"/>
+  <rect x="10" y="22" width="28" height="20" class="lobby"/>
+  <rect x="40" y="22" width="30" height="20" class="corridor"/>
+  <rect x="68" y="22" width="20" height="20" class="lobby"/>
+  <rect x="18" y="45" width="18" height="11" class="service"/>
+  <rect x="42" y="45" width="28" height="11" class="restricted"/>
+  <rect x="68" y="8" width="20" height="10" class="service"/>
+  <rect x="10" y="8" width="30" height="10" class="wall"/>
+  <path d="M38 31h2 M70 31h-2 M52 42v3 M36 50h6 M70 50h4 M78 22v-4 M24 22v-4" class="door"/>
+  <path d="M10 32 H5 M88 32 H95 M54 56 V61" stroke="#60A5FA" stroke-width=".72" stroke-linecap="round"/>
+  <text x="13" y="27" class="label">MAIN LOBBY</text>
+  <text x="47" y="33" class="label">SECURITY CORRIDOR</text>
+  <text x="71" y="27" class="label">EAST ENTRY</text>
+  <text x="20" y="50" class="small">SECURITY DESK</text>
+  <text x="45" y="50" class="label">EMPLOYEE ENTRANCE</text>
+  <text x="70" y="13" class="small">PERIMETER APPROACH</text>
+  <text x="13" y="13" class="small">VISITOR SERVICES</text>
+</svg>

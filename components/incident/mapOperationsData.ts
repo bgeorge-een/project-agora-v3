@@ -33,6 +33,7 @@ export interface MapFloorPlan {
   building: string
   floor: string
   label: string
+  imageUrl: string
   dimensions: { width: number; height: number }
   zones: FloorZone[]
 }
@@ -169,6 +170,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Bldg A',
     floor: 'Floor 3',
     label: 'Austin HQ · Bldg A · Floor 3',
+    imageUrl: '/floorplans/austin-bldg-a-floor-3.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'f3-corridor-west', label: 'West Corridor', kind: 'corridor', x: 8, y: 27, width: 48, height: 10 },
@@ -187,6 +189,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Bldg A',
     floor: 'Ground',
     label: 'Austin HQ · Bldg A · Ground',
+    imageUrl: '/floorplans/austin-bldg-a-ground.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'g-main-lobby', label: 'Main Lobby', kind: 'lobby', x: 10, y: 22, width: 28, height: 20 },
@@ -203,6 +206,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Bldg A',
     floor: 'Floor 4',
     label: 'Austin HQ · Bldg A · Floor 4',
+    imageUrl: '/floorplans/austin-bldg-a-floor-4.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'f4-exec-suite', label: 'Executive Suite', kind: 'restricted', x: 50, y: 10, width: 35, height: 22 },
@@ -218,6 +222,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Garage',
     floor: 'Parking L2',
     label: 'Austin HQ · Garage · Parking L2',
+    imageUrl: '/floorplans/austin-garage-parking-l2.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'p2-row-c', label: 'Parking Row C', kind: 'parking', x: 10, y: 10, width: 80, height: 18 },
@@ -231,6 +236,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Warehouse',
     floor: 'Ground',
     label: 'Cedar Park Warehouse · Ground',
+    imageUrl: '/floorplans/warehouse-ground.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'wh-loading-b', label: 'Loading Dock B', kind: 'restricted', x: 8, y: 20, width: 24, height: 22 },
@@ -246,6 +252,7 @@ export const FLOOR_PLANS: MapFloorPlan[] = [
     building: 'Dallas Office',
     floor: 'Lobby',
     label: 'Dallas Office · Lobby',
+    imageUrl: '/floorplans/dallas-lobby.svg',
     dimensions: { width: 100, height: 64 },
     zones: [
       { id: 'dal-lobby', label: 'Main Lobby', kind: 'lobby', x: 18, y: 18, width: 42, height: 24 },

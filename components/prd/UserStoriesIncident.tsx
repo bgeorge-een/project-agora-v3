@@ -97,7 +97,7 @@ const THEMES: Theme[] = [
       {
         story: 'Switch from street map to indoor floor plan',
         criteria:
-          'Floor altitude renders indoor floor plan instead of street tiles; floor selector switches levels; active incidents, cameras, doors, sensors, and responders stay floor-scoped.',
+          'Floor altitude renders an image-based indoor floor plan with pan/zoom; floor selector swaps the plan image and active incidents, cameras, doors, sensors, and responders stay floor-scoped.',
       },
       {
         story: 'Operate floor devices directly from the map',

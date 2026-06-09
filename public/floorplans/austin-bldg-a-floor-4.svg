@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1024" viewBox="0 0 100 64">
+  <defs>
+    <pattern id="grid" width="2" height="2" patternUnits="userSpaceOnUse">
+      <path d="M 2 0 L 0 0 0 2" fill="none" stroke="#1E293B" stroke-width="0.12"/>
+    </pattern>
+    <style>
+      .shell{fill:#0F172A;stroke:#E2E8F0;stroke-width:1.25}
+      .wall{fill:#111827;stroke:#CBD5E1;stroke-width:.62}
+      .corridor{fill:#172033;stroke:#94A3B8;stroke-width:.45}
+      .restricted{fill:#2A1115;stroke:#FF453A;stroke-width:.78}
+      .service{fill:#18212F;stroke:#64748B;stroke-width:.52}
+      .label{fill:#CBD5E1;font-family:Inter,Arial,sans-serif;font-size:2px;font-weight:700}
+      .small{fill:#94A3B8;font-family:Inter,Arial,sans-serif;font-size:1.45px;font-weight:600}
+      .door{stroke:#60A5FA;stroke-width:.55;stroke-linecap:round}
+    </style>
+  </defs>
+  <rect width="100" height="64" fill="#0B0E14"/>
+  <rect x="7" y="7" width="86" height="50" rx="1.4" class="shell"/>
+  <rect x="7" y="7" width="86" height="50" fill="url(#grid)" opacity=".55"/>
+  <rect x="50" y="10" width="35" height="22" class="restricted"/>
+  <rect x="15" y="24" width="22" height="17" class="service"/>
+  <rect x="36" y="28" width="50" height="8" class="corridor"/>
+  <rect x="12" y="44" width="32" height="12" class="wall"/>
+  <rect x="48" y="44" width="26" height="12" class="wall"/>
+  <rect x="76" y="44" width="10" height="12" class="service"/>
+  <rect x="12" y="10" width="28" height="10" class="wall"/>
+  <path d="M37 32h-1 M50 32v-2 M44 50h4 M74 50h2 M76 35v9 M40 15h10" class="door"/>
+  <text x="53" y="15" class="label">EXECUTIVE SUITE</text>
+  <text x="18" y="29" class="label">ELEVATOR LOBBY</text>
+  <text x="58" y="33" text-anchor="middle" class="label">EXECUTIVE CORRIDOR</text>
+  <text x="15" y="49" class="label">BOARD ROOM</text>
+  <text x="51" y="49" class="label">ADMIN AREA</text>
+  <text x="78" y="49" class="small">STAIR</text>
+  <text x="15" y="15" class="small">OPEN COLLAB</text>
+</svg>
