@@ -49,7 +49,7 @@ const TAG_STYLE: Record<Job['variant'], { bg: string; text: string }> = {
 
 export default function JobsToBeDone() {
   return (
-    <section className="bg-white px-12 py-20">
+    <section className="bg-white px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="What users need answered"
@@ -63,20 +63,20 @@ export default function JobsToBeDone() {
             return (
               <li
                 key={job.question}
-                className="flex items-center gap-5 rounded-xl border border-[#E5E7EB] bg-white p-5 transition-colors hover:border-[#CBD5E1] hover:bg-[#F8FAFC]"
+                className="flex flex-col items-start gap-4 rounded-xl border border-[#E5E7EB] bg-white p-5 transition-colors hover:border-[#CBD5E1] hover:bg-[#F8FAFC] sm:flex-row sm:items-center sm:gap-5"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] text-base font-bold text-[#334155]">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <span className="material-symbols-outlined shrink-0 text-[#6B7280]" style={{ fontSize: 24 }}>{job.icon}</span>
-                <p className="flex-1 text-base font-semibold text-[#111827]">
+                <p className="flex-1 text-base font-semibold leading-snug text-[#111827]">
                   {job.question}
                 </p>
                 <span className="hidden text-[#9CA3AF] sm:inline" aria-hidden>
                   →
                 </span>
                 <span
-                  className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold"
+                  className="rounded-lg px-3 py-1.5 text-xs font-semibold sm:shrink-0"
                   style={{ backgroundColor: tag.bg, color: tag.text }}
                 >
                   {job.answeredBy}

@@ -53,7 +53,7 @@ const PILLARS: Pillar[] = [
 
 export default function PlatformPillars() {
   return (
-    <section className="bg-[#F9FAFB] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Inside the platform"
@@ -61,7 +61,7 @@ export default function PlatformPillars() {
           subtitle="The five capabilities every Agora app inherits — built once, served everywhere."
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
           {PILLARS.map((pillar, i) => (
             <div
               key={pillar.title}

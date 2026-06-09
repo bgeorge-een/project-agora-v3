@@ -20,8 +20,8 @@ export default function CaseManagementPage() {
     <div className="flex min-h-screen flex-col bg-[#0F1117]">
       {/* Top bar */}
       <header className="sticky top-0 z-20 border-b border-[#273142] bg-[#171D29]/95 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-8 pt-5">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-4 px-4 pt-4 sm:px-6 xl:px-8 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#273142] bg-[#111827] text-[#9CA3AF]">
               <span
                 className="material-symbols-outlined"
@@ -30,8 +30,8 @@ export default function CaseManagementPage() {
                 folder_open
               </span>
             </span>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-lg font-bold tracking-tight text-white">
                   Case Management
                 </h1>
@@ -39,7 +39,7 @@ export default function CaseManagementPage() {
                   Forensics
                 </span>
               </div>
-              <nav className="mt-0.5 flex items-center gap-1.5 text-xs text-[#9CA3AF]">
+              <nav className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-[#9CA3AF]">
                 <span>Cases</span>
                 <span className="text-[#4B5563]">/</span>
                 <span className="font-medium text-[#CBD5E0]">
@@ -48,31 +48,33 @@ export default function CaseManagementPage() {
               </nav>
             </div>
           </div>
-          <div className="hidden items-center gap-2 text-xs text-[#9CA3AF] md:flex">
+          <div className="flex items-center gap-2 rounded-full border border-[#273142] bg-[#111827] px-3 py-1.5 text-xs text-[#9CA3AF] xl:mt-1">
             <span className="h-2 w-2 rounded-full bg-[#64748B]" />
             Post-incident forensics &amp; investigation
           </div>
         </div>
 
         {/* Tab navigation */}
-        <div className="flex gap-1 px-8 pt-4">
-          {TABS.map((t) => {
-            const active = tab === t.key
-            return (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`relative rounded-t-md px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  active ? 'text-white' : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
-                }`}
-              >
-                {t.label}
-                {active && (
-                  <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#7C3AED]" />
-                )}
-              </button>
-            )
-          })}
+        <div className="overflow-x-auto px-4 pt-3 sm:px-6 xl:px-8">
+          <div className="flex min-w-max gap-1">
+            {TABS.map((t) => {
+              const active = tab === t.key
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className={`relative rounded-t-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    active ? 'text-white' : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
+                  }`}
+                >
+                  {t.label}
+                  {active && (
+                    <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#7C3AED]" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </header>
 

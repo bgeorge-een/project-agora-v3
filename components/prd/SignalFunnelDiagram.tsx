@@ -218,15 +218,15 @@ export default function SignalFunnelDiagram() {
           subtitle="Each definition maps directly to the same layer in the funnel: dots become events, events become alerts, and only accepted/correlated alerts become incidents."
         />
 
-        <div className="mt-12 overflow-hidden rounded-xl border border-[#D6E3F1] bg-white shadow-sm">
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)]">
-            <div className="grid lg:[grid-template-rows:repeat(4,minmax(clamp(8.75rem,12vw,10rem),1fr))]">
+        <div className="mt-10 overflow-hidden rounded-xl border border-[#D6E3F1] bg-white shadow-sm lg:mt-12">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(24rem,40%)]">
+            <div className="grid xl:[grid-template-rows:repeat(4,minmax(clamp(8.75rem,12vw,10rem),1fr))]">
               {LAYERS.map((layer) => (
                 <LayerRow key={layer.num} layer={layer} />
               ))}
             </div>
 
-            <div className="relative min-h-[clamp(24rem,65vw,40rem)] border-t border-[#D6E3F1] bg-[#F8FBFF] lg:min-h-0 lg:border-l lg:border-t-0">
+            <div className="relative min-h-[clamp(24rem,72vw,40rem)] border-t border-[#D6E3F1] bg-[#F8FBFF] xl:min-h-0 xl:border-l xl:border-t-0">
               <FunnelGraphic />
             </div>
           </div>

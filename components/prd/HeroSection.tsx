@@ -55,7 +55,7 @@ const CARD_STYLE: Record<
 export default function HeroSection() {
   return (
     <section
-      className="relative overflow-hidden px-12 pb-20 pt-20"
+      className="relative overflow-hidden px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-20 lg:px-12"
       style={{
         background:
           'linear-gradient(160deg, #FFFFFF 0%, #F8FAFC 45%, #EFF6FF 100%)',
@@ -65,7 +65,7 @@ export default function HeroSection() {
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#2563EB]">
           Project Agora V3
         </p>
-        <h1 className="mt-4 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight text-[#111827]">
+        <h1 className="mt-4 max-w-3xl text-[clamp(2.5rem,6vw,3.75rem)] font-extrabold leading-[1.05] tracking-tight text-[#111827]">
           Physical Intelligence Platform
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#6B7280]">
@@ -74,7 +74,7 @@ export default function HeroSection() {
           case record for investigation and improvement.
         </p>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3 lg:mt-12">
           {PRODUCTS.map((p) => {
             const s = CARD_STYLE[p.variant]
             return (

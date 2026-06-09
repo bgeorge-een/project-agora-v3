@@ -142,7 +142,7 @@ function SummaryChip({
   tone?: string
 }) {
   return (
-    <span className="flex min-h-8 items-center gap-2 rounded-md border border-[#273142] bg-[#111827] px-2.5 text-xs font-semibold text-[#CBD5E1]">
+    <span className="flex min-h-8 shrink-0 items-center gap-2 rounded-md border border-[#273142] bg-[#111827] px-2.5 text-xs font-semibold text-[#CBD5E1]">
       <span className="text-[#94A3B8]">{label}</span>
       <span className="text-sm font-extrabold text-white" style={{ color: tone }}>
         {value}
@@ -348,21 +348,22 @@ export default function MapView() {
 
   return (
     <div className="space-y-3 bg-[#0F1117]">
-      <div className="rounded-xl border border-[#273142] bg-[#171D29] px-4 py-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="mr-1 text-base font-bold text-white">Operations Map</h2>
-          <div className="min-w-0 flex-1">
-            <Breadcrumbs
-              scope={scope}
-              activeSite={activeSite}
-              selection={selection}
-              activeFloorPlan={activeFloorPlan}
-              onScope={selectScope}
-              onSelectSite={selectSite}
-            />
-          </div>
+      <div className="rounded-xl border border-[#273142] bg-[#171D29] px-3 py-3 sm:px-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex min-w-0 flex-col gap-2 2xl:flex-row 2xl:items-center">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+              <h2 className="shrink-0 text-base font-bold text-white">Operations Map</h2>
+              <Breadcrumbs
+                scope={scope}
+                activeSite={activeSite}
+                selection={selection}
+                activeFloorPlan={activeFloorPlan}
+                onScope={selectScope}
+                onSelectSite={selectSite}
+              />
+            </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+            <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4 2xl:ml-auto 2xl:flex 2xl:w-auto 2xl:flex-wrap 2xl:justify-end">
             <label className="sr-only" htmlFor="map-role">
               Operating role
             </label>
@@ -370,7 +371,7 @@ export default function MapView() {
               id="map-role"
               value={role}
               onChange={(event) => selectRole(event.target.value as MapRole)}
-              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+              className="min-h-10 min-w-0 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB] 2xl:min-w-[180px]"
               title={selectedRole.description}
             >
               {ROLE_OPTIONS.map((option) => (
@@ -387,7 +388,7 @@ export default function MapView() {
               id="map-scope"
               value={scope}
               onChange={(event) => selectScope(event.target.value as MapScope)}
-              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold capitalize text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+              className="min-h-10 min-w-0 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold capitalize text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB] 2xl:min-w-[120px]"
             >
               {(['global', 'regional', 'site', 'floor'] as MapScope[]).map((level) => (
                 <option key={level} value={level}>
@@ -405,7 +406,7 @@ export default function MapView() {
                   id="map-floor"
                   value={activeFloorPlan?.id ?? ''}
                   onChange={(event) => selectFloorPlan(event.target.value)}
-                  className="min-h-10 max-w-[220px] rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+                  className="col-span-2 min-h-10 min-w-0 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB] sm:col-span-1 2xl:max-w-[220px]"
                 >
                   {floorPlanOptions.map((plan) => (
                     <option key={plan.id} value={plan.id}>
@@ -423,7 +424,7 @@ export default function MapView() {
               id="map-layer"
               value={layerPreset}
               onChange={(event) => setLayerPreset(event.target.value as MapLayerPreset)}
-              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+              className="min-h-10 min-w-0 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB] 2xl:min-w-[140px]"
             >
               {LAYER_PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
@@ -432,23 +433,11 @@ export default function MapView() {
               ))}
             </select>
 
-            <SummaryChip label="Sites" value={SITES.length} />
-            <SummaryChip label="Open" value={totalOpen} tone="#FCA5A5" />
-            <SummaryChip label="Oldest" value={oldestActive} />
-            <SummaryChip label="Offline" value={totalOffline} tone={totalOffline ? '#FFB4AE' : undefined} />
-            {selectedSite && (
-              <SummaryChip
-                label={selectedSite.name}
-                value={`${selectedSite.riskLevel} risk`}
-                tone={RISK_COLOR[selectedSite.riskLevel]}
-              />
-            )}
-
             {criticalAlert && (
               <button
                 type="button"
                 onClick={returnToCritical}
-                className="flex min-h-10 items-center gap-1.5 rounded-lg bg-[#FF453A] px-3 text-sm font-extrabold text-black transition-all hover:bg-[#FF6B61] active:scale-[0.98]"
+                className="col-span-2 flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-[#FF453A] px-3 text-sm font-extrabold text-black transition-all hover:bg-[#FF6B61] active:scale-[0.98] sm:col-span-1"
               >
                 <span
                   className="material-symbols-outlined"
@@ -460,12 +449,29 @@ export default function MapView() {
                 Return to Critical
               </button>
             )}
+            </div>
+          </div>
+
+          <div className="overflow-x-auto pb-1" style={{ scrollbarGutter: 'stable' }}>
+            <div className="flex min-w-max gap-2">
+              <SummaryChip label="Sites" value={SITES.length} />
+              <SummaryChip label="Open" value={totalOpen} tone="#FCA5A5" />
+              <SummaryChip label="Oldest" value={oldestActive} />
+              <SummaryChip label="Offline" value={totalOffline} tone={totalOffline ? '#FFB4AE' : undefined} />
+              {selectedSite && (
+                <SummaryChip
+                  label={selectedSite.name}
+                  value={`${selectedSite.riskLevel} risk`}
+                  tone={RISK_COLOR[selectedSite.riskLevel]}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:h-[calc(100vh-230px)] xl:min-h-[560px] xl:max-h-[840px] xl:grid-cols-[minmax(0,1fr)_390px]">
-        <div className="relative h-[62vh] min-h-[460px] overflow-hidden rounded-xl border border-[#273142] bg-[#0B0E14] xl:h-full xl:min-h-0">
+      <div className="grid grid-cols-1 gap-4 2xl:h-[calc(100dvh-230px)] 2xl:min-h-[560px] 2xl:max-h-[840px] 2xl:grid-cols-[minmax(0,1fr)_390px]">
+        <div className="relative h-[clamp(420px,calc(100dvh-230px),720px)] overflow-hidden rounded-xl border border-[#273142] bg-[#0B0E14] 2xl:h-full 2xl:min-h-0">
           {scope === 'floor' && activeFloorPlan ? (
             <FloorPlanView
               floorPlan={activeFloorPlan}

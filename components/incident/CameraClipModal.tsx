@@ -43,10 +43,10 @@ export function CameraClipModal({ channel, sceneType, location, timestamp, detai
   const elapsedStr = `0:${elapsed.toString().padStart(2, '0')}`
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-gray-950 rounded-xl overflow-hidden w-[600px] shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 backdrop-blur-sm" onClick={onClose}>
+      <div className="max-h-[calc(100dvh-24px)] w-full max-w-[600px] overflow-hidden rounded-xl bg-gray-950 shadow-2xl" onClick={e => e.stopPropagation()}>
         {/* Video area */}
-        <div className={`relative h-72 bg-gradient-to-br ${SCENE_BG[sceneType]}`}>
+        <div className={`relative aspect-video max-h-[60dvh] bg-gradient-to-br ${SCENE_BG[sceneType]}`}>
           <div className="absolute inset-0 opacity-10" style={{
             backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)'
           }} />

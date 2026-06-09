@@ -10,7 +10,7 @@ const PLATFORM_CAPABILITIES = [
 
 export default function ArchitectureDiagram() {
   return (
-    <section id="architecture" className="bg-white px-12 py-20">
+    <section id="architecture" className="bg-white px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="How it fits together"
@@ -19,11 +19,11 @@ export default function ArchitectureDiagram() {
         />
 
         <div
-          className="mt-14 rounded-2xl p-6 sm:p-10"
+          className="mt-10 rounded-2xl p-4 sm:p-6 lg:mt-14 lg:p-10"
           style={{ backgroundColor: '#EFF6FF' }}
         >
           {/* App tier */}
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div
               className="rounded-lg bg-white p-6"
               style={{
@@ -67,7 +67,7 @@ export default function ArchitectureDiagram() {
           {/* Connector */}
           <div className="relative flex items-center justify-center py-6">
             <div className="absolute inset-x-[12%] top-1/2 h-px -translate-y-1/2 bg-[#BFDBFE]" />
-            <span className="relative rounded-full border border-[#BFDBFE] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#2563EB]">
+            <span className="relative rounded-full border border-[#BFDBFE] bg-white px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-[#2563EB]">
               ↓ consume via Platform APIs ↓
             </span>
           </div>

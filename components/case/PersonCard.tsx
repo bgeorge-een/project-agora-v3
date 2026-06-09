@@ -37,7 +37,7 @@ function Field({
         {icon && <Icon name={icon} size={12} />}
         {label}
       </p>
-      <p className={`text-xs text-[#CBD5E0] ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
+      <p className={`text-sm leading-snug text-[#CBD5E0] ${mono ? 'font-mono' : ''}`}>{value ?? '—'}</p>
     </div>
   )
 }
@@ -84,7 +84,7 @@ export function PersonCard({ person }: { person: PersonDetails }) {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-3">
             <Field label="Badge ID" value={person.badgeId} mono icon="key" />
             <Field label="Access Level" value={person.accessLevel} icon="security" />
             <Field label="Department" value={person.department} />

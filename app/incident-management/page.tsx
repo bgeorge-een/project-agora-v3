@@ -34,18 +34,18 @@ export default function IncidentManagementPage() {
             : 'border-[#273142] bg-[#171D29]/95'
         }`}
       >
-        <div className="flex flex-wrap items-center gap-4 px-6 py-4">
-          <h1 className="text-lg font-semibold text-white">
+        <div className="flex flex-col gap-3 px-4 py-4 sm:px-5 xl:flex-row xl:items-center xl:px-6">
+          <h1 className="min-w-0 text-lg font-semibold leading-tight text-white">
             Real-time Incident Management
           </h1>
 
-          <div className="ml-auto flex items-center gap-3">
-            <div className="relative">
+          <div className="flex w-full flex-wrap items-center gap-2 xl:ml-auto xl:w-auto xl:justify-end">
+            <div className="relative min-w-[180px] flex-1 sm:flex-none">
               <select
                 value={site}
                 onChange={(e) => setSite(e.target.value)}
                 aria-label="Select facility location"
-                className="appearance-none rounded-lg border border-[#374151] bg-[#111827] py-1.5 pl-3 pr-8 text-sm font-medium text-[#CBD5E0] outline-none transition-colors hover:border-[#4B5563] focus:border-[#2563EB]"
+                className="w-full appearance-none rounded-lg border border-[#374151] bg-[#111827] py-2 pl-3 pr-8 text-sm font-medium text-[#CBD5E0] outline-none transition-colors hover:border-[#4B5563] focus:border-[#2563EB]"
               >
                 {SITES.map((s) => (
                   <option key={s} value={s}>
@@ -61,7 +61,7 @@ export default function IncidentManagementPage() {
               </span>
             </div>
 
-            <span className="flex items-center gap-1.5 rounded-full border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0]">
+            <span className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#374151] px-3 text-xs font-medium text-[#CBD5E0]">
               <span className="relative flex h-2 w-2">
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22C55E]" />
               </span>
@@ -72,7 +72,7 @@ export default function IncidentManagementPage() {
               type="button"
               aria-pressed={highContrast}
               onClick={() => setHighContrast((value) => !value)}
-              className={`min-h-12 rounded-lg px-3 text-sm font-semibold transition-colors ${
+              className={`min-h-10 rounded-lg px-3 text-sm font-semibold transition-colors sm:min-h-12 ${
                 highContrast
                   ? 'bg-white text-black'
                   : 'border border-[#374151] bg-[#111827] text-[#D1D5DB] hover:bg-[#1F2937]'
@@ -84,31 +84,33 @@ export default function IncidentManagementPage() {
         </div>
 
         {/* View toggle tabs */}
-        <nav className="flex gap-1 px-6">
-          {TABS.map((t) => {
-            const active = tab === t.id
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`relative min-h-[52px] px-5 py-3 text-sm font-semibold transition-colors ${
-                  active
-                    ? 'text-white'
-                    : 'text-[#9CA3AF] hover:text-white'
-                }`}
-              >
-                {t.label}
-                {active && (
-                  <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#60A5FA]" />
-                )}
-              </button>
-            )
-          })}
-        </nav>
+        <div className="overflow-x-auto px-4 sm:px-5 xl:px-6" style={{ scrollbarGutter: 'stable' }}>
+          <nav className="flex min-w-max gap-1" aria-label="Incident management views">
+            {TABS.map((t) => {
+              const active = tab === t.id
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`relative min-h-[48px] shrink-0 px-4 py-3 text-sm font-semibold transition-colors sm:min-h-[52px] sm:px-5 ${
+                    active
+                      ? 'text-white'
+                      : 'text-[#9CA3AF] hover:text-white'
+                  }`}
+                >
+                  {t.label}
+                  {active && (
+                    <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-[#60A5FA]" />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
       </header>
 
       {/* Active view */}
-      <div className="px-6 py-6">
+      <div className="px-3 py-4 sm:px-5 xl:px-6 xl:py-6">
         {tab === 'response' && <ResponseView highContrast={highContrast} />}
         {tab === 'monitor' && <MonitorView />}
         {tab === 'map' && <MapView />}

@@ -66,7 +66,7 @@ export default function InsightsView() {
   return (
     <div className="space-y-6 bg-[#0F1117]">
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
         {STATS.map((s) => (
           <div
             key={s.label}
@@ -104,7 +104,7 @@ export default function InsightsView() {
           key={c.id}
           className="rounded-xl border border-[#273142] bg-[#171D29] p-4"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
             <span
               className="material-symbols-outlined text-[#9CA3AF]"
               style={{ fontSize: '20px', lineHeight: 1 }}
@@ -121,7 +121,7 @@ export default function InsightsView() {
             </div>
             <a
               href="/case-management"
-              className="flex shrink-0 items-center gap-1 rounded-md border border-[#374151] px-3 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
+              className="flex min-h-10 shrink-0 items-center justify-center gap-1 rounded-md border border-[#374151] px-3 py-1.5 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937]"
             >
               View Campaign
               <span
@@ -135,58 +135,60 @@ export default function InsightsView() {
         </div>
       ))}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
         {/* Site Health */}
         <section className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
           <h2 className="mb-3 text-base font-semibold text-white">
             Site Health
           </h2>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#273142] bg-[#111827] text-left text-xs text-[#9CA3AF]">
-                <th className="px-2 py-2 font-semibold">Site</th>
-                <th className="py-2 text-center font-semibold">Open</th>
-                <th className="py-2 text-center font-semibold">MTTA</th>
-                <th className="py-2 text-center font-semibold">MTTR</th>
-                <th className="py-2 text-center font-semibold">SLA</th>
-                <th className="px-2 py-2 text-right font-semibold">Risk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SITE_ROWS.map((r) => (
-                <tr key={r.site} className="border-b border-[#273142] last:border-0">
-                  <td className="px-2 py-2.5 font-medium text-white">{r.site}</td>
-                  <td className="py-2.5 text-center text-[#CBD5E0]">{r.open}</td>
-                  <td className="py-2.5 text-center text-[#CBD5E0]">{r.mtta}</td>
-                  <td className="py-2.5 text-center text-[#CBD5E0]">{r.mttr}</td>
-                  <td className="py-2.5 text-center">
-                    {r.sla && (
-                      <span
-                        className="material-symbols-outlined text-[#9CA3AF]"
-                        style={{ fontSize: '18px', lineHeight: 1 }}
-                      >
-                        check_circle
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-2 py-2.5 text-right">
-                    <span
-                      className="inline-flex items-center justify-end gap-1 text-xs font-semibold"
-                      style={{ color: r.riskColor }}
-                    >
-                      <span
-                        className="material-symbols-outlined"
-                        style={{ fontSize: '12px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
-                      >
-                        circle
-                      </span>
-                      {r.risk}
-                    </span>
-                  </td>
+          <div className="overflow-x-auto" style={{ scrollbarGutter: 'stable' }}>
+            <table className="min-w-[560px] w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#273142] bg-[#111827] text-left text-xs text-[#9CA3AF]">
+                  <th className="px-2 py-2 font-semibold">Site</th>
+                  <th className="py-2 text-center font-semibold">Open</th>
+                  <th className="py-2 text-center font-semibold">MTTA</th>
+                  <th className="py-2 text-center font-semibold">MTTR</th>
+                  <th className="py-2 text-center font-semibold">SLA</th>
+                  <th className="px-2 py-2 text-right font-semibold">Risk</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {SITE_ROWS.map((r) => (
+                  <tr key={r.site} className="border-b border-[#273142] last:border-0">
+                    <td className="px-2 py-2.5 font-medium text-white">{r.site}</td>
+                    <td className="py-2.5 text-center text-[#CBD5E0]">{r.open}</td>
+                    <td className="py-2.5 text-center text-[#CBD5E0]">{r.mtta}</td>
+                    <td className="py-2.5 text-center text-[#CBD5E0]">{r.mttr}</td>
+                    <td className="py-2.5 text-center">
+                      {r.sla && (
+                        <span
+                          className="material-symbols-outlined text-[#9CA3AF]"
+                          style={{ fontSize: '18px', lineHeight: 1 }}
+                        >
+                          check_circle
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2.5 text-right">
+                      <span
+                        className="inline-flex items-center justify-end gap-1 text-xs font-semibold"
+                        style={{ color: r.riskColor }}
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: '12px', lineHeight: 1, fontVariationSettings: "'FILL' 1" }}
+                        >
+                          circle
+                        </span>
+                        {r.risk}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         {/* AI Quality */}

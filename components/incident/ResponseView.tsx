@@ -107,7 +107,7 @@ function AlertCard({
       }`}
       style={{ borderLeft: `5px solid ${selected ? '#60A5FA' : meta.rail}` }}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex items-center gap-2 text-base leading-none">
             <span className="font-extrabold" style={{ color: meta.text }}>
@@ -126,7 +126,7 @@ function AlertCard({
         </div>
         <button
           onClick={() => onReview(alert)}
-          className={`min-h-12 shrink-0 rounded-md px-5 text-sm font-bold transition-colors ${
+          className={`min-h-12 w-full shrink-0 rounded-md px-5 text-sm font-bold transition-colors sm:w-auto ${
             selected
               ? 'bg-[#243B55] text-[#BFDBFE]'
               : alert.severity === 'critical'
@@ -243,7 +243,7 @@ export default function ResponseView({
 
   return (
     <div
-      className={`grid grid-cols-1 gap-5 lg:grid-cols-[58%_42%] ${
+      className={`grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,58%)_minmax(360px,42%)] ${
         highContrast ? 'bg-black' : 'bg-[#0F1117]'
       }`}
     >
@@ -254,7 +254,7 @@ export default function ResponseView({
             highContrast ? 'border-[#64748B] bg-black' : 'border-[#273142] bg-[#171D29]'
           }`}
         >
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-base font-semibold text-white">Alert Queue</h2>
               <p className="mt-1 text-sm text-[#9CA3AF]">
@@ -262,7 +262,7 @@ export default function ResponseView({
               </p>
             </div>
             {criticalCount > 0 && (
-              <span className="rounded-md border border-[#FF453A] bg-[#210A08] px-3 py-1.5 text-base font-extrabold text-[#FF453A]">
+              <span className="w-fit rounded-md border border-[#FF453A] bg-[#210A08] px-3 py-1.5 text-base font-extrabold text-[#FF453A]">
                 Critical focus
               </span>
             )}
@@ -353,7 +353,7 @@ export default function ResponseView({
 
       {/* RIGHT — NBA + SOP */}
       <div
-        className={`${highContrast ? 'bg-black' : 'bg-[#0F1117]'} lg:sticky lg:top-4 lg:self-start`}
+        className={`${highContrast ? 'bg-black' : 'bg-[#0F1117]'} xl:sticky xl:top-4 xl:self-start`}
       >
         <NBACard
           alert={nbaCardAlert}

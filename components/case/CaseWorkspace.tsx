@@ -334,16 +334,16 @@ export default function CaseWorkspace() {
   }
 
   return (
-    <div className="px-8 py-6">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[65fr_35fr]">
+    <div className="px-4 py-5 sm:px-6 xl:px-8">
+      <div className="grid grid-cols-1 gap-6 min-[1800px]:grid-cols-[minmax(0,1.55fr)_minmax(380px,0.85fr)]">
         {/* ===================== LEFT COLUMN ===================== */}
         <div className="space-y-5">
           {/* Case header card */}
           <div className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
-            <div className="p-5">
-              <div className="flex items-start justify-between gap-4">
+            <div className="p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs font-semibold text-[#9CA3AF]">
                       {baseCase.id}
                     </span>
@@ -354,41 +354,43 @@ export default function CaseWorkspace() {
                       {baseCase.severity}
                     </span>
                   </div>
-                  <h2 className="mt-1.5 text-xl font-bold tracking-tight text-white">
+                  <h2 className="mt-2 max-w-4xl text-xl font-bold leading-tight tracking-tight text-white sm:text-2xl">
                     {baseCase.title}
                   </h2>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#374151] px-3 py-1 text-xs font-medium text-[#CBD5E0]">
+                <span className="inline-flex min-h-8 shrink-0 items-center gap-1.5 self-start rounded-full border border-[#374151] px-3 py-1 text-sm font-medium text-[#CBD5E0]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
                   Investigating
                 </span>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs leading-relaxed">
-                <div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm leading-relaxed">
+                <div className="min-w-max">
                   <span className="text-[#94A3B8]">Owner</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.owner}
                   </span>
                 </div>
-                <div>
+                <div className="min-w-max">
                   <span className="text-[#94A3B8]">People</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {participants.length}
                   </span>
                 </div>
-                <div>
+                <div className="min-w-max">
                   <span className="text-[#94A3B8]">Site</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
                     {baseCase.siteName}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                   <span className="text-[#94A3B8]">SLA</span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#374151] px-2 py-0.5 font-semibold text-[#CBD5E0]">
+                  <span className="inline-flex min-h-8 max-w-full items-center gap-1 rounded-full border border-[#374151] px-2.5 py-1 font-semibold text-[#CBD5E0]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
-                    {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
-                    {fmtDateTime(baseCase.sla.dueAt)}
+                    <span className="min-w-0">
+                      {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
+                      {fmtDateTime(baseCase.sla.dueAt)}
+                    </span>
                   </span>
                 </div>
               </div>
@@ -400,7 +402,7 @@ export default function CaseWorkspace() {
             </div>
 
             {campaign && (
-              <div className="flex items-center gap-2 border-t border-[#273142] bg-[#111827] px-5 py-2.5 text-xs">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-[#273142] bg-[#111827] px-4 py-3 text-sm sm:px-5">
                 <Icon name="hub" size={16} className="text-[#9CA3AF]" />
                 <span className="font-semibold text-[#9CA3AF]">
                   Campaign Linked:
@@ -418,30 +420,32 @@ export default function CaseWorkspace() {
 
           {/* Workspace tabs */}
           <div className="rounded-xl border border-[#273142] bg-[#171D29]">
-            <div className="flex gap-1 border-b border-[#273142] bg-[#111827] px-3 pt-2">
-              {WORKSPACE_TABS.map((t) => {
-                const active = tab === t.key
-                return (
-                  <button
-                    key={t.key}
-                    onClick={() => setTab(t.key)}
-                    className={`relative flex items-center gap-1.5 rounded-t-md px-3 py-2.5 text-xs font-semibold transition-colors ${
-                      active
-                        ? 'text-white'
-                        : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
-                    }`}
-                  >
-                    <Icon name={t.icon} size={16} />
-                    {t.label}
-                    {active && (
-                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#A78BFA]" />
-                    )}
-                  </button>
-                )
-              })}
+            <div className="overflow-x-auto border-b border-[#273142] bg-[#111827] px-3 pt-2">
+              <div className="flex min-w-max gap-1">
+                {WORKSPACE_TABS.map((t) => {
+                  const active = tab === t.key
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setTab(t.key)}
+                      className={`relative flex shrink-0 items-center gap-1.5 rounded-t-md px-3 py-2.5 text-sm font-semibold transition-colors ${
+                        active
+                          ? 'text-white'
+                          : 'text-[#A1A1AA] hover:bg-[#1F2937] hover:text-white'
+                      }`}
+                    >
+                      <Icon name={t.icon} size={16} />
+                      {t.label}
+                      {active && (
+                        <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[#A78BFA]" />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               {tab === 'timeline' && (
                 <TimelineTab
                   timeline={timeline}
@@ -470,7 +474,7 @@ export default function CaseWorkspace() {
         </div>
 
         {/* ===================== RIGHT COLUMN ===================== */}
-        <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2 min-[1800px]:block min-[1800px]:space-y-5">
           {/* Person profile */}
           {baseCase.person && <PersonCard person={baseCase.person} />}
 
@@ -526,7 +530,7 @@ export default function CaseWorkspace() {
           {/* Generate Report */}
           <button
             onClick={() => setShowReport(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#374151] px-4 py-3 text-sm font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#374151] px-4 py-3 text-sm font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white xl:col-span-2 min-[1800px]:col-span-1"
           >
             <Icon name="auto_awesome" size={18} /> Generate Report
           </button>
@@ -556,8 +560,8 @@ function CaseContextStrip({
   const visibleTags = caseData.tags.slice(0, 4)
 
   return (
-    <div className="mt-4 grid gap-y-3 gap-x-4 rounded-lg border border-[#273142] border-t-white/5 bg-[#111827] p-3 pt-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <div className="grid grid-cols-3 gap-y-3 gap-x-4">
+    <div className="mt-4 grid gap-4 rounded-lg border border-[#273142] border-t-white/5 bg-[#111827] p-3 pt-4 min-[1700px]:grid-cols-[minmax(30rem,0.9fr)_minmax(0,1.1fr)]">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))] gap-3">
         <CompactContextItem label="Created" value={fmtDateTime(caseData.createdAt)} />
         <CompactContextItem label="Updated" value={fmtDateTime(caseData.updatedAt)} />
         <CompactContextItem label="SLA Due" value={fmtDateTime(caseData.sla.dueAt)} />
@@ -604,7 +608,7 @@ function CompactContextItem({ label, value }: { label: string; value: string }) 
       <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
         {label}
       </p>
-      <p className="mt-1 truncate text-xs font-semibold text-[#CBD5E0]" title={value}>
+      <p className="mt-1 text-sm font-semibold leading-snug text-[#CBD5E0]" title={value}>
         {value}
       </p>
     </div>
@@ -995,7 +999,7 @@ function TimelineTab({
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-semibold text-[#CBD5E0]">
           Investigation Timeline · {timeline.length} events
         </p>
@@ -1012,7 +1016,7 @@ function TimelineTab({
           <p className="mb-3 text-sm font-semibold text-[#CBD5E0]">
             New Manual Event
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="text-xs font-semibold text-[#9CA3AF]">
               Timestamp
               <input
@@ -1176,7 +1180,7 @@ function TimelineTab({
                 </div>
                 {/* Card */}
                 <div className={`min-w-0 flex-1 rounded-lg p-3 ${cardCls}`}>
-                  <div className="flex items-start gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="flex items-start gap-1.5 text-[15px] font-semibold leading-snug text-white">
@@ -1242,7 +1246,7 @@ function TimelineTab({
 
                     {/* Inline camera still */}
                     {ev.cameraPreview && (
-                      <div className="w-[100px] shrink-0">
+                      <div className="w-full max-w-[140px] shrink-0 sm:w-[100px]">
                         <CameraStill
                           channel={ev.cameraPreview.channel}
                           sceneType={ev.cameraPreview.sceneType}
@@ -1292,8 +1296,8 @@ function EvidenceTab() {
       <p className="mb-4 text-sm font-semibold text-[#CBD5E0]">
         Linked Evidence · {EVIDENCE.length} items · chain of custody preserved
       </p>
-      <div className="overflow-hidden rounded-lg border border-[#273142]">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-lg border border-[#273142]">
+        <table className="min-w-[760px] w-full text-left text-sm">
           <thead className="bg-[#111827] text-xs text-[#9CA3AF]">
             <tr>
               <th className="px-3 py-2.5 font-semibold">Type</th>
@@ -1411,7 +1415,7 @@ function TasksTab({
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
           Investigation Tasks
         </p>

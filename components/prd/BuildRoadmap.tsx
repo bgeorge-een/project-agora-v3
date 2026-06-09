@@ -86,7 +86,7 @@ const SLICES: Slice[] = [
 
 export default function BuildRoadmap() {
   return (
-    <section className="bg-[#F9FAFB] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Sequencing"
@@ -94,7 +94,7 @@ export default function BuildRoadmap() {
           subtitle="Eight vertical slices, each delivering a usable outcome and stacking toward full enterprise intelligence."
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {SLICES.map((slice) => {
             const color = THEME_COLOR[slice.theme]
             return (

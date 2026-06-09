@@ -15,9 +15,9 @@ import BuildRoadmap from '@/components/prd/BuildRoadmap'
 
 function BottomCTA() {
   return (
-    <section className="bg-[#EFF6FF] px-12 py-24">
+    <section className="bg-[#EFF6FF] px-4 py-16 sm:px-6 sm:py-20 lg:px-12 lg:py-24">
       <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight text-[#111827]">
+        <h2 className="text-[clamp(1.75rem,4vw,2.25rem)] font-extrabold leading-tight tracking-tight text-[#111827]">
           Ready to see it in action?
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-[#6B7280]">

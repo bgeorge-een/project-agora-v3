@@ -17,6 +17,7 @@ function StepCard({
 }: StepCardProps) {
   return (
     <div
+      className="max-w-full"
       style={{
         background,
         border: `1px solid ${borderColor}`,
@@ -27,14 +28,13 @@ function StepCard({
         color: textColor,
       }}
     >
-      <div style={{ whiteSpace: 'nowrap' }}>{title}</div>
+      <div>{title}</div>
       {subtitle && (
         <div
           style={{
             fontSize: 10,
             fontWeight: 500,
             opacity: 0.85,
-            whiteSpace: 'nowrap',
           }}
         >
           {subtitle}
@@ -120,7 +120,7 @@ const CARDINALITIES = [
 
 export default function AlertLifecycleFlow() {
   return (
-    <section className="bg-white px-12 py-20">
+    <section className="bg-white px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="End to end"

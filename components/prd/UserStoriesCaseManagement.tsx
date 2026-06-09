@@ -153,7 +153,7 @@ const TINT = '#F5F3FF'
 
 export default function UserStoriesCaseManagement() {
   return (
-    <section className="bg-[#F9FAFB] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="What investigators need to do"
@@ -161,7 +161,7 @@ export default function UserStoriesCaseManagement() {
           subtitle="Grouped by theme. Each story is paired with its key acceptance criteria."
         />
 
-        <div className="mt-12 space-y-8">
+        <div className="mt-10 space-y-8 lg:mt-12">
           {THEMES.map((theme) => (
             <div key={theme.name}>
               <div className="mb-3 flex items-center gap-3">
@@ -172,8 +172,31 @@ export default function UserStoriesCaseManagement() {
                   {theme.name}
                 </span>
               </div>
+
+              <div className="space-y-3 lg:hidden">
+                {theme.stories.map((s) => (
+                  <article
+                    key={s.story}
+                    className="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                  >
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#5B21B6]">
+                      Story
+                    </p>
+                    <h3 className="mt-1 text-base font-bold leading-snug text-[#111827]">
+                      {s.story}
+                    </h3>
+                    <p className="mt-4 text-xs font-bold uppercase tracking-wider text-[#5B21B6]">
+                      Key Acceptance Criteria
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-[#4B5563]">
+                      {s.criteria}
+                    </p>
+                  </article>
+                ))}
+              </div>
+
               <div
-                className="overflow-hidden rounded-lg border border-[#E5E7EB] bg-white"
+                className="hidden overflow-hidden rounded-lg border border-[#E5E7EB] bg-white lg:block"
                 style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
               >
                 <table className="w-full border-collapse text-sm">

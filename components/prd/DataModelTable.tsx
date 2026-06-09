@@ -124,7 +124,7 @@ const TERMS: Term[] = [
 
 export default function DataModelTable() {
   return (
-    <section className="bg-[#F9FAFB] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Shared vocabulary"
@@ -133,10 +133,10 @@ export default function DataModelTable() {
         />
 
         <div
-          className="mt-12 overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white"
+          className="mt-10 overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white"
           style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
         >
-          <table className="w-full border-collapse text-sm">
+          <table className="min-w-[58rem] w-full border-collapse text-sm lg:min-w-0">
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F3F4F6]">
                 <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#6B7280]">

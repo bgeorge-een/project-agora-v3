@@ -56,7 +56,7 @@ export default function MonitorView() {
         <h2 className="mb-3 text-base font-semibold text-white">
           Devices ({DEVICES.length})
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
           {DEVICES.map((d) => {
             const s = STATUS_STYLE[d.status]
             return (
@@ -78,10 +78,10 @@ export default function MonitorView() {
                       {KIND_ICON[d.kind]}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">
+                      <p className="text-sm font-semibold leading-snug text-white">
                         {d.name}
                       </p>
-                      <p className="truncate text-sm text-[#9CA3AF]">{d.zone}</p>
+                      <p className="text-sm leading-snug text-[#9CA3AF]">{d.zone}</p>
                     </div>
                   </div>
                   <span
@@ -100,33 +100,33 @@ export default function MonitorView() {
                   </span>
                 </div>
 
-                <div className="mt-3 flex gap-2 border-t border-[#273142] pt-3">
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-[#273142] pt-3">
                   {d.kind === 'access' ? (
                     <>
-                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
+                      <button className="min-h-10 flex-1 rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         Lock
                       </button>
-                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
+                      <button className="min-h-10 flex-1 rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         Unlock
                       </button>
-                      <button className="rounded-md bg-[#1D4ED8] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]">
+                      <button className="min-h-10 flex-[1.4] rounded-md bg-[#1D4ED8] px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#2563EB]">
                         Grant Access
                       </button>
                     </>
                   ) : d.kind === 'camera' ? (
                     <>
-                      <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
+                      <button className="min-h-10 flex-1 rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                         View Feed
                       </button>
                       <button
                         disabled={d.status === 'offline'}
-                        className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="min-h-10 flex-1 rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Reboot
                       </button>
                     </>
                   ) : (
-                    <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
+                    <button className="min-h-10 flex-1 rounded-md border border-[#374151] px-2.5 py-1 text-xs font-medium text-[#CBD5E0] transition-colors hover:bg-[#1F2937]">
                       Test Sensor
                     </button>
                   )}
@@ -142,7 +142,7 @@ export default function MonitorView() {
         <h2 className="mb-3 text-base font-semibold text-white">
           Video Mosaic
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {MOSAIC.map((tile) => (
             <div
               key={tile.name}

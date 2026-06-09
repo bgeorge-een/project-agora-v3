@@ -68,7 +68,7 @@ function PanelShell({
   children: ReactNode
 }) {
   return (
-    <aside className="flex h-full min-h-[460px] flex-col overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
+    <aside className="flex min-h-[360px] flex-col overflow-hidden rounded-xl border border-[#273142] bg-[#171D29] 2xl:h-full 2xl:min-h-[460px]">
       <div className="border-b border-[#273142] p-4">
         <div className="flex items-start gap-3">
           <span
@@ -90,7 +90,7 @@ function PanelShell({
           </div>
         </div>
       </div>
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4" style={{ scrollbarGutter: 'stable' }}>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 2xl:max-h-none" style={{ scrollbarGutter: 'stable' }}>
         {children}
       </div>
     </aside>
@@ -103,7 +103,7 @@ function StatGrid({
   stats: Array<{ label: string; value: string | number; tone?: string }>
 }) {
   return (
-    <dl className="grid grid-cols-2 gap-2">
+    <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {stats.map((stat) => (
         <div key={stat.label} className="rounded-lg border border-[#273142] bg-[#111827] px-3 py-2">
           <dt className="text-xs font-medium text-[#94A3B8]">{stat.label}</dt>
@@ -141,7 +141,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-bold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-bold leading-tight transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {icon && (
         <span
@@ -250,7 +250,7 @@ function DeviceRow({
             </p>
           )}
           <HealthEventList device={device} compact />
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <ActionButton icon="info" onClick={() => onSelectDevice(device.id)}>
               Details
             </ActionButton>
@@ -300,7 +300,7 @@ function IncidentCard({
           {alert.severity}
         </span>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         <ActionButton icon="visibility" onClick={() => onSelectIncident(alert.id)}>
           Preview
         </ActionButton>
@@ -485,7 +485,7 @@ function RegionPanel({
                   {site.riskLevel}
                 </span>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <ActionButton icon="location_on" onClick={() => onSelectSite(site.id)}>
                   Site
                 </ActionButton>
@@ -567,7 +567,7 @@ function SitePanel({
         ]}
       />
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <ActionButton icon="grid_view" onClick={() => onShowCameraWall(site.id)} variant="primary">
           View Cameras
         </ActionButton>
@@ -880,7 +880,7 @@ function LiveViewPanel({
           { label: 'Heartbeat', value: camera.lastHeartbeat },
         ]}
       />
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <ActionButton icon="photo_camera" disabled={!live}>Snapshot</ActionButton>
         <ActionButton icon="lock_clock" disabled={!live}>Lock Evidence</ActionButton>
         <ActionButton icon="movie" disabled={!live}>Open Clip</ActionButton>
@@ -961,7 +961,7 @@ function IncidentPanel({
           { label: 'Phase', value: alert.nba?.responsePhase ?? 'review' },
         ]}
       />
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <ActionButton icon="rate_review" onClick={() => onReviewIncident(alert)} variant="primary">
           Review Incident
         </ActionButton>

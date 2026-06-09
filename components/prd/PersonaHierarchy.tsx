@@ -131,7 +131,7 @@ function PersonaLadder({ title, accent, tint, icon, personas }: LadderProps) {
 
 export default function PersonaHierarchy() {
   return (
-    <section className="bg-[#F9FAFB] px-12 py-20">
+    <section className="bg-[#F9FAFB] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Who uses it"

@@ -50,7 +50,7 @@ function MarkCell({ mark, highlight = false }: { mark: Mark; highlight?: boolean
 
 export default function CompetitiveTable() {
   return (
-    <section className="bg-white px-12 py-20">
+    <section className="bg-white px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Where we win"
@@ -58,8 +58,8 @@ export default function CompetitiveTable() {
           subtitle="Incumbents each own a slice. Agora is the only platform that spans the full signal-to-learning loop."
         />
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)]">
-          <table className="w-full border-collapse text-sm">
+        <div className="mt-10 overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)]">
+          <table className="min-w-[44rem] w-full border-collapse text-sm lg:min-w-0">
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F8FAFC]">
                 <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#6B7280]">

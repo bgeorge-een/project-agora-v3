@@ -7,8 +7,8 @@ interface StageRowProps {
 
 function StageRow({ stage, children }: StageRowProps) {
   return (
-    <div className="flex items-stretch gap-4">
-      <div className="flex w-20 shrink-0 items-center justify-end pt-1">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-4">
+      <div className="flex shrink-0 items-center sm:w-20 sm:justify-end sm:pt-1">
         <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#9CA3AF]">
           {stage}
         </span>
@@ -91,7 +91,7 @@ const LEGEND = [
 
 export default function AgentPipelineDiagram() {
   return (
-    <section className="bg-white px-12 py-20">
+    <section className="bg-white px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-5xl">
         <SectionHeader
           label="The AI core"
@@ -99,7 +99,7 @@ export default function AgentPipelineDiagram() {
           subtitle="Every signal passes through the agent stack before any human sees it. Partial results stream to the app UI as each stage completes."
         />
 
-        <div className="mt-12 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-5 sm:p-8">
+        <div className="mt-10 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4 sm:p-6 lg:p-8">
           {/* STAGE 1 */}
           <StageRow stage="Stage 1">
             <NodeCard
@@ -127,7 +127,7 @@ export default function AgentPipelineDiagram() {
           {/* STAGE 3 — Enrichment with parallel fan-out */}
           <StageRow stage="Stage 3">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-              <div className="lg:w-[280px] lg:shrink-0">
+              <div className="lg:w-[min(17.5rem,38%)] lg:shrink-0">
                 <NodeCard
                   borderColor="#1D4ED8"
                   background="#EFF6FF"

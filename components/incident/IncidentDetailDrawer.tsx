@@ -143,7 +143,7 @@ function PersonCard({ person }: { person: PersonDetails }) {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
           <Field label="Badge ID" value={person.badgeId} mono icon="badge" />
           <Field label="Access Level" value={person.accessLevel} icon="security" />
           <Field label="Department" value={person.department} />
@@ -424,7 +424,7 @@ function TimelineRow({
 
             {/* Inline camera thumbnail */}
             {event.cameraPreview && (
-              <div className="w-[100px] shrink-0">
+              <div className="w-24 shrink-0 sm:w-[100px]">
                 <CameraStill
                   channel={event.cameraPreview.channel}
                   sceneType={event.cameraPreview.sceneType}
@@ -1065,15 +1065,15 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex justify-end bg-black/60 p-0 backdrop-blur-sm sm:p-3" onClick={onClose}>
       <div
-        className="flex h-full w-[80vw] max-w-[1400px] flex-col bg-[#0F1117] shadow-2xl"
+        className="flex h-full w-full max-w-[1400px] flex-col bg-[#0F1117] shadow-2xl sm:rounded-xl 2xl:w-[80vw]"
         style={{ borderLeft: `5px solid ${sevBadge.rail}` }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#334155] px-6 py-4">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="flex flex-col gap-3 border-b border-[#334155] px-4 py-4 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <span
               className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-extrabold"
               style={{ backgroundColor: sevBadge.bg, color: sevBadge.text }}
@@ -1101,12 +1101,12 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
               </span>
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
-            <h2 className="truncate text-lg font-bold text-white">{alert.title}</h2>
+            <h2 className="min-w-0 text-lg font-bold leading-tight text-white">{alert.title}</h2>
           </div>
           <button
             onClick={onClose}
             aria-label="Close incident response drawer"
-            className="ml-4 flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-[#CBD5E1] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98]"
+            className="flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium text-[#CBD5E1] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98] xl:ml-4"
           >
             <span
               className="material-symbols-outlined"
@@ -1120,13 +1120,13 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         </div>
 
         {/* Body */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[60%_40%]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,58%)_minmax(360px,42%)] lg:overflow-hidden">
           {/* LEFT — Evidence */}
           <div
-            className="min-h-0 overflow-y-auto border-r border-[#334155] p-6"
+            className="min-w-0 border-b border-[#334155] p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-r"
             style={{ scrollbarGutter: 'stable' }}
           >
-            <p className="mb-2 text-sm font-medium text-[#CBD5E1]">
+            <p className="mb-2 break-words text-sm font-medium text-[#CBD5E1]">
               {alert.location} · {alert.siteName}
             </p>
 
@@ -1309,7 +1309,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
           {/* RIGHT — NBA + SOP + Actions */}
           <div
-            className="min-h-0 overflow-y-auto p-6"
+            className="min-w-0 p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto"
             style={{ scrollbarGutter: 'stable' }}
           >
             {nba ? (
@@ -1486,7 +1486,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                 </div>
 
                 {/* Action footer */}
-                <footer className="sticky bottom-0 z-10 -mx-6 -mb-6 border-t border-[#334155] bg-[#0F1117]/95 px-6 py-5 backdrop-blur transform-gpu will-change-transform">
+                <footer className="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-[#334155] bg-[#0F1117]/95 px-4 py-4 backdrop-blur transform-gpu will-change-transform sm:-mx-6 sm:-mb-6 sm:px-6 sm:py-5">
                   <button
                     onClick={handleAccept}
                     disabled={executionStarted && !allActionsComplete}
