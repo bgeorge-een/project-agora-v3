@@ -28,7 +28,7 @@ const LAYERS: Layer[] = [
     shapeCount: 180,
     bg: '#DBEAFE',
     accent: '#1D4ED8',
-    funnelPath: 'M64 0 H336 L308 112 H92 Z',
+    funnelPath: 'M42 0 H378 L346 160 H74 Z',
   },
   {
     num: 2,
@@ -41,7 +41,7 @@ const LAYERS: Layer[] = [
     shapeCount: 30,
     bg: '#BFDBFE',
     accent: '#2563EB',
-    funnelPath: 'M92 112 H308 L280 202 H120 Z',
+    funnelPath: 'M74 160 H346 L306 320 H114 Z',
   },
   {
     num: 3,
@@ -54,7 +54,7 @@ const LAYERS: Layer[] = [
     shapeCount: 4,
     bg: '#60A5FA',
     accent: '#1D4ED8',
-    funnelPath: 'M120 202 H280 L238 302 H162 Z',
+    funnelPath: 'M114 320 H306 L250 480 H170 Z',
     note: 'Notification',
   },
   {
@@ -68,7 +68,7 @@ const LAYERS: Layer[] = [
     shapeCount: 1,
     bg: '#1E3A5F',
     accent: '#93C5FD',
-    funnelPath: 'M162 302 H238 V402 H162 Z',
+    funnelPath: 'M170 480 H250 V640 H170 Z',
   },
 ]
 
@@ -79,8 +79,8 @@ function LayerShapes({ layer }: { layer: Layer }) {
         {Array.from({ length: layer.shapeCount }).map((_, i) => {
           const row = Math.floor(i / 18)
           const col = i % 18
-          const x = 82 + col * 13 + ((row % 2) * 5)
-          const y = 12 + row * 10
+          const x = 88 + col * 13 + ((row % 2) * 5)
+          const y = 28 + row * 13
           return <circle key={i} cx={x} cy={y} r="2.5" fill={layer.accent} opacity="0.72" />
         })}
       </g>
@@ -93,8 +93,8 @@ function LayerShapes({ layer }: { layer: Layer }) {
         {Array.from({ length: layer.shapeCount }).map((_, i) => {
           const row = Math.floor(i / 10)
           const col = i % 10
-          const x = 132 + col * 15 + ((row % 2) * 6)
-          const y = 132 + row * 18
+          const x = 128 + col * 15 + ((row % 2) * 6)
+          const y = 204 + row * 24
           return <rect key={i} x={x} y={y} width="9" height="9" fill={layer.accent} opacity="0.86" />
         })}
       </g>
@@ -105,10 +105,10 @@ function LayerShapes({ layer }: { layer: Layer }) {
     return (
       <g>
         {[
-          [178, 248],
-          [222, 248],
-          [200, 216],
-          [200, 276],
+          [178, 408],
+          [222, 408],
+          [200, 370],
+          [200, 448],
         ].map(([x, y], i) => (
           <path
             key={i}
@@ -124,7 +124,7 @@ function LayerShapes({ layer }: { layer: Layer }) {
   return (
     <g>
       <path
-        d="M200 328 L212 366 H252 L220 389 L232 428 L200 404 L168 428 L180 389 L148 366 H188 Z"
+        d="M210 512 L224 558 H270 L233 588 L247 636 L210 607 L173 636 L187 588 L150 558 H196 Z"
         fill={layer.accent}
       />
     </g>
@@ -147,52 +147,38 @@ function FunnelBand({ layer }: { layer: Layer }) {
 
 function FunnelGraphic() {
   return (
-    <div className="relative">
+    <div className="absolute inset-x-4 inset-y-0 flex items-center justify-center sm:inset-x-6 lg:inset-x-5">
       <svg
-        viewBox="0 0 460 470"
-        className="h-[470px] w-full max-w-[520px]"
+        viewBox="0 0 420 640"
+        className="h-full w-full max-w-full"
+        preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="Funnel reducing raw signals into events, alerts, and incidents"
       >
-        <ellipse cx="200" cy="0" rx="137" ry="18" fill="none" stroke="#1E6091" strokeWidth="3" />
+        <ellipse cx="210" cy="0" rx="168" ry="20" fill="none" stroke="#1E6091" strokeWidth="3" />
         {LAYERS.map((layer) => (
           <FunnelBand key={layer.num} layer={layer} />
         ))}
 
-        <line x1="64" y1="0" x2="162" y2="302" stroke="#1E6091" strokeWidth="3" />
-        <line x1="336" y1="0" x2="238" y2="302" stroke="#1E6091" strokeWidth="3" />
-        <line x1="162" y1="402" x2="162" y2="452" stroke="#1E6091" strokeWidth="3" />
-        <line x1="238" y1="402" x2="238" y2="452" stroke="#1E6091" strokeWidth="3" />
+        <line x1="42" y1="0" x2="170" y2="480" stroke="#1E6091" strokeWidth="3" />
+        <line x1="378" y1="0" x2="250" y2="480" stroke="#1E6091" strokeWidth="3" />
 
-        <line x1="280" y1="252" x2="374" y2="252" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4 4" />
-        <text x="385" y="256" fill="#C2410C" fontSize="13" fontWeight="700">
+        <line x1="306" y1="400" x2="360" y2="400" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4 4" />
+        <text x="366" y="404" fill="#C2410C" fontSize="13" fontWeight="700">
           Notification
         </text>
-
-        <line x1="200" y1="452" x2="200" y2="466" stroke="#64748B" strokeWidth="1.5" />
-        <text x="186" y="468" fill="#64748B" fontSize="13">
-          resolved
-        </text>
       </svg>
-
-      <div className="mt-2 flex justify-center">
-        <div className="inline-flex items-center gap-2 rounded-lg border border-[#C4B5FD] bg-[#F5F3FF] px-3 py-2 text-sm font-bold text-[#5B21B6]">
-          <span>Incident closed</span>
-          <span aria-hidden>→</span>
-          <span>Case file when promoted</span>
-        </div>
-      </div>
     </div>
   )
 }
 
 function LayerRow({ layer }: { layer: Layer }) {
   return (
-    <div className="grid min-h-[112px] grid-cols-[minmax(0,1fr)_160px] items-center gap-5 border-b border-[#D6E3F1] last:border-b-0">
-      <div className="py-5">
+    <div className="min-h-[clamp(8.75rem,12vw,10rem)] border-b border-[#D6E3F1] px-5 last:border-b-0 sm:px-7">
+      <div className="flex h-full flex-col justify-center py-5">
         <div className="flex items-center gap-3">
           <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-black text-white"
             style={{ backgroundColor: layer.accent }}
           >
             {layer.num}
@@ -206,24 +192,17 @@ function LayerRow({ layer }: { layer: Layer }) {
             </span>
           </span>
           <div className="min-w-0">
-            <h3 className="text-2xl font-black leading-tight text-[#0F172A]">
-              {layer.num}. {layer.label}{' '}
-              <span className="text-xl font-extrabold text-[#173B57]">({layer.sub})</span>
+            <h3 className="flex flex-wrap items-baseline gap-x-2 text-[clamp(1.25rem,2vw,1.5rem)] font-black leading-[1.15] text-[#0F172A]">
+              <span>{layer.label}</span>
+              <span className="text-[clamp(1rem,1.5vw,1.125rem)] font-extrabold text-[#173B57]">
+                ({layer.sub})
+              </span>
             </h3>
           </div>
         </div>
-        <p className="mt-3 max-w-2xl text-base leading-[1.45] text-[#173B57]">
+        <p className="mt-3 max-w-[68ch] text-[clamp(0.95rem,1.15vw,1rem)] leading-[1.5] text-[#173B57]">
           {layer.description}
         </p>
-      </div>
-
-      <div className="hidden items-center justify-center lg:flex">
-        <span
-          className="rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide"
-          style={{ borderColor: layer.accent, color: layer.accent, backgroundColor: layer.bg }}
-        >
-          {layer.shape}
-        </span>
       </div>
     </div>
   )
@@ -231,7 +210,7 @@ function LayerRow({ layer }: { layer: Layer }) {
 
 export default function SignalFunnelDiagram() {
   return (
-    <section className="bg-[#EFF6FF] px-12 py-20">
+    <section className="bg-[#EFF6FF] px-4 py-16 sm:px-6 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Signal hierarchy"
@@ -239,15 +218,25 @@ export default function SignalFunnelDiagram() {
           subtitle="Each definition maps directly to the same layer in the funnel: dots become events, events become alerts, and only accepted/correlated alerts become incidents."
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]">
-          <div className="overflow-hidden rounded-xl border border-[#D6E3F1] bg-white shadow-sm">
-            {LAYERS.map((layer) => (
-              <LayerRow key={layer.num} layer={layer} />
-            ))}
-          </div>
+        <div className="mt-12 overflow-hidden rounded-xl border border-[#D6E3F1] bg-white shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)]">
+            <div className="grid lg:[grid-template-rows:repeat(4,minmax(clamp(8.75rem,12vw,10rem),1fr))]">
+              {LAYERS.map((layer) => (
+                <LayerRow key={layer.num} layer={layer} />
+              ))}
+            </div>
 
-          <div className="flex items-center justify-center rounded-xl border border-[#D6E3F1] bg-white/70 p-6 shadow-sm">
-            <FunnelGraphic />
+            <div className="relative min-h-[clamp(24rem,65vw,40rem)] border-t border-[#D6E3F1] bg-[#F8FBFF] lg:min-h-0 lg:border-l lg:border-t-0">
+              <FunnelGraphic />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-[#C4B5FD] bg-[#F5F3FF] px-4 py-2 text-sm font-bold text-[#5B21B6]">
+            <span>Incident closed</span>
+            <span aria-hidden>→</span>
+            <span>Case file when promoted</span>
           </div>
         </div>
 
