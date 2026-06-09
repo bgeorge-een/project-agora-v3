@@ -1,251 +1,6 @@
 import SectionHeader from '@/components/ui/SectionHeader'
 
-/* ── Particle shapes ──────────────────────────────────────── */
-
-function Dots({ count, color }: { count: number; color: string }) {
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, padding: '10px 12px' }}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }}
-        />
-      ))}
-    </div>
-  )
-}
-
-function Squares({ count, color }: { count: number; color: string }) {
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, padding: '10px 12px' }}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} style={{ width: 9, height: 9, background: color, flexShrink: 0 }} />
-      ))}
-    </div>
-  )
-}
-
-function Triangles({ count, color }: { count: number; color: string }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 7,
-        padding: '12px 10px',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {Array.from({ length: count }).map((_, i) => (
-        <span key={i} style={{ fontSize: 17, color, lineHeight: 1 }}>
-          ▲
-        </span>
-      ))}
-    </div>
-  )
-}
-
-function Stars({ count, color }: { count: number; color: string }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 10,
-        padding: '14px 8px',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {Array.from({ length: count }).map((_, i) => (
-        <span key={i} style={{ fontSize: 26, color, lineHeight: 1 }}>
-          ★
-        </span>
-      ))}
-    </div>
-  )
-}
-
-/* ── Funnel graphic ───────────────────────────────────────── */
-
-function FunnelGraphic() {
-  const TUBE_W = '32%'
-
-  return (
-    <div style={{ position: 'relative', width: 300, userSelect: 'none' }}>
-      {/* ── Main funnel: Signal + Event + Alert ── */}
-      <div
-        style={{
-          clipPath: 'polygon(4% 0%, 96% 0%, 66% 100%, 34% 100%)',
-          filter: 'drop-shadow(0 3px 10px rgba(37,99,235,0.18))',
-        }}
-      >
-        {/* Signal */}
-        <div style={{ background: '#DBEAFE', height: 130, overflow: 'hidden' }}>
-          <Dots count={52} color="#93C5FD" />
-        </div>
-        {/* Event */}
-        <div style={{ background: '#93C5FD', height: 105, overflow: 'hidden' }}>
-          <Squares count={24} color="#2563EB" />
-        </div>
-        {/* Alert */}
-        <div style={{ background: '#3B82F6', height: 90, overflow: 'hidden' }}>
-          <Triangles count={10} color="#BFDBFE" />
-        </div>
-      </div>
-
-      {/* ── Neck connector ── */}
-      <div
-        style={{
-          width: TUBE_W,
-          margin: '0 auto',
-          height: 3,
-          background: '#2563EB',
-          borderLeft: '2px solid #1D4ED8',
-          borderRight: '2px solid #1D4ED8',
-        }}
-      />
-
-      {/* ── Tube: Incident ── */}
-      <div
-        style={{
-          width: TUBE_W,
-          margin: '0 auto',
-          background: '#1E3A5F',
-          borderLeft: '2px solid #172130',
-          borderRight: '2px solid #172130',
-        }}
-      >
-        <Stars count={2} color="#93C5FD" />
-      </div>
-
-      {/* ── Tube bottom cap ── */}
-      <div
-        style={{
-          width: TUBE_W,
-          margin: '0 auto',
-          height: 3,
-          background: '#172130',
-        }}
-      />
-
-      {/* ── Below: Incident resolved branch ── */}
-      <div
-        style={{
-          width: TUBE_W,
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          paddingTop: 8,
-          gap: 4,
-        }}
-      >
-        <span style={{ color: '#6B7280', fontSize: 18, lineHeight: 1 }}>↓</span>
-        <div
-          style={{
-            background: '#EFF6FF',
-            border: '1.5px solid #2563EB',
-            borderRadius: 6,
-            padding: '4px 10px',
-            fontSize: 11,
-            fontWeight: 700,
-            color: '#1E40AF',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Resolved
-        </div>
-      </div>
-
-      {/* ── Case offshoot ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-          marginTop: 8,
-        }}
-      >
-        <span style={{ color: '#9CA3AF', fontSize: 12 }}>↓ continue</span>
-        <span style={{ color: '#D1D5DB', fontSize: 12 }}>or</span>
-        <span style={{ color: '#7C3AED', fontSize: 12 }}>→ promote</span>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          marginTop: 6,
-        }}
-      >
-        <div
-          style={{
-            background: '#EFF6FF',
-            border: '1.5px solid #93C5FD',
-            borderRadius: 6,
-            padding: '5px 10px',
-            fontSize: 11,
-            fontWeight: 600,
-            color: '#1D4ED8',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Closed
-        </div>
-        <span style={{ color: '#7C3AED', fontSize: 14 }}>→</span>
-        <div
-          style={{
-            background: '#F5F3FF',
-            border: '1.5px solid #7C3AED',
-            borderRadius: 6,
-            padding: '5px 10px',
-            fontSize: 11,
-            fontWeight: 700,
-            color: '#5B21B6',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Case (forensic)
-        </div>
-      </div>
-
-      {/* ── Notification offshoot label ── */}
-      {/* Positioned at the right of the Alert layer: top of funnel body = 0, Alert starts at 130+105=235px */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 235 + 45, // midpoint of Alert section (90px tall)
-          right: -12,
-          transform: 'translate(100%, -50%)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-        }}
-      >
-        <span style={{ color: '#EA580C', fontSize: 13 }}>→</span>
-        <div
-          style={{
-            background: '#FFF7ED',
-            border: '1.5px solid #EA580C',
-            borderRadius: 6,
-            padding: '4px 9px',
-            fontSize: 11,
-            fontWeight: 700,
-            color: '#C2410C',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Notification
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── Layer icons ──────────────────────────────────────────── */
+type Shape = 'dots' | 'squares' | 'triangles' | 'stars'
 
 interface Layer {
   num: number
@@ -253,9 +8,12 @@ interface Layer {
   label: string
   sub: string
   description: string
-  accentBg: string
-  accentColor: string
-  sideNote?: { label: string; color: string; bg: string; border: string }
+  shape: Shape
+  shapeCount: number
+  bg: string
+  accent: string
+  funnelPath: string
+  note?: string
 }
 
 const LAYERS: Layer[] = [
@@ -265,9 +23,12 @@ const LAYERS: Layer[] = [
     label: 'Signal',
     sub: 'Ingest & Log',
     description:
-      'Raw device telemetry. One data point from one device — a motion pixel change, door contact, badge scan. Millions per day. Invisible to users; processed by the platform only.',
-    accentBg: '#DBEAFE',
-    accentColor: '#1E40AF',
+      'Raw device telemetry. A single data point from one device, such as a motion pixel change, door contact, badge scan, temperature reading, or camera frame. Visible to the system only.',
+    shape: 'dots',
+    shapeCount: 180,
+    bg: '#DBEAFE',
+    accent: '#1D4ED8',
+    funnelPath: 'M64 0 H336 L308 112 H92 Z',
   },
   {
     num: 2,
@@ -275,194 +36,239 @@ const LAYERS: Layer[] = [
     label: 'Event',
     sub: 'Process & Audit',
     description:
-      'A normalized, meaningful state change produced from one or more signals. "Door opened," "Person entered Zone B." Logged and queryable. Visible in audit logs — not necessarily actionable.',
-    accentBg: '#BFDBFE',
-    accentColor: '#1D4ED8',
+      'A normalized state change or threshold violation from one or more signals. Logged and queryable for audit, but not necessarily actionable.',
+    shape: 'squares',
+    shapeCount: 30,
+    bg: '#BFDBFE',
+    accent: '#2563EB',
+    funnelPath: 'M92 112 H308 L280 202 H120 Z',
   },
   {
     num: 3,
     icon: 'warning',
     label: 'Alert',
-    sub: 'Triage & Acknowledge',
+    sub: 'Alert & Acknowledge',
     description:
-      'An event that matched a security policy — surfaced to the operator queue. Requires a triage decision: accept (→ Incident) or dismiss (→ FeedbackRecord). Also fires Notifications to configured recipients.',
-    accentBg: '#93C5FD',
-    accentColor: '#1E40AF',
-    sideNote: {
-      label: '→ Notification (push / SMS / email)',
-      color: '#C2410C',
-      bg: '#FFF7ED',
-      border: '#FED7AA',
-    },
+      'An event that violates a security policy and reaches the operator queue. Requires triage: dismiss with feedback or accept into an incident workflow.',
+    shape: 'triangles',
+    shapeCount: 4,
+    bg: '#60A5FA',
+    accent: '#1D4ED8',
+    funnelPath: 'M120 202 H280 L238 302 H162 Z',
+    note: 'Notification',
   },
   {
     num: 4,
     icon: 'emergency',
     label: 'Incident',
-    sub: 'Contain & Resolve',
+    sub: 'Investigate & Resolve',
     description:
-      'A confirmed, active threat that an operator has accepted and is managing in real time. Open while the threat is active. Closes when neutralized. Can be promoted to a Case for deep forensic investigation.',
-    accentBg: '#1E3A5F',
-    accentColor: '#BFDBFE',
-    sideNote: {
-      label: '→ Case (on promotion — forensic path)',
-      color: '#5B21B6',
-      bg: '#F5F3FF',
-      border: '#C4B5FD',
-    },
+      'A cluster of correlated alarms and context that demands a workflow, such as forced door plus motion plus video confirmation. Resolved incidents can create a case file.',
+    shape: 'stars',
+    shapeCount: 1,
+    bg: '#1E3A5F',
+    accent: '#93C5FD',
+    funnelPath: 'M162 302 H238 V402 H162 Z',
   },
 ]
 
-/* ── Main export ──────────────────────────────────────────── */
+function LayerShapes({ layer }: { layer: Layer }) {
+  if (layer.shape === 'dots') {
+    return (
+      <g>
+        {Array.from({ length: layer.shapeCount }).map((_, i) => {
+          const row = Math.floor(i / 18)
+          const col = i % 18
+          const x = 82 + col * 13 + ((row % 2) * 5)
+          const y = 12 + row * 10
+          return <circle key={i} cx={x} cy={y} r="2.5" fill={layer.accent} opacity="0.72" />
+        })}
+      </g>
+    )
+  }
+
+  if (layer.shape === 'squares') {
+    return (
+      <g>
+        {Array.from({ length: layer.shapeCount }).map((_, i) => {
+          const row = Math.floor(i / 10)
+          const col = i % 10
+          const x = 132 + col * 15 + ((row % 2) * 6)
+          const y = 132 + row * 18
+          return <rect key={i} x={x} y={y} width="9" height="9" fill={layer.accent} opacity="0.86" />
+        })}
+      </g>
+    )
+  }
+
+  if (layer.shape === 'triangles') {
+    return (
+      <g>
+        {[
+          [178, 248],
+          [222, 248],
+          [200, 216],
+          [200, 276],
+        ].map(([x, y], i) => (
+          <path
+            key={i}
+            d={`M${x} ${y - 16} L${x - 17} ${y + 15} H${x + 17} Z`}
+            fill="#DBEAFE"
+            opacity="0.9"
+          />
+        ))}
+      </g>
+    )
+  }
+
+  return (
+    <g>
+      <path
+        d="M200 328 L212 366 H252 L220 389 L232 428 L200 404 L168 428 L180 389 L148 366 H188 Z"
+        fill={layer.accent}
+      />
+    </g>
+  )
+}
+
+function FunnelBand({ layer }: { layer: Layer }) {
+  return (
+    <g>
+      <path d={layer.funnelPath} fill={layer.bg} stroke="#1E6091" strokeWidth="2.5" />
+      <clipPath id={`clip-${layer.num}`}>
+        <path d={layer.funnelPath} />
+      </clipPath>
+      <g clipPath={`url(#clip-${layer.num})`}>
+        <LayerShapes layer={layer} />
+      </g>
+    </g>
+  )
+}
+
+function FunnelGraphic() {
+  return (
+    <div className="relative">
+      <svg
+        viewBox="0 0 460 470"
+        className="h-[470px] w-full max-w-[520px]"
+        role="img"
+        aria-label="Funnel reducing raw signals into events, alerts, and incidents"
+      >
+        <ellipse cx="200" cy="0" rx="137" ry="18" fill="none" stroke="#1E6091" strokeWidth="3" />
+        {LAYERS.map((layer) => (
+          <FunnelBand key={layer.num} layer={layer} />
+        ))}
+
+        <line x1="64" y1="0" x2="162" y2="302" stroke="#1E6091" strokeWidth="3" />
+        <line x1="336" y1="0" x2="238" y2="302" stroke="#1E6091" strokeWidth="3" />
+        <line x1="162" y1="402" x2="162" y2="452" stroke="#1E6091" strokeWidth="3" />
+        <line x1="238" y1="402" x2="238" y2="452" stroke="#1E6091" strokeWidth="3" />
+
+        <line x1="280" y1="252" x2="374" y2="252" stroke="#EA580C" strokeWidth="1.5" strokeDasharray="4 4" />
+        <text x="385" y="256" fill="#C2410C" fontSize="13" fontWeight="700">
+          Notification
+        </text>
+
+        <line x1="200" y1="452" x2="200" y2="466" stroke="#64748B" strokeWidth="1.5" />
+        <text x="186" y="468" fill="#64748B" fontSize="13">
+          resolved
+        </text>
+      </svg>
+
+      <div className="mt-2 flex justify-center">
+        <div className="inline-flex items-center gap-2 rounded-lg border border-[#C4B5FD] bg-[#F5F3FF] px-3 py-2 text-sm font-bold text-[#5B21B6]">
+          <span>Incident closed</span>
+          <span aria-hidden>→</span>
+          <span>Case file when promoted</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LayerRow({ layer }: { layer: Layer }) {
+  return (
+    <div className="grid min-h-[112px] grid-cols-[minmax(0,1fr)_160px] items-center gap-5 border-b border-[#D6E3F1] last:border-b-0">
+      <div className="py-5">
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
+            style={{ backgroundColor: layer.accent }}
+          >
+            {layer.num}
+          </span>
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: layer.bg, color: layer.accent }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 22, lineHeight: 1 }}>
+              {layer.icon}
+            </span>
+          </span>
+          <div className="min-w-0">
+            <h3 className="text-2xl font-black leading-tight text-[#0F172A]">
+              {layer.num}. {layer.label}{' '}
+              <span className="text-xl font-extrabold text-[#173B57]">({layer.sub})</span>
+            </h3>
+          </div>
+        </div>
+        <p className="mt-3 max-w-2xl text-base leading-[1.45] text-[#173B57]">
+          {layer.description}
+        </p>
+      </div>
+
+      <div className="hidden items-center justify-center lg:flex">
+        <span
+          className="rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide"
+          style={{ borderColor: layer.accent, color: layer.accent, backgroundColor: layer.bg }}
+        >
+          {layer.shape}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 export default function SignalFunnelDiagram() {
   return (
-    <section className="px-12 py-20" style={{ background: '#EFF6FF' }}>
+    <section className="bg-[#EFF6FF] px-12 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           label="Signal hierarchy"
           title="From Raw Signal to Actionable Incident"
-          subtitle="Every alert an operator sees has passed through four layers of reduction. Case branches off after Incident — it is investigation, not further narrowing."
+          subtitle="Each definition maps directly to the same layer in the funnel: dots become events, events become alerts, and only accepted/correlated alerts become incidents."
         />
 
-        <div className="mt-12 grid grid-cols-1 items-start gap-16 lg:grid-cols-2">
-          {/* ── Left: definitions ── */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0,
-              borderRadius: 12,
-              overflow: 'hidden',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            }}
-          >
-            {LAYERS.map((layer, i) => (
-              <div
-                key={layer.label}
-                style={{
-                  background: 'white',
-                  borderBottom: i < LAYERS.length - 1 ? '1px solid #E5E7EB' : 'none',
-                  padding: '20px 22px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {/* Number badge */}
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      background: layer.accentBg,
-                      color: layer.accentColor === '#BFDBFE' ? '#1E3A5F' : layer.accentColor,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 13,
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {layer.num}
-                  </div>
-                  {/* Icon */}
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 8,
-                      background: layer.accentBg,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <span
-                      className="material-symbols-outlined"
-                      style={{
-                        fontSize: 20,
-                        color: layer.accentColor === '#BFDBFE' ? '#1E3A5F' : layer.accentColor,
-                      }}
-                    >
-                      {layer.icon}
-                    </span>
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                      <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
-                        {layer.label}
-                      </span>
-                      <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>
-                        {layer.sub}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <p style={{ fontSize: 13.5, color: '#374151', lineHeight: 1.6, marginTop: 10 }}>
-                  {layer.description}
-                </p>
-
-                {layer.sideNote && (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      background: layer.sideNote.bg,
-                      border: `1px solid ${layer.sideNote.border}`,
-                      borderRadius: 6,
-                      padding: '3px 10px',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: layer.sideNote.color,
-                    }}
-                  >
-                    {layer.sideNote.label}
-                  </div>
-                )}
-              </div>
+        <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]">
+          <div className="overflow-hidden rounded-xl border border-[#D6E3F1] bg-white shadow-sm">
+            {LAYERS.map((layer) => (
+              <LayerRow key={layer.num} layer={layer} />
             ))}
           </div>
 
-          {/* ── Right: funnel ── */}
-          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 20, paddingRight: 80 }}>
+          <div className="flex items-center justify-center rounded-xl border border-[#D6E3F1] bg-white/70 p-6 shadow-sm">
             <FunnelGraphic />
           </div>
         </div>
 
-        {/* ── Case callout ── */}
-        <div
-          style={{
-            marginTop: 32,
-            background: 'white',
-            border: '1px solid #E5E7EB',
-            borderRadius: 12,
-            padding: '18px 24px',
-            display: 'flex',
-            gap: 16,
-            alignItems: 'flex-start',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          }}
-        >
-          <span
-            className="material-symbols-outlined"
-            style={{ fontSize: 22, color: '#7C3AED', flexShrink: 0, marginTop: 2 }}
-          >
-            info
-          </span>
-          <div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>
-              Why Case is an offshoot, not a funnel layer
+        <div className="mt-8 rounded-xl border border-[#D6E3F1] bg-white p-5 shadow-sm">
+          <div className="flex gap-3">
+            <span
+              className="material-symbols-outlined shrink-0 text-[#7C3AED]"
+              style={{ fontSize: 24, lineHeight: 1 }}
+            >
+              info
             </span>
-            <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6, marginTop: 4 }}>
-              The funnel represents volume reduction — millions of signals narrowing down to a handful of
-              confirmed incidents. Case breaks that pattern: not every Incident becomes a Case, a single
-              Case can span multiple Incidents (a Campaign), and Cases can be opened manually. Case is a
-              deliberate forensic investigation triggered by a human decision — not a further filter.
-            </p>
+            <div>
+              <h3 className="text-base font-bold text-[#0F172A]">
+                Why Case is an offshoot, not a funnel layer
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-[#475569]">
+                The funnel represents volume reduction. Case breaks that pattern: not every Incident becomes a
+                Case, one Case can span multiple Incidents or a Campaign, and Cases can be opened manually.
+                Case is a deliberate forensic investigation triggered after or alongside incident resolution.
+              </p>
+            </div>
           </div>
         </div>
       </div>
