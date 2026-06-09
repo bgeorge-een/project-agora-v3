@@ -392,6 +392,11 @@ export default function CaseWorkspace() {
                   </span>
                 </div>
               </div>
+
+              <CaseContextStrip
+                caseData={baseCase}
+                entityRefs={baseCase.entityRefs}
+              />
             </div>
 
             {campaign && (
@@ -525,77 +530,6 @@ export default function CaseWorkspace() {
           >
             <Icon name="auto_awesome" size={18} /> Generate Report
           </button>
-
-          {/* Case Details */}
-          <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
-            <h3 className="mb-3 text-sm font-semibold text-white">
-              Case Details
-            </h3>
-            <dl className="space-y-2.5 text-xs">
-              <div className="flex justify-between">
-                <dt className="text-[#6B7280]">Created</dt>
-                <dd className="font-medium text-[#CBD5E0]">
-                  {fmtDateTime(baseCase.createdAt)}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#6B7280]">Updated</dt>
-                <dd className="font-medium text-[#CBD5E0]">
-                  {fmtDateTime(baseCase.updatedAt)}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[#6B7280]">SLA Due</dt>
-                <dd className="font-medium text-[#CBD5E0]">
-                  {fmtDateTime(baseCase.sla.dueAt)}
-                </dd>
-              </div>
-            </dl>
-            <div className="mt-4">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">
-                Tags
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {baseCase.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full border border-[#374151] px-2 py-0.5 text-[11px] font-medium text-[#9CA3AF]"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Entity refs */}
-          <div className="rounded-xl border border-[#273142] bg-[#171D29] p-5">
-            <h3 className="mb-3 text-sm font-semibold text-white">
-              Involved Entities
-            </h3>
-            <ul className="space-y-2">
-              {baseCase.entityRefs.map((e) => (
-                <li
-                  key={e.id}
-                  className="flex items-center gap-2.5 rounded-lg border border-[#273142] bg-[#111827] px-3 py-2"
-                >
-                  <Icon
-                    name={ENTITY_ICON[e.type]}
-                    size={18}
-                    className="text-[#9CA3AF]"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-[#CBD5E0]">
-                      {e.label}
-                    </p>
-                    <p className="text-[10px] uppercase tracking-wide text-[#6B7280]">
-                      {e.type}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
 
@@ -608,6 +542,71 @@ export default function CaseWorkspace() {
           onClose={() => setShowReport(false)}
         />
       )}
+    </div>
+  )
+}
+
+function CaseContextStrip({
+  caseData,
+  entityRefs,
+}: {
+  caseData: Case
+  entityRefs: Case['entityRefs']
+}) {
+  const visibleTags = caseData.tags.slice(0, 4)
+
+  return (
+    <div className="mt-4 grid gap-3 rounded-lg border border-[#273142] bg-[#111827] p-3 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <div className="grid grid-cols-3 gap-2">
+        <CompactContextItem label="Created" value={fmtDateTime(caseData.createdAt)} />
+        <CompactContextItem label="Updated" value={fmtDateTime(caseData.updatedAt)} />
+        <CompactContextItem label="SLA Due" value={fmtDateTime(caseData.sla.dueAt)} />
+      </div>
+
+      <div className="min-w-0 space-y-2">
+        <div className="flex flex-wrap gap-1.5">
+          {entityRefs.map((entity) => (
+            <span
+              key={entity.id}
+              className="inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border border-[#334155] bg-[#0F172A] px-2 text-xs font-semibold text-[#CBD5E0]"
+              title={`${entity.label} · ${entity.type}`}
+            >
+              <Icon
+                name={ENTITY_ICON[entity.type]}
+                size={14}
+                className="shrink-0 text-[#94A3B8]"
+              />
+              <span className="truncate">{entity.label}</span>
+              <span className="text-[10px] uppercase tracking-wide text-[#64748B]">
+                {entity.type}
+              </span>
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {visibleTags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-[#334155] px-2 py-0.5 text-[11px] font-medium text-[#94A3B8]"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CompactContextItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-[#273142] bg-[#0F172A] px-2.5 py-2">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#64748B]">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-xs font-semibold text-[#CBD5E0]" title={value}>
+        {value}
+      </p>
     </div>
   )
 }
