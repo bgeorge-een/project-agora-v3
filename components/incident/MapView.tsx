@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { Alert, Site } from '@/lib/types'
 import { ALERT_DETAILS, EXTERNAL_SIGNALS, MOCK_ALERTS, SITES } from '@/lib/mock-data/scenarios'
@@ -14,7 +14,6 @@ import {
   deviceById,
   devicesForSite,
   incidentsForSite,
-  regionById,
   siteById,
   type MapLayerPreset,
   type MapPanelSelection,
@@ -32,8 +31,7 @@ const RISK_COLOR: Record<Site['riskLevel'], string> = {
 function MapSkeleton() {
   return (
     <div
-      className="flex items-center justify-center rounded-xl border border-[#273142] bg-[#0B0E14]"
-      style={{ height: 620 }}
+      className="flex h-full min-h-[460px] items-center justify-center rounded-xl border border-[#273142] bg-[#0B0E14]"
     >
       <div className="flex flex-col items-center gap-3 text-[#94A3B8]">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2D3748] border-t-[#38BDF8]" />
@@ -53,41 +51,6 @@ function formatElapsed(seconds: number): string {
   const minutes = Math.floor(seconds / 60)
   if (minutes < 60) return `${minutes}m`
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
-}
-
-function PillButton({
-  selected,
-  children,
-  onClick,
-  icon,
-}: {
-  selected: boolean
-  children: ReactNode
-  onClick: () => void
-  icon?: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-bold transition-all active:scale-[0.98] ${
-        selected
-          ? 'bg-[#2563EB] text-white'
-          : 'border border-[#334155] bg-[#111827] text-[#CBD5E1] hover:bg-[#1F2937] hover:text-white'
-      }`}
-    >
-      {icon && (
-        <span
-          className="material-symbols-outlined"
-          aria-hidden="true"
-          style={{ fontSize: '18px', lineHeight: 1 }}
-        >
-          {icon}
-        </span>
-      )}
-      {children}
-    </button>
-  )
 }
 
 function Breadcrumbs({
@@ -156,6 +119,25 @@ function Breadcrumbs({
   )
 }
 
+function SummaryChip({
+  label,
+  value,
+  tone,
+}: {
+  label: string
+  value: string | number
+  tone?: string
+}) {
+  return (
+    <span className="flex min-h-8 items-center gap-2 rounded-md border border-[#273142] bg-[#111827] px-2.5 text-xs font-semibold text-[#CBD5E1]">
+      <span className="text-[#94A3B8]">{label}</span>
+      <span className="text-sm font-extrabold text-white" style={{ color: tone }}>
+        {value}
+      </span>
+    </span>
+  )
+}
+
 export default function MapView() {
   const [role, setRole] = useState<MapRole>('operator')
   const [scope, setScope] = useState<MapScope>('site')
@@ -189,6 +171,7 @@ export default function MapView() {
   const showSignals = layerPreset === 'external' || layerPreset === 'response'
   const showIncidents = layerPreset === 'response' || layerPreset === 'investigation'
   const showDevices = (layerPreset === 'health' || layerPreset === 'response' || layerPreset === 'investigation') && visibleDevices.length > 0
+  const oldestActive = formatElapsed(Math.max(...MOCK_ALERTS.map((alert) => alert.ageSeconds)))
 
   function selectRole(nextRole: MapRole) {
     const nextScope = defaultScopeForRole(nextRole)
@@ -255,124 +238,105 @@ export default function MapView() {
     setReviewAlert(alert)
   }
 
-  const selectedRegion = regionById(REGIONS[0].id)
-
   return (
-    <div className="space-y-4 bg-[#0F1117]">
-      <div className="rounded-xl border border-[#273142] bg-[#171D29] p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 className="text-base font-bold text-white">Operations Map</h2>
-            <p className="mt-1 max-w-2xl text-sm leading-[1.5] text-[#CBD5E1]">
-              Role-aware command view for regional posture, site operations, device health, cameras,
-              and incident review.
-            </p>
+    <div className="space-y-3 bg-[#0F1117]">
+      <div className="rounded-xl border border-[#273142] bg-[#171D29] px-4 py-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="mr-1 text-base font-bold text-white">Operations Map</h2>
+          <div className="min-w-0 flex-1">
+            <Breadcrumbs
+              scope={scope}
+              activeSite={activeSite}
+              selection={selection}
+              onScope={selectScope}
+              onSelectSite={selectSite}
+            />
           </div>
-          {criticalAlert && (
-            <button
-              type="button"
-              onClick={returnToCritical}
-              className="flex min-h-12 items-center gap-1.5 rounded-lg bg-[#FF453A] px-4 text-sm font-extrabold text-black transition-all hover:bg-[#FF6B61] active:scale-[0.98]"
-            >
-              <span
-                className="material-symbols-outlined"
-                aria-hidden="true"
-                style={{ fontSize: '18px', lineHeight: 1 }}
-              >
-                my_location
-              </span>
-              Return to Critical
-            </button>
-          )}
-        </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="map-role">
               Operating role
-            </p>
-            <div className="flex flex-wrap gap-2">
+            </label>
+            <select
+              id="map-role"
+              value={role}
+              onChange={(event) => selectRole(event.target.value as MapRole)}
+              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+              title={selectedRole.description}
+            >
               {ROLE_OPTIONS.map((option) => (
-                <PillButton
-                  key={option.id}
-                  selected={role === option.id}
-                  onClick={() => selectRole(option.id)}
-                >
+                <option key={option.id} value={option.id}>
                   {option.label}
-                </PillButton>
+                </option>
               ))}
-            </div>
-            <p className="mt-2 text-sm text-[#CBD5E1]">{selectedRole.description}</p>
-          </div>
+            </select>
 
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-              Altitude
-            </p>
-            <div className="flex flex-wrap gap-2">
+            <label className="sr-only" htmlFor="map-scope">
+              Map altitude
+            </label>
+            <select
+              id="map-scope"
+              value={scope}
+              onChange={(event) => selectScope(event.target.value as MapScope)}
+              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold capitalize text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+            >
               {(['global', 'regional', 'site', 'floor'] as MapScope[]).map((level) => (
-                <PillButton key={level} selected={scope === level} onClick={() => selectScope(level)}>
+                <option key={level} value={level}>
                   {level}
-                </PillButton>
+                </option>
               ))}
-            </div>
-          </div>
-        </div>
+            </select>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#273142] pt-4">
-          <Breadcrumbs
-            scope={scope}
-            activeSite={activeSite}
-            selection={selection}
-            onScope={selectScope}
-            onSelectSite={selectSite}
-          />
-          <div className="flex flex-wrap gap-2">
-            {LAYER_PRESETS.map((preset) => (
-              <PillButton
-                key={preset.id}
-                selected={layerPreset === preset.id}
-                onClick={() => setLayerPreset(preset.id)}
-                icon={preset.icon}
+            <label className="sr-only" htmlFor="map-layer">
+              Map layer
+            </label>
+            <select
+              id="map-layer"
+              value={layerPreset}
+              onChange={(event) => setLayerPreset(event.target.value as MapLayerPreset)}
+              className="min-h-10 rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+            >
+              {LAYER_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+            </select>
+
+            <SummaryChip label="Sites" value={SITES.length} />
+            <SummaryChip label="Open" value={totalOpen} tone="#FCA5A5" />
+            <SummaryChip label="Oldest" value={oldestActive} />
+            <SummaryChip label="Offline" value={totalOffline} tone={totalOffline ? '#FFB4AE' : undefined} />
+            {selectedSite && (
+              <SummaryChip
+                label={selectedSite.name}
+                value={`${selectedSite.riskLevel} risk`}
+                tone={RISK_COLOR[selectedSite.riskLevel]}
+              />
+            )}
+
+            {criticalAlert && (
+              <button
+                type="button"
+                onClick={returnToCritical}
+                className="flex min-h-10 items-center gap-1.5 rounded-lg bg-[#FF453A] px-3 text-sm font-extrabold text-black transition-all hover:bg-[#FF6B61] active:scale-[0.98]"
               >
-                {preset.label}
-              </PillButton>
-            ))}
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: '18px', lineHeight: 1 }}
+                >
+                  my_location
+                </span>
+                Return to Critical
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <div className="rounded-lg border border-[#273142] bg-[#171D29] p-4">
-          <p className="text-xs font-semibold text-[#94A3B8]">Sites</p>
-          <p className="mt-1 text-2xl font-bold text-white">{SITES.length}</p>
-          <p className="mt-1 text-xs font-medium text-[#CBD5E1]">{selectedRegion?.label ?? 'Global estate'}</p>
-        </div>
-        <div className="rounded-lg border border-[#273142] bg-[#171D29] p-4">
-          <p className="text-xs font-semibold text-[#94A3B8]">Open Incidents</p>
-          <p className="mt-1 text-2xl font-bold text-[#FCA5A5]">{totalOpen}</p>
-          <p className="mt-1 text-xs font-medium text-[#CBD5E1]">
-            Oldest active {formatElapsed(Math.max(...MOCK_ALERTS.map((alert) => alert.ageSeconds)))}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#273142] bg-[#171D29] p-4">
-          <p className="text-xs font-semibold text-[#94A3B8]">Offline Devices</p>
-          <p className="mt-1 text-2xl font-bold text-white">{totalOffline}</p>
-          <p className="mt-1 text-xs font-medium text-[#CBD5E1]">Camera and sensor coverage gaps</p>
-        </div>
-        <div className="rounded-lg border border-[#273142] bg-[#171D29] p-4">
-          <p className="text-xs font-semibold text-[#94A3B8]">Selected Site</p>
-          <p className="mt-1 truncate text-2xl font-bold text-white">{selectedSite?.name ?? 'Regional'}</p>
-          {selectedSite && (
-            <p className="mt-1 text-xs font-extrabold uppercase" style={{ color: RISK_COLOR[selectedSite.riskLevel] }}>
-              {selectedSite.riskLevel} risk
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_390px]">
-        <div className="relative overflow-hidden rounded-xl border border-[#273142] bg-[#0B0E14]">
+      <div className="grid grid-cols-1 gap-4 xl:h-[calc(100vh-230px)] xl:min-h-[560px] xl:max-h-[840px] xl:grid-cols-[minmax(0,1fr)_390px]">
+        <div className="relative h-[62vh] min-h-[460px] overflow-hidden rounded-xl border border-[#273142] bg-[#0B0E14] xl:h-full xl:min-h-0">
           <MapWithNoSSR
             sites={SITES}
             signals={EXTERNAL_SIGNALS}

@@ -58,7 +58,7 @@ function PanelShell({
   children: ReactNode
 }) {
   return (
-    <aside className="min-h-[560px] rounded-xl border border-[#273142] bg-[#171D29]">
+    <aside className="flex h-full min-h-[460px] flex-col overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
       <div className="border-b border-[#273142] p-4">
         <div className="flex items-start gap-3">
           <span
@@ -80,7 +80,9 @@ function PanelShell({
           </div>
         </div>
       </div>
-      <div className="space-y-4 p-4">{children}</div>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4" style={{ scrollbarGutter: 'stable' }}>
+        {children}
+      </div>
     </aside>
   )
 }

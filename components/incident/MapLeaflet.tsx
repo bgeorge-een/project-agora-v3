@@ -234,7 +234,7 @@ export default function MapLeaflet({
       : sites.filter((site) => site.id === activeSite)
 
   return (
-    <div style={{ height: 620 }} className="relative">
+    <div className="relative h-full min-h-0">
       <style>{`
         @keyframes agora-pulse {
           0%   { transform: scale(0.7); opacity: 0.35; }
