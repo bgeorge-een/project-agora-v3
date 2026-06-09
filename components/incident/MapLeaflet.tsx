@@ -6,6 +6,7 @@ import { Circle, MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-
 import type { Alert, ExternalContextSignal, Site } from '@/lib/types'
 import {
   deviceById,
+  incidentsForSite,
   linkedDevicesForIncident,
   regionById,
   siteById,
@@ -88,13 +89,13 @@ function markerHtml({
   `
 }
 
-function buildSiteIcon(site: Site, selected: boolean): L.DivIcon {
+function buildSiteIcon(site: Site, selected: boolean, openIncidentCount: number): L.DivIcon {
   const color = SITE_RISK_COLOR[site.riskLevel]
   return L.divIcon({
     html: markerHtml({
       color,
       icon: 'location_city',
-      count: site.openIncidents,
+      count: openIncidentCount,
       selected,
       pulse: site.riskLevel === 'critical' || site.riskLevel === 'high',
     }),
@@ -273,7 +274,7 @@ export default function MapLeaflet({
       <MapContainer
         center={scopeCenter(scope, activeSite, selection)}
         zoom={SCOPE_ZOOM[scope]}
-        scrollWheelZoom
+        scrollWheelZoom={false}
         style={{ height: '100%', width: '100%', borderRadius: 12 }}
       >
         <MapViewport scope={scope} activeSite={activeSite} selection={selection} />
@@ -306,31 +307,35 @@ export default function MapLeaflet({
             })
           })}
 
-        {visibleSites.map((site) => (
-          <Marker
-            key={site.id}
-            position={[site.lat, site.lng]}
-            icon={buildSiteIcon(site, selection.mode === 'site' && selection.id === site.id)}
-            zIndexOffset={selection.mode === 'site' && selection.id === site.id ? 1000 : 0}
-            eventHandlers={{ click: () => onSelectSite(site.id) }}
-          >
-            <Tooltip direction="top" opacity={1} className="agora-tooltip">
-              <div style={{ fontWeight: 800, color: '#FFFFFF' }}>{site.name}</div>
-              <div style={{ marginTop: 4, color: '#CBD5E1' }}>
-                {site.openIncidents} incidents · {site.activeAlerts} alerts ·{' '}
-                <span
-                  style={{
-                    color: SITE_RISK_COLOR[site.riskLevel],
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {site.riskLevel}
-                </span>
-              </div>
-            </Tooltip>
-          </Marker>
-        ))}
+        {visibleSites.map((site) => {
+          const openIncidentCount = incidentsForSite(site.id).length
+          return (
+            <Marker
+              key={site.id}
+              position={[site.lat, site.lng]}
+              icon={buildSiteIcon(site, selection.mode === 'site' && selection.id === site.id, openIncidentCount)}
+              title={`${site.name}: ${openIncidentCount} open incidents, ${site.riskLevel} risk`}
+              zIndexOffset={selection.mode === 'site' && selection.id === site.id ? 1000 : 0}
+              eventHandlers={{ click: () => onSelectSite(site.id) }}
+            >
+              <Tooltip direction="top" opacity={1} className="agora-tooltip">
+                <div style={{ fontWeight: 800, color: '#FFFFFF' }}>{site.name}</div>
+                <div style={{ marginTop: 4, color: '#CBD5E1' }}>
+                  {openIncidentCount} incidents · {site.activeAlerts} alerts ·{' '}
+                  <span
+                    style={{
+                      color: SITE_RISK_COLOR[site.riskLevel],
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {site.riskLevel}
+                  </span>
+                </div>
+              </Tooltip>
+            </Marker>
+          )
+        })}
 
         {showIncidents &&
           incidents.map((alert) => {
@@ -340,6 +345,7 @@ export default function MapLeaflet({
                 key={alert.id}
                 position={position}
                 icon={buildIncidentIcon(alert, selection.mode === 'incident' && selection.id === alert.id)}
+                title={`${alert.title}: ${alert.severity} at ${alert.location}`}
                 zIndexOffset={1500}
                 eventHandlers={{ click: () => onSelectIncident(alert.id) }}
               >
@@ -365,6 +371,7 @@ export default function MapLeaflet({
                 device,
                 (selection.mode === 'device' || selection.mode === 'live-view') && selection.id === device.id
               )}
+              title={`${device.name}: ${device.status}, ${device.floor} ${device.zone}`}
               zIndexOffset={device.kind === 'camera' ? 900 : 800}
               eventHandlers={{ click: () => onSelectDevice(device.id) }}
             >

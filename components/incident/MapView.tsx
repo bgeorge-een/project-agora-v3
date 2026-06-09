@@ -20,8 +20,10 @@ import {
   floorPlanIdForDevice,
   floorPlanIdForIncident,
   floorPlansForSite,
+  hasHealthEvents,
   incidentsForSite,
   incidentsForFloorPlan,
+  regionById,
   siteById,
   type MapFloorPlan,
   type MapLayerPreset,
@@ -79,6 +81,7 @@ function Breadcrumbs({
 }) {
   const site = siteById(activeSite)
   const selectedIncident = selection.mode === 'incident' ? MOCK_ALERTS.find((alert) => alert.id === selection.id) : null
+  const showSite = Boolean(site && (scope === 'site' || scope === 'floor'))
 
   return (
     <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label="Map hierarchy">
@@ -97,7 +100,7 @@ function Breadcrumbs({
       >
         South Central
       </button>
-      {site && (
+      {showSite && site && (
         <>
           <span className="text-[#64748B]">/</span>
           <button
@@ -158,8 +161,9 @@ export default function MapView() {
   const [reviewAlert, setReviewAlert] = useState<Alert | null>(null)
 
   const selectedRole = ROLE_OPTIONS.find((option) => option.id === role) ?? ROLE_OPTIONS[0]
-  const selectedSite = siteById(activeSite)
-  const totalOpen = SITES.reduce((count, site) => count + site.openIncidents, 0)
+  const selectedSite = scope === 'site' || scope === 'floor' ? siteById(activeSite) : null
+  const activeRegion = selection.mode === 'region' ? regionById(selection.id) : REGIONS[0]
+  const totalOpen = MOCK_ALERTS.length
   const totalOffline = SITES.reduce((count, site) => count + site.offlineDevices, 0)
   const criticalAlert = MOCK_ALERTS.find((alert) => alert.severity === 'critical' && alert.status === 'ready')
   const floorPlanOptions = floorPlansForSite(activeSite)
@@ -171,16 +175,40 @@ export default function MapView() {
   const floorPlanIncidents = activeFloorPlan ? incidentsForFloorPlan(activeFloorPlan.id) : []
 
   const visibleIncidents = useMemo(() => {
-    if (scope === 'global' || scope === 'regional' || !activeSite) {
+    if (scope === 'global') {
       return MOCK_ALERTS
     }
+    if (scope === 'regional') {
+      const region = selection.mode === 'region' ? regionById(selection.id) : REGIONS[0]
+      return MOCK_ALERTS.filter((alert) => region?.siteIds.includes(alert.siteId))
+    }
+    if (!activeSite) return MOCK_ALERTS
     return incidentsForSite(activeSite)
-  }, [activeSite, scope])
+  }, [activeSite, scope, selection])
+
+  const visibleSignals = useMemo(() => {
+    if (scope === 'global') return EXTERNAL_SIGNALS
+    if (scope === 'regional') {
+      return EXTERNAL_SIGNALS.filter((signal) =>
+        signal.affectedSiteIds.some((siteId) => activeRegion?.siteIds.includes(siteId))
+      )
+    }
+    if (!activeSite) return []
+    return EXTERNAL_SIGNALS.filter((signal) => signal.affectedSiteIds.includes(activeSite))
+  }, [activeRegion, activeSite, scope])
+
+  const mapSites = useMemo(() => {
+    if (scope === 'global') return SITES
+    if (scope === 'regional') {
+      return SITES.filter((site) => activeRegion?.siteIds.includes(site.id))
+    }
+    return activeSite ? SITES.filter((site) => site.id === activeSite) : SITES
+  }, [activeRegion, activeSite, scope])
 
   const visibleDevices = useMemo(() => {
     if (!activeSite || (scope !== 'site' && scope !== 'floor')) return []
     const devices = devicesForSite(activeSite)
-    if (layerPreset === 'health') return devices.filter((device) => device.status !== 'online')
+    if (layerPreset === 'health') return devices.filter(hasHealthEvents)
     if (layerPreset === 'response') return devices.filter((device) => device.linkedIncidentIds.length > 0)
     if (layerPreset === 'external') return []
     return devices
@@ -213,7 +241,11 @@ export default function MapView() {
     const nextScope = defaultScopeForRole(nextRole)
     setRole(nextRole)
     setScope(nextScope)
-    if (nextScope === 'global' || nextScope === 'regional') {
+    if (nextScope === 'global') {
+      setSelection({ mode: 'global', id: 'global' })
+      return
+    }
+    if (nextScope === 'regional') {
       setSelection({ mode: 'region', id: REGIONS[0].id })
       return
     }
@@ -225,7 +257,11 @@ export default function MapView() {
 
   function selectScope(nextScope: MapScope) {
     setScope(nextScope)
-    if (nextScope === 'global' || nextScope === 'regional') {
+    if (nextScope === 'global') {
+      setSelection({ mode: 'global', id: 'global' })
+      return
+    }
+    if (nextScope === 'regional') {
       setSelection({ mode: 'region', id: REGIONS[0].id })
       return
     }
@@ -233,7 +269,7 @@ export default function MapView() {
     setActiveSite(siteId)
     if (nextScope === 'floor') {
       activateFloorPlan(floorPlanForSelection(nextScope, siteId)?.id ?? null)
-      if (selection.mode === 'region' || selection.mode === 'site' || selection.mode === 'camera-wall') {
+      if (selection.mode === 'global' || selection.mode === 'region' || selection.mode === 'site' || selection.mode === 'camera-wall') {
         setSelection({ mode: 'site', id: siteId })
       }
       return
@@ -246,6 +282,11 @@ export default function MapView() {
     setScope('site')
     activateFloorPlan(defaultFloorPlanForSite(siteId)?.id ?? null)
     setSelection({ mode: 'site', id: siteId })
+  }
+
+  function selectRegion(regionId: string) {
+    setScope('regional')
+    setSelection({ mode: 'region', id: regionId })
   }
 
   function selectDevice(deviceId: string) {
@@ -279,6 +320,15 @@ export default function MapView() {
   }
 
   function selectFloorPlan(floorPlanId: string) {
+    const plan = floorPlanById(floorPlanId)
+    if (!plan) return
+    setActiveFloorPlanId(plan.id)
+    setActiveSite(plan.siteId)
+    setScope('floor')
+    setSelection({ mode: 'site', id: plan.siteId })
+  }
+
+  function focusFloorPlan(floorPlanId: string) {
     const plan = floorPlanById(floorPlanId)
     if (!plan) return
     setActiveFloorPlanId(plan.id)
@@ -430,8 +480,8 @@ export default function MapView() {
           ) : (
             <>
               <MapWithNoSSR
-                sites={SITES}
-                signals={EXTERNAL_SIGNALS}
+                sites={mapSites}
+                signals={visibleSignals}
                 devices={visibleDevices}
                 incidents={visibleIncidents}
                 activeSite={activeSite}
@@ -455,12 +505,14 @@ export default function MapView() {
 
         <MapSidePanel
           selection={selection}
+          onSelectRegion={selectRegion}
           onSelectSite={selectSite}
           onSelectDevice={selectDevice}
           onSelectIncident={selectIncident}
           onShowCameraWall={showCameraWall}
           onOpenLiveView={openLiveView}
           onReviewIncident={handleReviewIncident}
+          onSelectFloorPlan={focusFloorPlan}
         />
       </div>
 

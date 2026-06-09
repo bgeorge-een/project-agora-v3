@@ -2,15 +2,19 @@
 
 import type { ReactNode } from 'react'
 import type { Alert, Severity, Site } from '@/lib/types'
-import { EXTERNAL_SIGNALS, ALERT_DETAILS } from '@/lib/mock-data/scenarios'
+import { EXTERNAL_SIGNALS, ALERT_DETAILS, MOCK_ALERTS, SITES } from '@/lib/mock-data/scenarios'
 import { CameraStill } from './CameraStill'
 import {
   camerasForSite,
+  camerasForFloorPlan,
   deviceById,
+  devicesForFloorPlan,
   devicesForSite,
+  floorPlansForSite,
   incidentById,
   incidentsForSite,
   linkedDevicesForIncident,
+  REGIONS,
   regionById,
   siteById,
   hasHealthEvents,
@@ -341,18 +345,113 @@ function CameraTile({
   )
 }
 
+function GlobalPanel({
+  onSelectRegion,
+  onSelectSite,
+}: {
+  onSelectRegion: (id: string) => void
+  onSelectSite: (id: string) => void
+}) {
+  const totalOpen = MOCK_ALERTS.length
+  const totalAlerts = SITES.reduce((total, site) => total + site.activeAlerts, 0)
+  const totalOffline = SITES.reduce((total, site) => total + site.offlineDevices, 0)
+  const criticalSites = SITES.filter((site) => site.riskLevel === 'critical' || site.riskLevel === 'high')
+  const oldestCritical = MOCK_ALERTS
+    .filter((alert) => alert.severity === 'critical')
+    .sort((a, b) => b.ageSeconds - a.ageSeconds)[0]
+
+  return (
+    <PanelShell title="Global Command" eyebrow="Enterprise Operations" icon="public">
+      <StatGrid
+        stats={[
+          { label: 'Regions', value: REGIONS.length },
+          { label: 'Sites', value: SITES.length },
+          { label: 'Open Incidents', value: totalOpen, tone: totalOpen ? '#FCA5A5' : undefined },
+          { label: 'Offline Devices', value: totalOffline, tone: totalOffline ? '#FFB4AE' : undefined },
+        ]}
+      />
+
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Regional Posture</h3>
+        <div className="space-y-2">
+          {REGIONS.map((region) => {
+            const sites = region.siteIds.map((siteId) => siteById(siteId)).filter(Boolean) as Site[]
+            const open = sites.reduce((total, site) => total + incidentsForSite(site.id).length, 0)
+            const active = sites.reduce((total, site) => total + site.activeAlerts, 0)
+            const offline = sites.reduce((total, site) => total + site.offlineDevices, 0)
+            return (
+              <button
+                key={region.id}
+                type="button"
+                onClick={() => onSelectRegion(region.id)}
+                className="w-full rounded-lg border border-[#273142] bg-[#111827] p-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-white">{region.label}</span>
+                  <span className="rounded-full border border-[#334155] px-2 py-0.5 text-xs font-bold text-[#CBD5E1]">
+                    {sites.length} sites
+                  </span>
+                </div>
+                <p className="mt-1 text-sm leading-[1.5] text-[#CBD5E1]">
+                  {open} open incidents · {offline} offline devices · {active} active alerts
+                </p>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      {criticalSites.length > 0 && (
+        <section>
+          <h3 className="mb-2 text-sm font-bold text-white">Sites Requiring Attention</h3>
+          <div className="space-y-2">
+            {criticalSites.map((site) => (
+              <button
+                key={site.id}
+                type="button"
+                onClick={() => onSelectSite(site.id)}
+                className="flex min-h-12 w-full items-center justify-between rounded-lg border border-[#273142] bg-[#111827] px-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              >
+                <span>
+                  <span className="block text-sm font-bold text-white">{site.name}</span>
+                  <span className="block text-xs font-medium text-[#94A3B8]">
+                    {incidentsForSite(site.id).length} incidents · {site.offlineDevices} offline devices
+                  </span>
+                </span>
+                <span className="text-xs font-extrabold uppercase" style={{ color: RISK_COLOR[site.riskLevel] }}>
+                  {site.riskLevel}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {oldestCritical && (
+        <p className="rounded-lg border border-[#7F1D1D] bg-[#210A08] p-3 text-sm leading-[1.5] text-[#FECACA]">
+          Oldest critical incident: <span className="font-bold text-white">{oldestCritical.title}</span>
+        </p>
+      )}
+    </PanelShell>
+  )
+}
+
 function RegionPanel({
   id,
   onSelectSite,
+  onShowCameraWall,
+  onSelectIncident,
 }: {
   id: string
   onSelectSite: (id: string) => void
+  onShowCameraWall: (siteId: string) => void
+  onSelectIncident: (id: string) => void
 }) {
   const region = regionById(id)
   if (!region) return null
 
   const sites = region.siteIds.map((siteId) => siteById(siteId)).filter(Boolean) as Site[]
-  const openIncidents = sites.reduce((total, site) => total + site.openIncidents, 0)
+  const openIncidents = sites.reduce((total, site) => total + incidentsForSite(site.id).length, 0)
   const activeAlerts = sites.reduce((total, site) => total + site.activeAlerts, 0)
   const offlineDevices = sites.reduce((total, site) => total + site.offlineDevices, 0)
   const criticalSites = sites.filter((site) => site.riskLevel === 'critical' || site.riskLevel === 'high').length
@@ -371,22 +470,40 @@ function RegionPanel({
         <h3 className="mb-2 text-sm font-bold text-white">Sites Requiring Attention</h3>
         <div className="space-y-2">
           {sites.map((site) => (
-            <button
+            <div
               key={site.id}
-              type="button"
-              onClick={() => onSelectSite(site.id)}
-              className="flex min-h-12 w-full items-center justify-between rounded-lg border border-[#273142] bg-[#111827] px-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              className="rounded-lg border border-[#273142] bg-[#111827] p-3"
             >
-              <span>
-                <span className="block text-sm font-bold text-white">{site.name}</span>
-                <span className="block text-xs font-medium text-[#94A3B8]">
-                  {site.openIncidents} incidents · {site.activeAlerts} alerts
+              <div className="flex items-start justify-between gap-2">
+                <span>
+                  <span className="block text-sm font-bold text-white">{site.name}</span>
+                  <span className="block text-xs font-medium text-[#94A3B8]">
+                    {incidentsForSite(site.id).length} incidents · {site.activeAlerts} alerts · {site.offlineDevices} offline
+                  </span>
                 </span>
-              </span>
-              <span className="text-xs font-extrabold uppercase" style={{ color: RISK_COLOR[site.riskLevel] }}>
-                {site.riskLevel}
-              </span>
-            </button>
+                <span className="text-xs font-extrabold uppercase" style={{ color: RISK_COLOR[site.riskLevel] }}>
+                  {site.riskLevel}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <ActionButton icon="location_on" onClick={() => onSelectSite(site.id)}>
+                  Site
+                </ActionButton>
+                <ActionButton icon="grid_view" onClick={() => onShowCameraWall(site.id)}>
+                  Cameras
+                </ActionButton>
+                <ActionButton
+                  icon="priority_high"
+                  onClick={() => {
+                    const incident = incidentsForSite(site.id)[0]
+                    if (incident) onSelectIncident(incident.id)
+                  }}
+                  disabled={incidentsForSite(site.id).length === 0}
+                >
+                  Incident
+                </ActionButton>
+              </div>
+            </div>
           ))}
         </div>
       </section>
@@ -405,6 +522,7 @@ function SitePanel({
   onShowCameraWall,
   onOpenLiveView,
   onReviewIncident,
+  onSelectFloorPlan,
 }: {
   id: string
   onSelectDevice: (id: string) => void
@@ -412,6 +530,7 @@ function SitePanel({
   onShowCameraWall: (siteId: string) => void
   onOpenLiveView: (id: string) => void
   onReviewIncident: (alert: Alert) => void
+  onSelectFloorPlan: (floorPlanId: string) => void
 }) {
   const site = siteById(id)
   if (!site) return null
@@ -425,6 +544,7 @@ function SitePanel({
   const responseDevices = devices.filter(
     (device) => device.linkedIncidentIds.length > 0 && !hasHealthEvents(device)
   )
+  const floorPlans = floorPlansForSite(site.id)
 
   return (
     <PanelShell title={site.name} eyebrow={`${site.city}, ${site.state}`} icon="location_city">
@@ -440,7 +560,7 @@ function SitePanel({
 
       <StatGrid
         stats={[
-          { label: 'Open Incidents', value: site.openIncidents, tone: '#FCA5A5' },
+          { label: 'Open Incidents', value: incidents.length, tone: incidents.length ? '#FCA5A5' : undefined },
           { label: 'Active Alerts', value: site.activeAlerts },
           { label: 'Cameras', value: cameras.length },
           { label: 'Offline', value: offline, tone: offline ? '#FFB4AE' : undefined },
@@ -476,6 +596,43 @@ function SitePanel({
               No active incidents at this site.
             </p>
           )}
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Floors & Camera Coverage</h3>
+        <div className="space-y-2">
+          {floorPlans.map((plan) => {
+            const floorDevices = devicesForFloorPlan(plan.id)
+            const floorCameras = camerasForFloorPlan(plan.id)
+            const floorHealth = floorDevices.filter(hasHealthEvents).length
+            const floorIncidents = incidentsForSite(site.id).filter((alert) =>
+              linkedDevicesForIncident(alert.id).some((device) => device.floorPlanId === plan.id)
+            )
+            return (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => onSelectFloorPlan(plan.id)}
+                className="w-full rounded-lg border border-[#273142] bg-[#111827] p-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span>
+                    <span className="block text-sm font-bold text-white">{plan.building} · {plan.floor}</span>
+                    <span className="block text-xs font-medium text-[#94A3B8]">{plan.label}</span>
+                  </span>
+                  {floorIncidents.length > 0 && (
+                    <span className="rounded-full bg-[#210A08] px-2 py-0.5 text-xs font-extrabold text-[#FF453A]">
+                      {floorIncidents.length} incident
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm leading-[1.5] text-[#CBD5E1]">
+                  {floorCameras.length} cameras · {floorDevices.length} devices · {floorHealth} health exceptions
+                </p>
+              </button>
+            )
+          })}
         </div>
       </section>
 
@@ -627,17 +784,48 @@ function DevicePanel({
 function CameraWallPanel({
   siteId,
   onOpenLiveView,
+  onSelectFloorPlan,
 }: {
   siteId: string
   onOpenLiveView: (id: string) => void
+  onSelectFloorPlan: (floorPlanId: string) => void
 }) {
   const site = siteById(siteId)
   const cameras = camerasForSite(siteId)
   const incidentCameras = cameras.filter((camera) => camera.linkedIncidentIds.length > 0)
   const otherCameras = cameras.filter((camera) => camera.linkedIncidentIds.length === 0)
+  const floorPlans = floorPlansForSite(siteId)
 
   return (
     <PanelShell title="Camera Wall" eyebrow={site?.name ?? 'Selected Site'} icon="grid_view">
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Floor Coverage</h3>
+        <div className="grid grid-cols-1 gap-2">
+          {floorPlans.map((plan) => {
+            const floorCameras = camerasForFloorPlan(plan.id)
+            const unhealthy = floorCameras.filter(hasHealthEvents).length
+            return (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => onSelectFloorPlan(plan.id)}
+                className="flex min-h-12 items-center justify-between rounded-lg border border-[#273142] bg-[#111827] px-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              >
+                <span>
+                  <span className="block text-sm font-bold text-white">{plan.building} · {plan.floor}</span>
+                  <span className="block text-xs font-medium text-[#94A3B8]">
+                    {floorCameras.length} cameras · {unhealthy} attention
+                  </span>
+                </span>
+                <span className="material-symbols-outlined text-[#94A3B8]" aria-hidden="true" style={{ fontSize: '18px', lineHeight: 1 }}>
+                  map
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
       {incidentCameras.length > 0 && (
         <section>
           <h3 className="mb-2 text-sm font-bold text-white">Incident-Relevant Cameras</h3>
@@ -737,10 +925,12 @@ function IncidentPanel({
   id,
   onReviewIncident,
   onOpenLiveView,
+  onSelectDevice,
 }: {
   id: string
   onReviewIncident: (alert: Alert) => void
   onOpenLiveView: (id: string) => void
+  onSelectDevice: (id: string) => void
 }) {
   const alert = incidentById(id)
   if (!alert) return null
@@ -783,12 +973,45 @@ function IncidentPanel({
           Open Cameras
         </ActionButton>
       </div>
+
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Review Sequence</h3>
+        <div className="space-y-2">
+          {[
+            { label: '1. Confirm threat context', detail: `${alert.sources.length} sources correlated at ${alert.location}` },
+            { label: '2. Verify visual evidence', detail: linkedCameras.length ? `${linkedCameras.length} camera view available` : 'No linked live camera yet' },
+            { label: '3. Execute or override action', detail: alert.nba?.recommendedAction ?? 'Recommendation pending enrichment' },
+          ].map((step) => (
+            <div key={step.label} className="rounded-lg border border-[#273142] bg-[#111827] p-3">
+              <p className="text-sm font-bold text-white">{step.label}</p>
+              <p className="mt-1 text-sm leading-[1.5] text-[#CBD5E1]">{step.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {linkedCameras.length > 0 && (
+        <section>
+          <h3 className="mb-2 text-sm font-bold text-white">Incident Cameras</h3>
+          <div className="grid grid-cols-1 gap-3">
+            {linkedCameras.map((camera) => (
+              <CameraTile key={camera.id} camera={camera} onOpenLiveView={onOpenLiveView} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {linkedDevices.length > 0 && (
         <section>
           <h3 className="mb-2 text-sm font-bold text-white">Related Devices</h3>
           <div className="space-y-2">
             {linkedDevices.map((device) => (
-              <div key={device.id} className="rounded-lg border border-[#273142] bg-[#111827] p-3">
+              <button
+                key={device.id}
+                type="button"
+                onClick={() => onSelectDevice(device.id)}
+                className="w-full rounded-lg border border-[#273142] bg-[#111827] p-3 text-left transition-colors hover:border-[#475569] hover:bg-[#151B26]"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-bold text-white">{device.name}</p>
@@ -798,16 +1021,16 @@ function IncidentPanel({
                   </div>
                   <DeviceStatusBadge status={device.status} />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </section>
       )}
       {detail && (
         <section>
-          <h3 className="mb-2 text-sm font-bold text-white">Timeline Snapshot</h3>
+          <h3 className="mb-2 text-sm font-bold text-white">Evidence Timeline</h3>
           <div className="space-y-2">
-            {detail.correlatedEvents.slice(0, 3).map((event) => (
+            {detail.correlatedEvents.map((event) => (
               <div key={event.id} className="rounded-lg border border-[#273142] bg-[#111827] p-3">
                 <p className="font-mono text-xs font-bold text-[#94A3B8]">{event.ts}</p>
                 <p className="mt-1 text-sm font-semibold text-white">{event.location}</p>
@@ -823,23 +1046,38 @@ function IncidentPanel({
 
 export function MapSidePanel({
   selection,
+  onSelectRegion,
   onSelectSite,
   onSelectDevice,
   onSelectIncident,
   onShowCameraWall,
   onOpenLiveView,
   onReviewIncident,
+  onSelectFloorPlan,
 }: {
   selection: MapPanelSelection
+  onSelectRegion: (id: string) => void
   onSelectSite: (id: string) => void
   onSelectDevice: (id: string) => void
   onSelectIncident: (id: string) => void
   onShowCameraWall: (siteId: string) => void
   onOpenLiveView: (id: string) => void
   onReviewIncident: (alert: Alert) => void
+  onSelectFloorPlan: (floorPlanId: string) => void
 }) {
+  if (selection.mode === 'global') {
+    return <GlobalPanel onSelectRegion={onSelectRegion} onSelectSite={onSelectSite} />
+  }
+
   if (selection.mode === 'region') {
-    return <RegionPanel id={selection.id} onSelectSite={onSelectSite} />
+    return (
+      <RegionPanel
+        id={selection.id}
+        onSelectSite={onSelectSite}
+        onShowCameraWall={onShowCameraWall}
+        onSelectIncident={onSelectIncident}
+      />
+    )
   }
 
   if (selection.mode === 'device') {
@@ -858,12 +1096,19 @@ export function MapSidePanel({
         id={selection.id}
         onReviewIncident={onReviewIncident}
         onOpenLiveView={onOpenLiveView}
+        onSelectDevice={onSelectDevice}
       />
     )
   }
 
   if (selection.mode === 'camera-wall') {
-    return <CameraWallPanel siteId={selection.id} onOpenLiveView={onOpenLiveView} />
+    return (
+      <CameraWallPanel
+        siteId={selection.id}
+        onOpenLiveView={onOpenLiveView}
+        onSelectFloorPlan={onSelectFloorPlan}
+      />
+    )
   }
 
   if (selection.mode === 'live-view') {
@@ -878,6 +1123,7 @@ export function MapSidePanel({
       onShowCameraWall={onShowCameraWall}
       onOpenLiveView={onOpenLiveView}
       onReviewIncident={onReviewIncident}
+      onSelectFloorPlan={onSelectFloorPlan}
     />
   )
 }

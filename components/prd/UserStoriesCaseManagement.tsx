@@ -17,7 +17,7 @@ const THEMES: Theme[] = [
       {
         story: 'Promote a resolved incident into a complete case',
         criteria:
-          'Case inherits incident summary, correlated evidence, action execution history, map context, entities, notes, owners, and audit log; source incident remains linked.',
+          'Case inherits incident summary, correlated evidence, map evidence, action execution history, entities, notes, owners, and audit log; source incident remains linked.',
       },
       {
         story: 'Manage a complete case without leaving the app',
@@ -48,6 +48,11 @@ const THEMES: Theme[] = [
         story: 'Review evidence with chain-of-custody',
         criteria:
           'Each evidence item shows source device/feed, timestamp, location, retention policy, access log, confidence, related entities, and export state.',
+      },
+      {
+        story: 'Consume incident map evidence into the case',
+        criteria:
+          'Site/floor markers, camera/device selections, detections, clips, and action review import as linked evidence with source context and chain-of-custody.',
       },
       {
         story: 'Explore the entity graph from evidence context',

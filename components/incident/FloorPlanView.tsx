@@ -75,9 +75,12 @@ export function FloorPlanView({
 }) {
   const showCoverage = layerPreset === 'response' || layerPreset === 'investigation'
   const showHealthOnly = layerPreset === 'health'
-  const visibleDevices = showHealthOnly
-    ? devices.filter((device) => device.status !== 'online' || device.healthEvents?.length)
-    : devices
+  const visibleDevices =
+    layerPreset === 'external'
+      ? []
+      : showHealthOnly
+        ? devices.filter((device) => device.status !== 'online' || device.healthEvents?.length)
+        : devices
   const visibleIncidents = layerPreset === 'response' || layerPreset === 'investigation' ? incidents : []
 
   return (
@@ -90,12 +93,17 @@ export function FloorPlanView({
       </div>
 
       <svg
-        role="img"
+        role="group"
         aria-label={`${floorPlan.label} indoor operations floor plan`}
         viewBox={`0 0 ${floorPlan.dimensions.width} ${floorPlan.dimensions.height}`}
         preserveAspectRatio="xMidYMid meet"
         className="h-full w-full"
       >
+        <style>{`
+          .floor-plan-target:focus .focus-ring {
+            opacity: 1;
+          }
+        `}</style>
         <defs>
           <pattern id={`floor-grid-${floorPlan.id}`} width="4" height="4" patternUnits="userSpaceOnUse">
             <path d="M 4 0 L 0 0 0 4" fill="none" stroke="#1F2937" strokeWidth="0.18" />
@@ -168,9 +176,11 @@ export function FloorPlanView({
               aria-label={`Open incident ${incident.title}`}
               onClick={() => onSelectIncident(incident.id)}
               onKeyDown={(event) => handleActivation(event, () => onSelectIncident(incident.id))}
-              className="cursor-pointer outline-none"
+              className="floor-plan-target cursor-pointer"
               filter={incident.severity === 'critical' ? `url(#critical-glow-${floorPlan.id})` : undefined}
             >
+              <title>{`Open incident ${incident.title}`}</title>
+              <circle className="focus-ring" cx={position.x + 5.2} cy={position.y - 4.8} r="5.2" fill="none" stroke="#FFFFFF" strokeWidth="0.7" opacity="0" />
               <circle cx={position.x + 5.2} cy={position.y - 4.8} r={selected ? 3.1 : 2.6} fill={color} />
               <circle cx={position.x + 5.2} cy={position.y - 4.8} r={selected ? 4.2 : 3.5} fill="none" stroke={color} strokeWidth="0.55" />
               <text
@@ -191,7 +201,7 @@ export function FloorPlanView({
           if (!device.floorPosition) return null
           const selected = selection.id === device.id && (selection.mode === 'device' || selection.mode === 'live-view')
           const onActivate = () => {
-            if (device.kind === 'camera') {
+            if (device.kind === 'camera' && device.status !== 'offline') {
               onOpenLiveView(device.id)
               return
             }
@@ -206,8 +216,21 @@ export function FloorPlanView({
               aria-label={`${device.kind === 'camera' ? 'Open live view for' : 'Open details for'} ${device.name}`}
               onClick={onActivate}
               onKeyDown={(event) => handleActivation(event, onActivate)}
-              className="cursor-pointer outline-none"
+              className="floor-plan-target cursor-pointer"
             >
+              <title>
+                {`${device.kind === 'camera' && device.status !== 'offline' ? 'Open live view for' : 'Open details for'} ${device.name}`}
+              </title>
+              <circle
+                className="focus-ring"
+                cx={device.floorPosition.x}
+                cy={device.floorPosition.y}
+                r="4.4"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth="0.65"
+                opacity="0"
+              />
               <circle
                 cx={device.floorPosition.x}
                 cy={device.floorPosition.y}
@@ -259,6 +282,12 @@ export function FloorPlanView({
       <div className="absolute right-3 top-3 z-10 rounded-lg border border-[#334155] bg-black/70 px-3 py-2 text-xs font-bold text-[#E5E7EB] backdrop-blur">
         {visibleDevices.length} devices · {visibleIncidents.length} incidents
       </div>
+
+      {layerPreset === 'external' && (
+        <div className="absolute inset-x-4 bottom-16 z-10 rounded-lg border border-[#334155] bg-[#111827]/95 p-3 text-sm leading-[1.5] text-[#CBD5E1] shadow-xl">
+          External risk is monitored at site, regional, and global altitude. Switch altitude to see public-safety, weather, traffic, and civil context around this facility.
+        </div>
+      )}
     </div>
   )
 }

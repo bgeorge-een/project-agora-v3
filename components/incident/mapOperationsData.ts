@@ -8,7 +8,7 @@ export type MapScope = 'global' | 'regional' | 'site' | 'floor'
 export type MapLayerPreset = 'response' | 'health' | 'external' | 'investigation'
 export type DeviceKind = 'camera' | 'access' | 'sensor'
 export type DeviceStatus = 'online' | 'offline' | 'degraded'
-export type PanelMode = 'region' | 'site' | 'device' | 'incident' | 'camera-wall' | 'live-view'
+export type PanelMode = 'global' | 'region' | 'site' | 'device' | 'incident' | 'camera-wall' | 'live-view'
 export type DeviceHealthSeverity = 'warning' | 'critical'
 export type FloorZoneKind = 'room' | 'corridor' | 'lobby' | 'parking' | 'restricted' | 'service'
 
@@ -670,6 +670,10 @@ export function defaultFloorPlanForSite(siteId: string | null): MapFloorPlan | n
 
 export function devicesForFloorPlan(floorPlanId: string): MapDevice[] {
   return OPERATIONAL_DEVICES.filter((device) => device.floorPlanId === floorPlanId)
+}
+
+export function camerasForFloorPlan(floorPlanId: string): MapDevice[] {
+  return devicesForFloorPlan(floorPlanId).filter((device) => device.kind === 'camera')
 }
 
 export function floorPlanIdForDevice(deviceId: string): string | null {

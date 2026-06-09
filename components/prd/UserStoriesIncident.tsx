@@ -67,12 +67,12 @@ const THEMES: Theme[] = [
       {
         story: 'Operate a camera wall during active response',
         criteria:
-          'Pin incident cameras, adjacent zone cameras, and officer body/device feeds; switch from wall to live view; preserve clips from the same surface.',
+          'World Monitor-style wall supports pinning incident, adjacent zone, and officer body/device feeds; switch from wall to live view; preserve clips from the same surface.',
       },
       {
         story: 'Open live camera view with recent context',
         criteria:
-          'Clicking a floor camera opens live view; recent camera events and past detections visible beside the stream; current incident camera remains highlighted.',
+          'Clicking an indoor floor camera opens live view; recent camera events and detections visible beside the stream; current incident camera remains highlighted.',
       },
     ],
   },
@@ -80,14 +80,19 @@ const THEMES: Theme[] = [
     name: 'Map Workflows',
     stories: [
       {
-        story: 'Operate incidents from regional map to site detail',
+        story: 'Operate incidents across global, regional, site, and floor maps',
         criteria:
-          'Regional map clusters sites by active severity; selecting a site reveals buildings, zones, devices, incidents, and available responders.',
+          'Role hierarchy scopes global, regional, site, and floor views; supervisors see the right rollups, queues, escalation paths, and actions for their level.',
       },
       {
-        story: 'Drill from site to device and incident context',
+        story: 'Open site operations from the map',
         criteria:
-          'Map selection can pivot between camera, door, sensor, responder, and incident; selected entity opens relevant live view, detail drawer, or response controls.',
+          'Site click opens cameras, devices, incidents, responders, and active workflows; site supervisor can filter by building, floor, severity, and owner.',
+      },
+      {
+        story: 'Drill into devices with operational context',
+        criteria:
+          'Device click opens health, details, controls, and live view when applicable; offline/failed states, owner, and recent events visible.',
       },
       {
         story: 'Switch from street map to indoor floor plan',
@@ -102,7 +107,7 @@ const THEMES: Theme[] = [
       {
         story: 'Review incident evidence from map context',
         criteria:
-          'Incident marker opens timeline and evidence pivot; operator can jump from floor marker to related detections, camera clips, access logs, and response history.',
+          'Incident click opens timeline, evidence, and action review; operator can jump from floor marker to detections, clips, access logs, and response history.',
       },
     ],
   },
@@ -112,7 +117,7 @@ const THEMES: Theme[] = [
       {
         story: 'Show each role the operational level it can act on',
         criteria:
-          'L1 sees assigned queue and local site context; L2 sees shift workload and approval queue; L3-L5 see site, regional, and enterprise rollups with scoped actions.',
+          'L1 sees assigned floor/site context; site supervisor manages site workload; regional/global supervisors see portfolio rollups with scoped actions.',
       },
       {
         story: 'Monitor site health and SLA',
