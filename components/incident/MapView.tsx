@@ -4,17 +4,26 @@ import { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { Alert, Site } from '@/lib/types'
 import { ALERT_DETAILS, EXTERNAL_SIGNALS, MOCK_ALERTS, SITES } from '@/lib/mock-data/scenarios'
+import { FloorPlanView } from './FloorPlanView'
 import { IncidentDetailDrawer } from './IncidentDetailDrawer'
 import { MapSidePanel } from './MapSidePanel'
 import {
   LAYER_PRESETS,
   REGIONS,
   ROLE_OPTIONS,
+  defaultFloorPlanForSite,
   defaultScopeForRole,
   deviceById,
+  devicesForFloorPlan,
   devicesForSite,
+  floorPlanById,
+  floorPlanIdForDevice,
+  floorPlanIdForIncident,
+  floorPlansForSite,
   incidentsForSite,
+  incidentsForFloorPlan,
   siteById,
+  type MapFloorPlan,
   type MapLayerPreset,
   type MapPanelSelection,
   type MapRole,
@@ -57,17 +66,18 @@ function Breadcrumbs({
   scope,
   activeSite,
   selection,
+  activeFloorPlan,
   onScope,
   onSelectSite,
 }: {
   scope: MapScope
   activeSite: string | null
   selection: MapPanelSelection
+  activeFloorPlan: MapFloorPlan | null
   onScope: (scope: MapScope) => void
   onSelectSite: (siteId: string) => void
 }) {
   const site = siteById(activeSite)
-  const selectedDevice = selection.mode === 'device' || selection.mode === 'live-view' ? deviceById(selection.id) : null
   const selectedIncident = selection.mode === 'incident' ? MOCK_ALERTS.find((alert) => alert.id === selection.id) : null
 
   return (
@@ -99,11 +109,11 @@ function Breadcrumbs({
           </button>
         </>
       )}
-      {scope === 'floor' && selectedDevice && (
+      {scope === 'floor' && activeFloorPlan && (
         <>
           <span className="text-[#64748B]">/</span>
           <span className="rounded-md bg-[#1F2937] px-2 py-1 font-bold text-white">
-            {selectedDevice.floor}
+            {activeFloorPlan.floor}
           </span>
         </>
       )}
@@ -142,6 +152,7 @@ export default function MapView() {
   const [role, setRole] = useState<MapRole>('operator')
   const [scope, setScope] = useState<MapScope>('site')
   const [activeSite, setActiveSite] = useState<string | null>('site-austin')
+  const [activeFloorPlanId, setActiveFloorPlanId] = useState<string>('austin-bldg-a-floor-3')
   const [layerPreset, setLayerPreset] = useState<MapLayerPreset>('response')
   const [selection, setSelection] = useState<MapPanelSelection>({ mode: 'site', id: 'site-austin' })
   const [reviewAlert, setReviewAlert] = useState<Alert | null>(null)
@@ -151,6 +162,13 @@ export default function MapView() {
   const totalOpen = SITES.reduce((count, site) => count + site.openIncidents, 0)
   const totalOffline = SITES.reduce((count, site) => count + site.offlineDevices, 0)
   const criticalAlert = MOCK_ALERTS.find((alert) => alert.severity === 'critical' && alert.status === 'ready')
+  const floorPlanOptions = floorPlansForSite(activeSite)
+  const activeFloorPlan =
+    floorPlanById(activeFloorPlanId) ??
+    defaultFloorPlanForSite(activeSite) ??
+    defaultFloorPlanForSite('site-austin')
+  const floorPlanDevices = activeFloorPlan ? devicesForFloorPlan(activeFloorPlan.id) : []
+  const floorPlanIncidents = activeFloorPlan ? incidentsForFloorPlan(activeFloorPlan.id) : []
 
   const visibleIncidents = useMemo(() => {
     if (scope === 'global' || scope === 'regional' || !activeSite) {
@@ -173,6 +191,24 @@ export default function MapView() {
   const showDevices = (layerPreset === 'health' || layerPreset === 'response' || layerPreset === 'investigation') && visibleDevices.length > 0
   const oldestActive = formatElapsed(Math.max(...MOCK_ALERTS.map((alert) => alert.ageSeconds)))
 
+  function floorPlanForSelection(nextScope: MapScope, nextSiteId: string | null = activeSite) {
+    if (nextScope !== 'floor') return null
+    if (selection.mode === 'device' || selection.mode === 'live-view') {
+      return floorPlanById(floorPlanIdForDevice(selection.id)) ?? defaultFloorPlanForSite(nextSiteId)
+    }
+    if (selection.mode === 'incident') {
+      return floorPlanById(floorPlanIdForIncident(selection.id)) ?? defaultFloorPlanForSite(nextSiteId)
+    }
+    return defaultFloorPlanForSite(nextSiteId)
+  }
+
+  function activateFloorPlan(floorPlanId: string | null) {
+    const plan = floorPlanById(floorPlanId)
+    if (!plan) return
+    setActiveFloorPlanId(plan.id)
+    setActiveSite(plan.siteId)
+  }
+
   function selectRole(nextRole: MapRole) {
     const nextScope = defaultScopeForRole(nextRole)
     setRole(nextRole)
@@ -181,8 +217,10 @@ export default function MapView() {
       setSelection({ mode: 'region', id: REGIONS[0].id })
       return
     }
-    setActiveSite(activeSite ?? 'site-austin')
-    setSelection({ mode: 'site', id: activeSite ?? 'site-austin' })
+    const siteId = activeSite ?? 'site-austin'
+    setActiveSite(siteId)
+    activateFloorPlan(defaultFloorPlanForSite(siteId)?.id ?? null)
+    setSelection({ mode: 'site', id: siteId })
   }
 
   function selectScope(nextScope: MapScope) {
@@ -193,18 +231,27 @@ export default function MapView() {
     }
     const siteId = activeSite ?? 'site-austin'
     setActiveSite(siteId)
+    if (nextScope === 'floor') {
+      activateFloorPlan(floorPlanForSelection(nextScope, siteId)?.id ?? null)
+      if (selection.mode === 'region' || selection.mode === 'site' || selection.mode === 'camera-wall') {
+        setSelection({ mode: 'site', id: siteId })
+      }
+      return
+    }
     setSelection({ mode: 'site', id: siteId })
   }
 
   function selectSite(siteId: string) {
     setActiveSite(siteId)
     setScope('site')
+    activateFloorPlan(defaultFloorPlanForSite(siteId)?.id ?? null)
     setSelection({ mode: 'site', id: siteId })
   }
 
   function selectDevice(deviceId: string) {
     const device = deviceById(deviceId)
     if (device) setActiveSite(device.siteId)
+    activateFloorPlan(floorPlanIdForDevice(deviceId))
     setScope('floor')
     setSelection({ mode: 'device', id: deviceId })
   }
@@ -212,6 +259,7 @@ export default function MapView() {
   function selectIncident(alertId: string) {
     const alert = MOCK_ALERTS.find((item) => item.id === alertId)
     if (alert) setActiveSite(alert.siteId)
+    activateFloorPlan(floorPlanIdForIncident(alertId))
     setScope('floor')
     setSelection({ mode: 'incident', id: alertId })
   }
@@ -225,8 +273,18 @@ export default function MapView() {
   function openLiveView(deviceId: string) {
     const device = deviceById(deviceId)
     if (device) setActiveSite(device.siteId)
+    activateFloorPlan(floorPlanIdForDevice(deviceId))
     setScope('floor')
     setSelection({ mode: 'live-view', id: deviceId })
+  }
+
+  function selectFloorPlan(floorPlanId: string) {
+    const plan = floorPlanById(floorPlanId)
+    if (!plan) return
+    setActiveFloorPlanId(plan.id)
+    setActiveSite(plan.siteId)
+    setScope('floor')
+    setSelection({ mode: 'site', id: plan.siteId })
   }
 
   function returnToCritical() {
@@ -248,6 +306,7 @@ export default function MapView() {
               scope={scope}
               activeSite={activeSite}
               selection={selection}
+              activeFloorPlan={activeFloorPlan}
               onScope={selectScope}
               onSelectSite={selectSite}
             />
@@ -286,6 +345,26 @@ export default function MapView() {
                 </option>
               ))}
             </select>
+
+            {scope === 'floor' && floorPlanOptions.length > 0 && (
+              <>
+                <label className="sr-only" htmlFor="map-floor">
+                  Select floor plan
+                </label>
+                <select
+                  id="map-floor"
+                  value={activeFloorPlan?.id ?? ''}
+                  onChange={(event) => selectFloorPlan(event.target.value)}
+                  className="min-h-10 max-w-[220px] rounded-lg border border-[#334155] bg-[#111827] px-3 text-sm font-bold text-[#E5E7EB] outline-none transition-colors hover:border-[#475569] focus:border-[#2563EB]"
+                >
+                  {floorPlanOptions.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.building} · {plan.floor}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
 
             <label className="sr-only" htmlFor="map-layer">
               Map layer
@@ -337,26 +416,41 @@ export default function MapView() {
 
       <div className="grid grid-cols-1 gap-4 xl:h-[calc(100vh-230px)] xl:min-h-[560px] xl:max-h-[840px] xl:grid-cols-[minmax(0,1fr)_390px]">
         <div className="relative h-[62vh] min-h-[460px] overflow-hidden rounded-xl border border-[#273142] bg-[#0B0E14] xl:h-full xl:min-h-0">
-          <MapWithNoSSR
-            sites={SITES}
-            signals={EXTERNAL_SIGNALS}
-            devices={visibleDevices}
-            incidents={visibleIncidents}
-            activeSite={activeSite}
-            selection={selection}
-            scope={scope}
-            layerPreset={layerPreset}
-            showSignals={showSignals}
-            showDevices={showDevices}
-            showIncidents={showIncidents}
-            onSelectSite={selectSite}
-            onSelectDevice={selectDevice}
-            onSelectIncident={selectIncident}
-          />
-          <div className="absolute right-3 top-3 z-[1000] max-w-[320px] rounded-lg border border-[#334155] bg-black/70 px-3 py-2 text-xs leading-[1.5] text-[#CBD5E1] backdrop-blur">
-            <span className="font-bold text-white">{LAYER_PRESETS.find((preset) => preset.id === layerPreset)?.label}</span>
-            {' '}layer · {scope} altitude
-          </div>
+          {scope === 'floor' && activeFloorPlan ? (
+            <FloorPlanView
+              floorPlan={activeFloorPlan}
+              devices={floorPlanDevices}
+              incidents={floorPlanIncidents}
+              selection={selection}
+              layerPreset={layerPreset}
+              onSelectDevice={selectDevice}
+              onOpenLiveView={openLiveView}
+              onSelectIncident={selectIncident}
+            />
+          ) : (
+            <>
+              <MapWithNoSSR
+                sites={SITES}
+                signals={EXTERNAL_SIGNALS}
+                devices={visibleDevices}
+                incidents={visibleIncidents}
+                activeSite={activeSite}
+                selection={selection}
+                scope={scope}
+                layerPreset={layerPreset}
+                showSignals={showSignals}
+                showDevices={showDevices}
+                showIncidents={showIncidents}
+                onSelectSite={selectSite}
+                onSelectDevice={selectDevice}
+                onSelectIncident={selectIncident}
+              />
+              <div className="absolute right-3 top-3 z-[1000] max-w-[320px] rounded-lg border border-[#334155] bg-black/70 px-3 py-2 text-xs leading-[1.5] text-[#CBD5E1] backdrop-blur">
+                <span className="font-bold text-white">{LAYER_PRESETS.find((preset) => preset.id === layerPreset)?.label}</span>
+                {' '}layer · {scope} altitude
+              </div>
+            </>
+          )}
         </div>
 
         <MapSidePanel

@@ -698,6 +698,19 @@ function LiveViewPanel({
         <ActionButton icon="movie" disabled={!live}>Open Clip</ActionButton>
         <ActionButton icon="security" variant="primary">Dispatch Guard</ActionButton>
       </div>
+      <section>
+        <h3 className="mb-2 text-sm font-bold text-white">Recent Camera Events</h3>
+        <div className="space-y-2">
+          {camera.recentEvents.map((event) => (
+            <div
+              key={event}
+              className="rounded-lg border border-[#273142] bg-[#111827] p-3 text-sm leading-[1.5] text-[#CBD5E1]"
+            >
+              {event}
+            </div>
+          ))}
+        </div>
+      </section>
       {linkedIncidents.length > 0 && (
         <section>
           <h3 className="mb-2 text-sm font-bold text-white">Incident Context</h3>

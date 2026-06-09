@@ -69,6 +69,11 @@ const THEMES: Theme[] = [
         criteria:
           'Pin incident cameras, adjacent zone cameras, and officer body/device feeds; switch from wall to live view; preserve clips from the same surface.',
       },
+      {
+        story: 'Open live camera view with recent context',
+        criteria:
+          'Clicking a floor camera opens live view; recent camera events and past detections visible beside the stream; current incident camera remains highlighted.',
+      },
     ],
   },
   {
@@ -83,6 +88,21 @@ const THEMES: Theme[] = [
         story: 'Drill from site to device and incident context',
         criteria:
           'Map selection can pivot between camera, door, sensor, responder, and incident; selected entity opens relevant live view, detail drawer, or response controls.',
+      },
+      {
+        story: 'Switch from street map to indoor floor plan',
+        criteria:
+          'Floor altitude renders indoor floor plan instead of street tiles; floor selector switches levels; active incidents, cameras, doors, sensors, and responders stay floor-scoped.',
+      },
+      {
+        story: 'Operate floor devices directly from the map',
+        criteria:
+          'Floor cameras and devices are clickable; camera opens live view; door, sensor, and responder selections open relevant detail or action controls.',
+      },
+      {
+        story: 'Review incident evidence from map context',
+        criteria:
+          'Incident marker opens timeline and evidence pivot; operator can jump from floor marker to related detections, camera clips, access logs, and response history.',
       },
     ],
   },
