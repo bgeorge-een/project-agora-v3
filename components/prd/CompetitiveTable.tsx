@@ -4,21 +4,22 @@ type Mark = 'yes' | 'no' | 'partial'
 
 interface Row {
   capability: string
+  genetec: Mark
   motorola: Mark
+  milestone: Mark
   bearing: Mark
-  ontic: Mark
   agora: Mark
 }
 
 const ROWS: Row[] = [
-  { capability: 'Signal ingestion', motorola: 'yes', bearing: 'partial', ontic: 'no', agora: 'yes' },
-  { capability: 'Real-time operations', motorola: 'yes', bearing: 'partial', ontic: 'no', agora: 'yes' },
-  { capability: 'SOP + Playbook', motorola: 'partial', bearing: 'yes', ontic: 'partial', agora: 'yes' },
-  { capability: 'Investigation', motorola: 'partial', bearing: 'no', ontic: 'yes', agora: 'yes' },
-  { capability: 'AI / Agentic', motorola: 'no', bearing: 'partial', ontic: 'partial', agora: 'yes' },
-  { capability: 'Deterrence', motorola: 'partial', bearing: 'no', ontic: 'no', agora: 'yes' },
-  { capability: 'Compliance', motorola: 'no', bearing: 'yes', ontic: 'yes', agora: 'yes' },
-  { capability: 'Closed-loop learning', motorola: 'no', bearing: 'no', ontic: 'no', agora: 'yes' },
+  { capability: 'Signal ingestion', genetec: 'yes', motorola: 'yes', milestone: 'yes', bearing: 'partial', agora: 'yes' },
+  { capability: 'Real-time operations', genetec: 'yes', motorola: 'yes', milestone: 'partial', bearing: 'partial', agora: 'yes' },
+  { capability: 'SOP + Playbook', genetec: 'yes', motorola: 'yes', milestone: 'partial', bearing: 'yes', agora: 'yes' },
+  { capability: 'Investigation', genetec: 'yes', motorola: 'partial', milestone: 'yes', bearing: 'no', agora: 'yes' },
+  { capability: 'AI / Agentic', genetec: 'partial', motorola: 'yes', milestone: 'partial', bearing: 'partial', agora: 'yes' },
+  { capability: 'Deterrence', genetec: 'partial', motorola: 'partial', milestone: 'no', bearing: 'no', agora: 'yes' },
+  { capability: 'Compliance', genetec: 'yes', motorola: 'partial', milestone: 'partial', bearing: 'yes', agora: 'yes' },
+  { capability: 'Closed-loop learning', genetec: 'partial', motorola: 'partial', milestone: 'no', bearing: 'no', agora: 'yes' },
 ]
 
 function MarkCell({ mark, highlight = false }: { mark: Mark; highlight?: boolean }) {
@@ -59,20 +60,23 @@ export default function CompetitiveTable() {
         />
 
         <div className="mt-10 overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)]">
-          <table className="min-w-[44rem] w-full border-collapse text-sm lg:min-w-0">
+          <table className="min-w-[58rem] w-full border-collapse text-sm xl:min-w-0">
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F8FAFC]">
                 <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-[#6B7280]">
                   Capability
                 </th>
                 <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-                  Motorola Operator
+                  Genetec
+                </th>
+                <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                  Motorola Operator + Avigilon
+                </th>
+                <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                  Milestone XProtect
                 </th>
                 <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#6B7280]">
                   Bearing / ServiceNow
-                </th>
-                <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-                  Ontic
                 </th>
                 <th className="border-l-2 border-[#2563EB] bg-[#EFF6FF] px-4 py-4 text-center text-xs font-extrabold uppercase tracking-wider text-[#2563EB]">
                   Agora
@@ -88,9 +92,10 @@ export default function CompetitiveTable() {
                   <td className="px-5 py-3 text-left font-semibold text-[#111827]">
                     {row.capability}
                   </td>
+                  <MarkCell mark={row.genetec} />
                   <MarkCell mark={row.motorola} />
+                  <MarkCell mark={row.milestone} />
                   <MarkCell mark={row.bearing} />
-                  <MarkCell mark={row.ontic} />
                   <td className="border-l-2 border-[#2563EB] bg-[#EFF6FF]/60 px-4 py-3 text-center">
                     <span
                       className="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
@@ -115,6 +120,20 @@ export default function CompetitiveTable() {
           <span className="flex items-center gap-1.5">
             <span className="font-bold text-[#EF4444]">✗</span> Not offered
           </span>
+        </div>
+
+        <div className="mt-6 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-4">
+          <h3 className="text-sm font-extrabold text-[#1E3A8A]">
+            Genetec is the strongest like-for-like incumbent
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#1E3A5F]">
+            Genetec spans incident response, security work management, and digital evidence through
+            Mission Control, Operations Center, and Clearance. Motorola’s closest product naming is
+            Operator for SOC automation, backed by Avigilon Alta/Unity and Orchestrate. Milestone
+            competes through XProtect Incident Manager and XProtect Evidence Manager. Agora’s wedge
+            is the agentic signal-to-learning loop: prescriptive triage, deterrence, case promotion,
+            and feedback records in one operator-centered workflow.
+          </p>
         </div>
       </div>
     </section>
