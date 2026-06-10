@@ -70,7 +70,7 @@ function Lane({ label, labelColor, background, children }: LaneProps) {
       style={{ background, border: '1px solid #E5E7EB' }}
     >
       <div
-        className="flex w-14 shrink-0 items-center justify-center"
+        className="flex w-[clamp(4rem,6vw,5rem)] shrink-0 items-center justify-center px-3 py-5 sm:py-6"
         style={{ background: '#172130' }}
       >
         <span
@@ -80,6 +80,7 @@ function Lane({ label, labelColor, background, children }: LaneProps) {
             fontSize: 11,
             fontWeight: 700,
             letterSpacing: '0.08em',
+            lineHeight: 1.4,
             textTransform: 'uppercase',
             color: labelColor,
             whiteSpace: 'nowrap',
