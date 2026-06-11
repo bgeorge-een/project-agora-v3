@@ -37,17 +37,27 @@ const THEMES: Theme[] = [
       {
         story: 'Track incident lifecycle during live response',
         criteria:
-          'Incident lifecycle stages include detected, triaged, accepted, command assigned, containment, response, stabilized, monitoring, resolved, closed, and promoted to case; every transition captures actor, timestamp, and reason.',
+          'Incident response workspace shows the current lifecycle stage; supported stages include detected, triaged, accepted, command assigned, containment, response, stabilized, monitoring, resolved, closed, and promoted to case; each stage transition requires a reason and captures actor, timestamp, previous stage, and next stage.',
       },
       {
         story: 'Assign an incident commander and active response team',
         criteria:
-          'Incident header shows the incident commander; response team panel tracks SOC operator, site supervisor, guard, facilities, access admin, HR, Legal, law enforcement liaison, vendor, executive stakeholder, and observer roles with status, contact, responsibility, and audit history.',
+          'Incident header shows the incident commander; response team panel lets the operator add responders by name or group, role, status, team, contact method, responsibility, and notes; supported roles include SOC operator, site supervisor, guard, facilities, access admin, HR, Legal, law enforcement liaison, vendor, executive stakeholder, and observer.',
+      },
+      {
+        story: 'Update responder status as the response unfolds',
+        criteria:
+          'Each responder can be moved through assigned, notified, acknowledged, en route, on scene, completed, or unavailable; status changes update the response team card and append an operator-visible audit receipt.',
+      },
+      {
+        story: 'Reassign command without losing accountability',
+        criteria:
+          'Adding a new incident commander replaces the prior commander in the active command slot, updates the header, moves the lifecycle to command assigned when appropriate, and logs who made the assignment and why.',
       },
       {
         story: 'Accept a recommended action and see implementation progress',
         criteria:
-          'Recommended action opens an action execution view; each action, such as restricting a badge or dispatching a guard, shows queued/running/needs confirmation/manual required/complete state, owner, target system, and timestamp.',
+          'Recommended action opens an action execution view and advances the incident toward containment; each action, such as restricting a badge or dispatching a guard, shows queued/running/needs confirmation/manual required/complete state, owner, target system, and timestamp.',
       },
       {
         story: 'Understand why the recommendation was made before acting',
@@ -142,7 +152,7 @@ const THEMES: Theme[] = [
       {
         story: 'Promote a resolved incident into a case',
         criteria:
-          'Incident record carries evidence, timeline, action execution history, entities, notes, operator decisions, and map/video context into Case Management.',
+          'Incident record carries evidence, timeline, lifecycle history, response team roster, action execution history, entities, notes, operator decisions, and map/video context into Case Management.',
       },
     ],
   },

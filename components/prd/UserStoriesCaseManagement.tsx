@@ -22,7 +22,7 @@ const THEMES: Theme[] = [
       {
         story: 'Promote an incident into a case',
         criteria:
-          'Investigator can promote a live or resolved incident into a case that inherits incident summary, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',
+          'Investigator can promote a live or resolved incident into a case that inherits incident summary, lifecycle history, response team roster, commander, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',
       },
       {
         story: 'Create a case manually when there is no source incident',
