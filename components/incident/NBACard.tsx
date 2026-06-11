@@ -212,10 +212,10 @@ export default function NBACard({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-2 border-t border-[#273142] pt-5 sm:flex-row">
+        <div className="flex flex-col gap-2 border-t border-[#273142] pt-5 sm:flex-row sm:justify-end">
           <button
             onClick={() => onAccept(alert)}
-            className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB] sm:min-w-[8rem]"
           >
             <span
               className="material-symbols-outlined"
@@ -227,7 +227,7 @@ export default function NBACard({
           </button>
           <button
             onClick={() => onOverride(alert)}
-            className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#D1D5DB] transition-colors hover:bg-[#1F2937] hover:text-white"
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-lg border border-[#374151] px-4 py-2.5 text-sm font-medium text-[#D1D5DB] transition-colors hover:bg-[#1F2937] hover:text-white sm:min-w-[8rem]"
           >
             <span
               className="material-symbols-outlined"

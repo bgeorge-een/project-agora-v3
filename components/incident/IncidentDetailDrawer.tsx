@@ -1065,9 +1065,9 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-black/60 p-0 backdrop-blur-sm sm:p-3" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex bg-black/60 p-0 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="flex h-full w-full max-w-[1400px] flex-col bg-[#0F1117] shadow-2xl sm:rounded-xl 2xl:w-[80vw]"
+        className="flex h-full w-full max-w-none flex-col bg-[#0F1117] shadow-2xl"
         style={{ borderLeft: `5px solid ${sevBadge.rail}` }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -1120,10 +1120,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         </div>
 
         {/* Body */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,58%)_minmax(360px,42%)] lg:overflow-hidden">
+        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] xl:overflow-hidden">
           {/* LEFT — Evidence */}
           <div
-            className="min-w-0 border-b border-[#334155] p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-r"
+            className="min-w-0 border-b border-[#334155] p-4 sm:p-6 xl:min-h-0 xl:overflow-y-auto xl:border-b-0 xl:border-r"
             style={{ scrollbarGutter: 'stable' }}
           >
             <p className="mb-2 break-words text-sm font-medium text-[#CBD5E1]">
@@ -1309,7 +1309,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
           {/* RIGHT — NBA + SOP + Actions */}
           <div
-            className="min-w-0 p-4 sm:p-6 lg:min-h-0 lg:overflow-y-auto"
+            className="min-w-0 p-4 sm:p-6 xl:min-h-0 xl:overflow-y-auto"
             style={{ scrollbarGutter: 'stable' }}
           >
             {nba ? (
@@ -1356,7 +1356,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                     }
                     aria-describedby={actionJustificationId}
                     aria-keyshortcuts="Meta+Enter Control+Enter"
-                    className={`min-h-[52px] w-full rounded-lg px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-all ${
+                    className={`min-h-[52px] w-full max-w-4xl rounded-lg px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-all ${
                       executionStarted
                         ? 'cursor-default border border-[#334155] bg-[#1F2937] text-[#D1D5DB]'
                         : 'bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98]'
@@ -1487,63 +1487,67 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
                 {/* Action footer */}
                 <footer className="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-[#334155] bg-[#0F1117]/95 px-4 py-4 backdrop-blur transform-gpu will-change-transform sm:-mx-6 sm:-mb-6 sm:px-6 sm:py-5">
-                  <button
-                    onClick={handleAccept}
-                    disabled={executionStarted && !allActionsComplete}
-                    aria-label={
-                      executionStarted
-                        ? allActionsComplete
-                          ? 'Complete response after verified execution'
-                          : `Execution in progress: ${completedActionCount} of ${executionActions.length} actions complete`
-                        : 'Confirm and accept AI recommendation'
-                    }
-                    aria-describedby={actionJustificationId}
-                    aria-keyshortcuts="Meta+Enter Control+Enter"
-                    className={`flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-all ${
-                      executionStarted && !allActionsComplete
-                        ? 'cursor-not-allowed border border-[#334155] bg-[#1F2937] text-[#94A3B8]'
-                        : 'bg-[#1D4ED8] text-white hover:bg-[#2563EB] active:scale-[0.98]'
-                    }`}
-                  >
-                    <span
-                      className="material-symbols-outlined"
-                      aria-hidden="true"
-                      style={{ fontSize: '18px', lineHeight: 1 }}
-                    >
-                      {executionStarted && !allActionsComplete ? 'sync' : 'check_circle'}
-                    </span>
-                    <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-                      <span>
-                        {executionStarted
-                          ? allActionsComplete
-                            ? 'Complete Response'
-                            : `Executing ${completedActionCount}/${executionActions.length}`
-                          : 'Accept AI Recommendation'}
-                      </span>
-                      {!executionStarted && (
-                        <kbd className="rounded border border-white/25 px-1.5 py-0.5 text-[11px] font-semibold text-white/80">
-                          Cmd/Ctrl+Enter
-                        </kbd>
-                      )}
-                    </span>
-                  </button>
-                  <button
-                    onClick={handleOverride}
-                    aria-label="Override AI recommendation with reason"
-                    className="mt-2 flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg border border-[#64748B] px-4 text-sm font-semibold text-[#E5E7EB] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98]"
-                  >
-                    <span
-                      className="material-symbols-outlined"
-                      aria-hidden="true"
-                      style={{ fontSize: '18px', lineHeight: 1 }}
-                    >
-                      edit_note
-                    </span>
-                    Override with Reason
-                  </button>
-                  <p className="mt-3 text-center text-xs text-[#94A3B8]">
-                    Every action is logged with attribution
-                  </p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="order-2 text-xs text-[#94A3B8] sm:order-1">
+                      Every action is logged with attribution
+                    </p>
+                    <div className="order-1 flex flex-col gap-2 sm:order-2 sm:flex-row sm:justify-end">
+                      <button
+                        onClick={handleOverride}
+                        aria-label="Override AI recommendation with reason"
+                        className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg border border-[#64748B] px-4 text-sm font-semibold text-[#E5E7EB] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98] sm:w-auto sm:min-w-[13rem]"
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          aria-hidden="true"
+                          style={{ fontSize: '18px', lineHeight: 1 }}
+                        >
+                          edit_note
+                        </span>
+                        Override with Reason
+                      </button>
+                      <button
+                        onClick={handleAccept}
+                        disabled={executionStarted && !allActionsComplete}
+                        aria-label={
+                          executionStarted
+                            ? allActionsComplete
+                              ? 'Complete response after verified execution'
+                              : `Execution in progress: ${completedActionCount} of ${executionActions.length} actions complete`
+                            : 'Confirm and accept AI recommendation'
+                        }
+                        aria-describedby={actionJustificationId}
+                        aria-keyshortcuts="Meta+Enter Control+Enter"
+                        className={`flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-all sm:w-auto sm:min-w-[17rem] ${
+                          executionStarted && !allActionsComplete
+                            ? 'cursor-not-allowed border border-[#334155] bg-[#1F2937] text-[#94A3B8]'
+                            : 'bg-[#1D4ED8] text-white hover:bg-[#2563EB] active:scale-[0.98]'
+                        }`}
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          aria-hidden="true"
+                          style={{ fontSize: '18px', lineHeight: 1 }}
+                        >
+                          {executionStarted && !allActionsComplete ? 'sync' : 'check_circle'}
+                        </span>
+                        <span className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+                          <span>
+                            {executionStarted
+                              ? allActionsComplete
+                                ? 'Complete Response'
+                                : `Executing ${completedActionCount}/${executionActions.length}`
+                              : 'Accept AI Recommendation'}
+                          </span>
+                          {!executionStarted && (
+                            <kbd className="rounded border border-white/25 px-1.5 py-0.5 text-[11px] font-semibold text-white/80">
+                              Cmd/Ctrl+Enter
+                            </kbd>
+                          )}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                 </footer>
               </div>
             ) : (
