@@ -7,6 +7,11 @@ import type {
   Entity,
   EntityType,
   Evidence,
+  CaseLifecycleStage,
+  CaseLifecycleEvent,
+  CaseAccessMember,
+  CasePermission,
+  Severity,
 } from '@/lib/types'
 import { MOCK_CASES, ENTITIES, MOCK_CAMPAIGNS } from '@/lib/mock-data/scenarios'
 import EntityGraph from '@/components/case/EntityGraph'
@@ -27,6 +32,168 @@ const WORKSPACE_TABS: { key: WorkspaceTab; label: string; icon: string }[] = [
   { key: 'tasks', label: 'Tasks', icon: 'task_alt' },
   { key: 'ai', label: 'AI Assistant', icon: 'smart_toy' },
 ]
+
+const CASE_STAGE_META: Record<
+  CaseLifecycleStage,
+  { label: string; description: string; tone: string }
+> = {
+  draft: {
+    label: 'Draft',
+    description: 'Intake is being prepared before formal opening.',
+    tone: '#94A3B8',
+  },
+  open: {
+    label: 'Open',
+    description: 'Case exists and is ready for assignment.',
+    tone: '#60A5FA',
+  },
+  triage: {
+    label: 'Triage',
+    description: 'Scope, severity, people, and initial evidence are being validated.',
+    tone: '#7DD3FC',
+  },
+  under_investigation: {
+    label: 'Under Investigation',
+    description: 'Evidence review, interviews, tasks, and timeline reconstruction are active.',
+    tone: '#A78BFA',
+  },
+  pending_external_input: {
+    label: 'Pending External Input',
+    description: 'Waiting on HR, Legal, site, law enforcement, vendor, or other partner.',
+    tone: '#FBBF24',
+  },
+  pending_approval: {
+    label: 'Pending Approval',
+    description: 'Investigation is ready for reviewer approval and closure decision.',
+    tone: '#F59E0B',
+  },
+  closed_substantiated: {
+    label: 'Closed - Substantiated',
+    description: 'Findings are confirmed and approved.',
+    tone: '#34D399',
+  },
+  closed_unsubstantiated: {
+    label: 'Closed - Unsubstantiated',
+    description: 'Investigation did not support the allegation.',
+    tone: '#94A3B8',
+  },
+  closed_inconclusive: {
+    label: 'Closed - Inconclusive',
+    description: 'Available evidence was insufficient for a finding.',
+    tone: '#CBD5E1',
+  },
+  reopened: {
+    label: 'Reopened',
+    description: 'Closed case reopened due to new evidence or appeal.',
+    tone: '#FB7185',
+  },
+  archived: {
+    label: 'Archived',
+    description: 'Retention-only record; editing is locked except legal/admin actions.',
+    tone: '#64748B',
+  },
+}
+
+const CASE_TRANSITIONS: Record<CaseLifecycleStage, CaseLifecycleStage[]> = {
+  draft: ['open'],
+  open: ['triage', 'under_investigation'],
+  triage: ['under_investigation', 'pending_external_input'],
+  under_investigation: ['pending_external_input', 'pending_approval'],
+  pending_external_input: ['under_investigation', 'pending_approval'],
+  pending_approval: [
+    'under_investigation',
+    'closed_substantiated',
+    'closed_unsubstantiated',
+    'closed_inconclusive',
+  ],
+  closed_substantiated: ['reopened', 'archived'],
+  closed_unsubstantiated: ['reopened', 'archived'],
+  closed_inconclusive: ['reopened', 'archived'],
+  reopened: ['under_investigation'],
+  archived: [],
+}
+
+type CaseAccessRole =
+  | 'case_owner'
+  | 'case_investigator'
+  | 'reviewer'
+  | 'contributor'
+  | 'viewer'
+  | 'hr_partner'
+  | 'legal'
+  | 'site_supervisor'
+  | 'external_collaborator'
+  | 'admin'
+
+const ACCESS_ROLE_LABEL: Record<CaseAccessRole, string> = {
+  case_owner: 'Case Owner',
+  case_investigator: 'Case Investigator',
+  reviewer: 'Reviewer / Approver',
+  contributor: 'Contributor',
+  viewer: 'Viewer',
+  hr_partner: 'HR Partner',
+  legal: 'Legal',
+  site_supervisor: 'Site Supervisor',
+  external_collaborator: 'External Collaborator',
+  admin: 'Admin',
+}
+
+const ACCESS_ROLE_PERMISSIONS: Record<CaseAccessRole, CasePermission[]> = {
+  case_owner: [
+    'case.view',
+    'case.edit',
+    'case.close',
+    'case.reopen',
+    'case.manage_access',
+    'evidence.view',
+    'evidence.add',
+    'evidence.edit_metadata',
+    'people.add',
+    'people.edit',
+    'tasks.assign',
+    'report.edit',
+    'export.create',
+    'integration.send',
+  ],
+  case_investigator: [
+    'case.view',
+    'case.edit',
+    'evidence.view',
+    'evidence.add',
+    'evidence.edit_metadata',
+    'people.add',
+    'people.edit',
+    'tasks.assign',
+    'report.edit',
+    'export.create',
+    'integration.send',
+  ],
+  reviewer: ['case.view', 'evidence.view', 'report.approve', 'export.create'],
+  contributor: ['case.view', 'evidence.view', 'evidence.add'],
+  viewer: ['case.view', 'evidence.view'],
+  hr_partner: ['case.view', 'people.add', 'people.edit', 'report.edit'],
+  legal: ['case.view', 'evidence.view', 'report.edit', 'report.approve', 'export.create'],
+  site_supervisor: ['case.view', 'evidence.view', 'evidence.add', 'tasks.assign'],
+  external_collaborator: ['case.view', 'evidence.add'],
+  admin: [
+    'case.view',
+    'case.edit',
+    'case.close',
+    'case.reopen',
+    'case.manage_access',
+    'evidence.view',
+    'evidence.add',
+    'evidence.edit_metadata',
+    'evidence.remove',
+    'people.add',
+    'people.edit',
+    'tasks.assign',
+    'report.edit',
+    'report.approve',
+    'export.create',
+    'integration.send',
+  ],
+}
 
 // Small inline Material icon helper
 function Icon({
@@ -58,6 +225,22 @@ const EVIDENCE: Evidence[] = [
     timestamp: '2026-06-04T14:38:00Z',
     confidence: 0.94,
     retention: '90 days',
+    origin: 'system',
+    fileName: 'C4-corridor-1426-1442.mp4',
+    mimeType: 'video/mp4',
+    sizeBytes: 18874368,
+    hash: 'sha256:9c8f...7b21',
+    uploadedBy: 'Avigilon VMS',
+    addedAt: '2026-06-04T14:40:00Z',
+    custodyEvents: [
+      {
+        id: 'cust-001',
+        action: 'retained',
+        actor: 'Agora System',
+        timestamp: '2026-06-04T14:40:00Z',
+        note: 'Clip retained from VMS archive during incident promotion.',
+      },
+    ],
   },
   {
     id: 'ev-002',
@@ -67,6 +250,22 @@ const EVIDENCE: Evidence[] = [
     timestamp: '2026-06-04T14:34:00Z',
     confidence: 1.0,
     retention: '1 year',
+    origin: 'system',
+    fileName: 'brivo-denial-1434.json',
+    mimeType: 'application/json',
+    sizeBytes: 4096,
+    hash: 'sha256:f142...ab0d',
+    uploadedBy: 'Brivo ACS',
+    addedAt: '2026-06-04T14:40:00Z',
+    custodyEvents: [
+      {
+        id: 'cust-002',
+        action: 'created',
+        actor: 'Brivo ACS',
+        timestamp: '2026-06-04T14:34:00Z',
+        note: 'Access denial event imported from source system.',
+      },
+    ],
   },
   {
     id: 'ev-003',
@@ -76,6 +275,22 @@ const EVIDENCE: Evidence[] = [
     timestamp: '2026-06-04T14:38:00Z',
     confidence: 1.0,
     retention: '1 year',
+    origin: 'system',
+    fileName: 'brivo-denial-1438.json',
+    mimeType: 'application/json',
+    sizeBytes: 4096,
+    hash: 'sha256:70ac...e914',
+    uploadedBy: 'Brivo ACS',
+    addedAt: '2026-06-04T14:40:00Z',
+    custodyEvents: [
+      {
+        id: 'cust-003',
+        action: 'created',
+        actor: 'Brivo ACS',
+        timestamp: '2026-06-04T14:38:00Z',
+        note: 'Second access denial event imported from source system.',
+      },
+    ],
   },
   {
     id: 'ev-004',
@@ -85,6 +300,22 @@ const EVIDENCE: Evidence[] = [
     timestamp: '2026-06-04T14:35:00Z',
     confidence: 0.87,
     retention: '90 days',
+    origin: 'system',
+    fileName: 'camera-c4-id-frame.jpg',
+    mimeType: 'image/jpeg',
+    sizeBytes: 842144,
+    hash: 'sha256:240e...902a',
+    uploadedBy: 'Avigilon VMS',
+    addedAt: '2026-06-04T14:40:00Z',
+    custodyEvents: [
+      {
+        id: 'cust-004',
+        action: 'retained',
+        actor: 'Agora System',
+        timestamp: '2026-06-04T14:40:00Z',
+        note: 'Still frame retained from incident evidence bundle.',
+      },
+    ],
   },
 ]
 
@@ -206,6 +437,58 @@ const INITIAL_CASE_PARTICIPANTS: CaseParticipant[] = [
   },
 ]
 
+const INITIAL_LIFECYCLE_EVENTS: CaseLifecycleEvent[] = [
+  {
+    id: 'life-001',
+    fromStage: 'draft',
+    toStage: 'open',
+    changedBy: 'Agora System',
+    changedAt: '2026-06-04T14:40:00Z',
+    reason: 'Incident inc-001 promoted to case after operator accepted response workflow.',
+  },
+  {
+    id: 'life-002',
+    fromStage: 'open',
+    toStage: 'under_investigation',
+    changedBy: 'J. Torres',
+    changedAt: '2026-06-04T15:12:00Z',
+    reason: 'Initial evidence review confirmed unauthorized access probing pattern.',
+  },
+]
+
+const INITIAL_ACCESS_MEMBERS: CaseAccessMember[] = [
+  {
+    id: 'access-owner',
+    subjectType: 'user',
+    subjectName: 'J. Torres',
+    role: 'case_owner',
+    permissions: ACCESS_ROLE_PERMISSIONS.case_owner,
+    accessScope: 'full_case',
+    addedBy: 'Agora System',
+    addedAt: '2026-06-04T14:40:00Z',
+  },
+  {
+    id: 'access-hr',
+    subjectType: 'group',
+    subjectName: 'HR Business Partners',
+    role: 'hr_partner',
+    permissions: ACCESS_ROLE_PERMISSIONS.hr_partner,
+    accessScope: 'people_only',
+    addedBy: 'J. Torres',
+    addedAt: '2026-06-04T15:03:00Z',
+  },
+  {
+    id: 'access-legal',
+    subjectType: 'group',
+    subjectName: 'Corporate Legal',
+    role: 'legal',
+    permissions: ACCESS_ROLE_PERMISSIONS.legal,
+    accessScope: 'report_only',
+    addedBy: 'J. Torres',
+    addedAt: '2026-06-04T15:05:00Z',
+  },
+]
+
 const SEVERITY_STYLE: Record<string, { bg: string; text: string }> = {
   critical: { bg: '#2A1212', text: '#F87171' },
   high: { bg: '#2A1B0E', text: '#FB923C' },
@@ -262,15 +545,27 @@ function fmtDateTime(iso: string) {
 export default function CaseWorkspace() {
   const [tab, setTab] = useState<WorkspaceTab>('timeline')
   const [timeline, setTimeline] = useState<TimelineEvent[]>(baseCase.timeline)
+  const [caseData, setCaseData] = useState<Case>({
+    ...baseCase,
+    source: 'incident_promotion',
+    lifecycleStage: 'under_investigation',
+    lifecycleEvents: INITIAL_LIFECYCLE_EVENTS,
+    accessMembers: INITIAL_ACCESS_MEMBERS,
+  })
+  const [evidenceItems, setEvidenceItems] = useState<Evidence[]>(EVIDENCE)
   const [showEventForm, setShowEventForm] = useState(false)
   const [tasks, setTasks] = useState<CaseTask[]>(INITIAL_TASKS)
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null)
   const [resolvedQuestions, setResolvedQuestions] = useState<string[]>([])
   const [showReport, setShowReport] = useState(false)
   const [participants, setParticipants] = useState<CaseParticipant[]>(INITIAL_CASE_PARTICIPANTS)
+  const [showIntake, setShowIntake] = useState(false)
+  const [showExport, setShowExport] = useState(false)
+  const [showIntegration, setShowIntegration] = useState(false)
 
-  const campaign = MOCK_CAMPAIGNS.find((c) => c.id === baseCase.campaignId)
-  const sev = SEVERITY_STYLE[baseCase.severity]
+  const campaign = MOCK_CAMPAIGNS.find((c) => c.id === caseData.campaignId)
+  const sev = SEVERITY_STYLE[caseData.severity]
+  const stage = caseData.lifecycleStage ?? 'under_investigation'
 
   function handleTaskComplete(taskTitle: string) {
     const ev: TimelineEvent = {
@@ -333,6 +628,146 @@ export default function CaseWorkspace() {
     )
   }
 
+  function appendAuditEvent(title: string, detail: string) {
+    const ev: TimelineEvent = {
+      id: `tl-audit-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type: 'manual',
+      title,
+      detail,
+      entityRefs: [],
+      evidenceRefs: [],
+      isAIGenerated: false,
+      isManual: true,
+    }
+    setTimeline((prev) =>
+      [...prev, ev].sort(
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
+    )
+  }
+
+  function handleStageChange(nextStage: CaseLifecycleStage, reason: string) {
+    const fromStage = caseData.lifecycleStage ?? 'under_investigation'
+    const event: CaseLifecycleEvent = {
+      id: `life-${Date.now()}`,
+      fromStage,
+      toStage: nextStage,
+      changedBy: CURRENT_CASE_OPERATOR,
+      changedAt: new Date().toISOString(),
+      reason,
+    }
+    setCaseData((prev) => ({
+      ...prev,
+      lifecycleStage: nextStage,
+      lifecycleEvents: [...(prev.lifecycleEvents ?? []), event],
+      status: nextStage.startsWith('closed')
+        ? 'closed'
+        : nextStage === 'reopened'
+          ? 'reopened'
+          : nextStage === 'pending_external_input'
+            ? 'waiting'
+            : nextStage === 'draft' || nextStage === 'open' || nextStage === 'triage'
+              ? 'new'
+              : 'investigating',
+      updatedAt: event.changedAt,
+    }))
+    appendAuditEvent(
+      `Lifecycle changed: ${CASE_STAGE_META[fromStage].label} → ${CASE_STAGE_META[nextStage].label}`,
+      reason
+    )
+  }
+
+  function handleCreateCase(draft: {
+    source: 'manual' | 'incident_promotion'
+    title: string
+    severity: Severity
+    siteName: string
+    location: string
+    description: string
+    notifiedParties: string
+  }) {
+    const now = new Date().toISOString()
+    setCaseData((prev) => ({
+      ...prev,
+      id: draft.source === 'manual' ? `case-${Date.now().toString().slice(-4)}` : prev.id,
+      source: draft.source,
+      title: draft.title,
+      severity: draft.severity,
+      siteName: draft.siteName,
+      location: draft.location,
+      lifecycleStage: 'open',
+      status: 'new',
+      createdAt: now,
+      updatedAt: now,
+      openQuestions: [
+        'Which systems contain authoritative evidence for this incident?',
+        'Who must be notified before closure?',
+        'Are there related incidents or repeat patterns?',
+      ],
+      tags: draft.source === 'manual' ? ['manual-intake', 'needs-triage'] : prev.tags,
+      lifecycleEvents: [
+        ...(prev.lifecycleEvents ?? []),
+        {
+          id: `life-${Date.now()}`,
+          fromStage: 'draft',
+          toStage: 'open',
+          changedBy: CURRENT_CASE_OPERATOR,
+          changedAt: now,
+          reason:
+            draft.source === 'manual'
+              ? 'Manual case intake submitted with AI-assisted defaults.'
+              : 'Incident promoted with inherited evidence and timeline.',
+        },
+      ],
+    }))
+    appendAuditEvent(
+      draft.source === 'manual' ? 'Manual case created' : 'Incident promoted to case',
+      `${draft.description} Notified parties: ${draft.notifiedParties || 'Not specified'}.`
+    )
+    setShowIntake(false)
+  }
+
+  function handleEvidenceAdd(evidence: Evidence) {
+    setEvidenceItems((prev) => [evidence, ...prev])
+    appendAuditEvent(
+      `Evidence added: ${evidence.label}`,
+      `${evidence.sourceSystem} · ${evidence.origin === 'external_link' ? evidence.externalUrl : evidence.fileName || evidence.retention}`
+    )
+  }
+
+  function handleAccessAdd(member: CaseAccessMember) {
+    setCaseData((prev) => ({
+      ...prev,
+      accessMembers: [...(prev.accessMembers ?? []), member],
+    }))
+    appendAuditEvent(
+      `Access granted: ${member.subjectName}`,
+      `${ACCESS_ROLE_LABEL[member.role as CaseAccessRole] ?? member.role} · ${member.accessScope ?? 'full_case'}`
+    )
+  }
+
+  function handleExport(format: string, includeEvidence: boolean) {
+    appendAuditEvent(
+      `Case export generated: ${format}`,
+      includeEvidence
+        ? 'Export package includes report, structured data, audit trail, custody manifest, and attached evidence files where available.'
+        : 'Export package includes report, structured data, audit trail, and custody manifest without binary evidence files.'
+    )
+    setShowExport(false)
+  }
+
+  function handleIntegrationSend(system: string, includeEvidence: boolean) {
+    appendAuditEvent(
+      `Case sent to ${system}`,
+      includeEvidence
+        ? 'Payload preview accepted; evidence references and manifest included.'
+        : 'Payload preview accepted; case metadata and report links included.'
+    )
+    setShowIntegration(false)
+  }
+
   return (
     <div className="px-4 py-5 sm:px-6 xl:px-8">
       <div className="grid grid-cols-1 gap-6 min-[1800px]:grid-cols-[minmax(0,1.55fr)_minmax(380px,0.85fr)]">
@@ -345,30 +780,58 @@ export default function CaseWorkspace() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs font-semibold text-[#9CA3AF]">
-                      {baseCase.id}
+                      {caseData.id}
                     </span>
                     <span
                       className="inline-flex items-center rounded-full border border-[#374151] px-2.5 py-0.5 text-xs font-semibold"
                       style={{ color: sev.text }}
                     >
-                      {baseCase.severity}
+                      {caseData.severity}
+                    </span>
+                    <span
+                      className="inline-flex items-center rounded-full border border-[#374151] px-2.5 py-0.5 text-xs font-semibold"
+                      style={{ color: CASE_STAGE_META[stage].tone }}
+                    >
+                      {CASE_STAGE_META[stage].label}
                     </span>
                   </div>
                   <h2 className="mt-2 max-w-4xl text-xl font-bold leading-tight tracking-tight text-white sm:text-2xl">
-                    {baseCase.title}
+                    {caseData.title}
                   </h2>
                 </div>
-                <span className="inline-flex min-h-8 shrink-0 items-center gap-1.5 self-start rounded-full border border-[#374151] px-3 py-1 text-sm font-medium text-[#CBD5E0]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
-                  Investigating
-                </span>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowIntake(true)}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[#374151] px-3 text-xs font-bold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+                  >
+                    <Icon name="post_add" size={16} />
+                    New Case
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowExport(true)}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[#374151] px-3 text-xs font-bold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+                  >
+                    <Icon name="archive" size={16} />
+                    Export
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowIntegration(true)}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-xs font-bold text-white transition-colors hover:bg-[#6D28D9]"
+                  >
+                    <Icon name="ios_share" size={16} />
+                    Send
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm leading-relaxed">
                 <div className="min-w-max">
                   <span className="text-[#94A3B8]">Owner</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
-                    {baseCase.owner}
+                    {caseData.owner}
                   </span>
                 </div>
                 <div className="min-w-max">
@@ -380,7 +843,7 @@ export default function CaseWorkspace() {
                 <div className="min-w-max">
                   <span className="text-[#94A3B8]">Site</span>
                   <span className="ml-1.5 font-semibold text-[#CBD5E0]">
-                    {baseCase.siteName}
+                    {caseData.siteName}
                   </span>
                 </div>
                 <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -388,16 +851,16 @@ export default function CaseWorkspace() {
                   <span className="inline-flex min-h-8 max-w-full items-center gap-1 rounded-full border border-[#374151] px-2.5 py-1 font-semibold text-[#CBD5E0]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
                     <span className="min-w-0">
-                      {baseCase.sla.breached ? 'Breached' : 'On track'} · due{' '}
-                      {fmtDateTime(baseCase.sla.dueAt)}
+                      {caseData.sla.breached ? 'Breached' : 'On track'} · due{' '}
+                      {fmtDateTime(caseData.sla.dueAt)}
                     </span>
                   </span>
                 </div>
               </div>
 
               <CaseContextStrip
-                caseData={baseCase}
-                entityRefs={baseCase.entityRefs}
+                caseData={caseData}
+                entityRefs={caseData.entityRefs}
               />
             </div>
 
@@ -454,7 +917,12 @@ export default function CaseWorkspace() {
                   setShowEventForm={setShowEventForm}
                 />
               )}
-              {tab === 'evidence' && <EvidenceTab />}
+              {tab === 'evidence' && (
+                <EvidenceTab
+                  evidenceItems={evidenceItems}
+                  onEvidenceAdd={handleEvidenceAdd}
+                />
+              )}
               {tab === 'graph' && (
                 <EntityGraph
                   selectedEntity={selectedEntity}
@@ -476,7 +944,18 @@ export default function CaseWorkspace() {
         {/* ===================== RIGHT COLUMN ===================== */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-2 min-[1800px]:block min-[1800px]:space-y-5">
           {/* Person profile */}
-          {baseCase.person && <PersonCard person={baseCase.person} />}
+          {caseData.person && <PersonCard person={caseData.person} />}
+
+          <CaseLifecyclePanel
+            stage={stage}
+            events={caseData.lifecycleEvents ?? []}
+            onStageChange={handleStageChange}
+          />
+
+          <CaseAccessPanel
+            members={caseData.accessMembers ?? []}
+            onAddMember={handleAccessAdd}
+          />
 
           <CasePeoplePanel
             participants={participants}
@@ -493,7 +972,7 @@ export default function CaseWorkspace() {
               </h3>
             </div>
             <ul className="divide-y divide-[#273142]">
-              {baseCase.openQuestions.map((q) => {
+              {caseData.openQuestions.map((q) => {
                 const resolved = resolvedQuestions.includes(q)
                 return (
                   <li key={q} className="flex items-start gap-3 px-5 py-3">
@@ -539,11 +1018,37 @@ export default function CaseWorkspace() {
 
       {showReport && (
         <NarrativeReport
-          caseData={{ ...baseCase, timeline }}
+          caseData={{ ...caseData, timeline }}
           entities={ENTITIES.filter((e) =>
-            baseCase.entityRefs.some((r) => r.id === e.id)
+            caseData.entityRefs.some((r) => r.id === e.id)
           )}
           onClose={() => setShowReport(false)}
+        />
+      )}
+
+      {showIntake && (
+        <CaseIntakeModal
+          baseCase={caseData}
+          onClose={() => setShowIntake(false)}
+          onCreate={handleCreateCase}
+        />
+      )}
+
+      {showExport && (
+        <CaseExportModal
+          caseData={caseData}
+          evidenceItems={evidenceItems}
+          onClose={() => setShowExport(false)}
+          onExport={handleExport}
+        />
+      )}
+
+      {showIntegration && (
+        <CaseIntegrationModal
+          caseData={caseData}
+          evidenceItems={evidenceItems}
+          onClose={() => setShowIntegration(false)}
+          onSend={handleIntegrationSend}
         />
       )}
     </div>
@@ -612,6 +1117,773 @@ function CompactContextItem({ label, value }: { label: string; value: string }) 
         {value}
       </p>
     </div>
+  )
+}
+
+// ============================================================
+// CASE LIFECYCLE PANEL
+// ============================================================
+
+function CaseLifecyclePanel({
+  stage,
+  events,
+  onStageChange,
+}: {
+  stage: CaseLifecycleStage
+  events: CaseLifecycleEvent[]
+  onStageChange: (stage: CaseLifecycleStage, reason: string) => void
+}) {
+  const [nextStage, setNextStage] = useState<CaseLifecycleStage>(
+    CASE_TRANSITIONS[stage][0] ?? stage
+  )
+  const [reason, setReason] = useState('')
+  const availableTransitions = CASE_TRANSITIONS[stage]
+
+  function submitTransition() {
+    if (!reason.trim() || nextStage === stage) return
+    onStageChange(nextStage, reason.trim())
+    setReason('')
+  }
+
+  return (
+    <section className="rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="border-b border-[#273142] px-5 py-4">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+          <Icon name="account_tree" size={17} className="text-[#7DD3FC]" />
+          Case Lifecycle
+        </h3>
+        <p className="mt-1 text-xs leading-relaxed text-[#94A3B8]">
+          Stage transitions require a reason and are appended to the case audit trail.
+        </p>
+      </div>
+
+      <div className="space-y-4 p-5">
+        <div className="rounded-lg border border-[#334155] bg-[#111827] p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+                Current stage
+              </p>
+              <p className="mt-1 text-sm font-bold text-white">
+                {CASE_STAGE_META[stage].label}
+              </p>
+            </div>
+            <span
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: CASE_STAGE_META[stage].tone }}
+            />
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-[#CBD5E0]">
+            {CASE_STAGE_META[stage].description}
+          </p>
+        </div>
+
+        {availableTransitions.length > 0 ? (
+          <div className="rounded-lg border border-[#334155] bg-[#111827] p-3">
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Change stage
+              <select
+                value={nextStage}
+                onChange={(event) => setNextStage(event.target.value as CaseLifecycleStage)}
+                className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm font-semibold text-white outline-none focus:border-[#7DD3FC]"
+                aria-label="Select next case lifecycle stage"
+              >
+                {availableTransitions.map((transition) => (
+                  <option key={transition} value={transition}>
+                    {CASE_STAGE_META[transition].label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="mt-3 block text-xs font-bold text-[#CBD5E0]">
+              Reason
+              <textarea
+                rows={2}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                className="mt-1 w-full resize-none rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-[#94A3B8] focus:border-[#7DD3FC]"
+                placeholder="Required for auditability, approvals, reopen, and closure."
+              />
+            </label>
+            <button
+              type="button"
+              onClick={submitTransition}
+              disabled={!reason.trim()}
+              className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-3 text-xs font-bold text-white transition-colors hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:bg-[#374151] disabled:text-[#94A3B8]"
+            >
+              <Icon name="swap_horiz" size={16} />
+              Apply Stage Change
+            </button>
+          </div>
+        ) : (
+          <p className="rounded-lg border border-[#334155] bg-[#111827] p-3 text-xs leading-relaxed text-[#CBD5E0]">
+            Archived cases are locked for editing. Admin or Legal can export or retain the record.
+          </p>
+        )}
+
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+            Stage history
+          </p>
+          <ol className="space-y-2">
+            {events.slice(-4).reverse().map((event) => (
+              <li key={event.id} className="rounded-lg border border-[#273142] bg-[#111827] p-3">
+                <p className="text-xs font-bold text-white">
+                  {CASE_STAGE_META[event.fromStage].label} → {CASE_STAGE_META[event.toStage].label}
+                </p>
+                <p className="mt-1 text-xs text-[#94A3B8]">
+                  {fmtDateTime(event.changedAt)} · {event.changedBy}
+                </p>
+                {event.reason && (
+                  <p className="mt-1 text-xs leading-relaxed text-[#CBD5E0]">
+                    {event.reason}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ============================================================
+// CASE ACCESS PANEL
+// ============================================================
+
+function CaseAccessPanel({
+  members,
+  onAddMember,
+}: {
+  members: CaseAccessMember[]
+  onAddMember: (member: CaseAccessMember) => void
+}) {
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    subjectType: 'user' as CaseAccessMember['subjectType'],
+    subjectName: '',
+    role: 'viewer' as CaseAccessRole,
+    accessScope: 'full_case' as NonNullable<CaseAccessMember['accessScope']>,
+    expiresAt: '',
+  })
+
+  function addMember() {
+    if (!form.subjectName.trim()) return
+    onAddMember({
+      id: `access-${Date.now()}`,
+      subjectType: form.subjectType,
+      subjectName: form.subjectName.trim(),
+      role: form.role,
+      permissions: ACCESS_ROLE_PERMISSIONS[form.role],
+      accessScope: form.accessScope,
+      expiresAt: form.expiresAt || undefined,
+      addedBy: CURRENT_CASE_OPERATOR,
+      addedAt: new Date().toISOString(),
+    })
+    setForm({
+      subjectType: 'user',
+      subjectName: '',
+      role: 'viewer',
+      accessScope: 'full_case',
+      expiresAt: '',
+    })
+    setShowForm(false)
+  }
+
+  const selectedPermissions = ACCESS_ROLE_PERMISSIONS[form.role]
+
+  return (
+    <section className="rounded-xl border border-[#273142] bg-[#171D29]">
+      <div className="flex items-start justify-between gap-3 border-b border-[#273142] px-5 py-4">
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Icon name="lock_person" size={17} className="text-[#FBBF24]" />
+            Case Access
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-[#94A3B8]">
+            People and groups receive role templates plus optional scoped access.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowForm((value) => !value)}
+          className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#374151] px-3 text-xs font-bold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+        >
+          <Icon name={showForm ? 'close' : 'group_add'} size={16} />
+          {showForm ? 'Cancel' : 'Grant'}
+        </button>
+      </div>
+
+      <div className="space-y-4 p-5">
+        {showForm && (
+          <div className="rounded-lg border border-[#334155] bg-[#111827] p-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                Subject type
+                <select
+                  value={form.subjectType}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      subjectType: event.target.value as CaseAccessMember['subjectType'],
+                    }))
+                  }
+                  className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none focus:border-[#FBBF24]"
+                >
+                  <option value="user">User</option>
+                  <option value="group">Group</option>
+                </select>
+              </label>
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                Person or group
+                <input
+                  value={form.subjectName}
+                  onChange={(event) => setForm((prev) => ({ ...prev, subjectName: event.target.value }))}
+                  className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#FBBF24]"
+                  placeholder="e.g. Legal Reviewers"
+                />
+              </label>
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                Role
+                <select
+                  value={form.role}
+                  onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as CaseAccessRole }))}
+                  className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none focus:border-[#FBBF24]"
+                >
+                  {(Object.keys(ACCESS_ROLE_LABEL) as CaseAccessRole[]).map((role) => (
+                    <option key={role} value={role}>
+                      {ACCESS_ROLE_LABEL[role]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                Scope
+                <select
+                  value={form.accessScope}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      accessScope: event.target.value as NonNullable<CaseAccessMember['accessScope']>,
+                    }))
+                  }
+                  className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none focus:border-[#FBBF24]"
+                >
+                  <option value="full_case">Full case</option>
+                  <option value="evidence_only">Evidence only</option>
+                  <option value="people_only">People only</option>
+                  <option value="tasks_only">Tasks only</option>
+                  <option value="report_only">Report only</option>
+                </select>
+              </label>
+              <label className="text-xs font-bold text-[#CBD5E0] sm:col-span-2">
+                Expiration
+                <input
+                  type="datetime-local"
+                  value={form.expiresAt}
+                  onChange={(event) => setForm((prev) => ({ ...prev, expiresAt: event.target.value }))}
+                  className="mt-1 min-h-10 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 text-sm text-white outline-none focus:border-[#FBBF24]"
+                />
+              </label>
+            </div>
+            <div className="mt-3 rounded-md border border-[#273142] bg-[#0F1117] p-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+                Generated permissions
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {selectedPermissions.map((permission) => (
+                  <span
+                    key={permission}
+                    className="rounded-full border border-[#334155] px-2 py-0.5 text-xs font-medium text-[#CBD5E0]"
+                  >
+                    {permission}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={addMember}
+              disabled={!form.subjectName.trim()}
+              className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#F59E0B] px-4 text-sm font-bold text-[#0F1117] transition-colors hover:bg-[#FBBF24] disabled:cursor-not-allowed disabled:bg-[#374151] disabled:text-[#94A3B8]"
+            >
+              <Icon name="verified_user" size={17} />
+              Grant Case Access
+            </button>
+          </div>
+        )}
+
+        <ul className="space-y-2">
+          {members.map((member) => (
+            <li key={member.id} className="rounded-lg border border-[#273142] bg-[#111827] p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-white">
+                    {member.subjectName}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-[#94A3B8]">
+                    {member.subjectType} · {ACCESS_ROLE_LABEL[member.role as CaseAccessRole] ?? member.role}
+                  </p>
+                </div>
+                <span className="rounded-full border border-[#334155] px-2 py-0.5 text-xs font-semibold text-[#CBD5E0]">
+                  {member.accessScope?.replace('_', ' ') ?? 'full case'}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-[#CBD5E0]">
+                {member.permissions.length} permissions · added {fmtDateTime(member.addedAt)}
+                {member.expiresAt ? ` · expires ${fmtDateTime(member.expiresAt)}` : ''}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+// ============================================================
+// CASE INTAKE / EXPORT / INTEGRATION MODALS
+// ============================================================
+
+function ModalShell({
+  title,
+  subtitle,
+  icon,
+  onClose,
+  children,
+}: {
+  title: string
+  subtitle: string
+  icon: string
+  onClose: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#2D3748] bg-[#1A1F2E] shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[#2D3748] bg-[#111827] px-5 py-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#243048] text-[#A78BFA]">
+              <Icon name={icon} size={20} />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-base font-bold text-white">{title}</h2>
+              <p className="mt-1 text-xs leading-relaxed text-[#94A3B8]">{subtitle}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#243048] hover:text-white"
+            aria-label={`Close ${title}`}
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+function CaseIntakeModal({
+  baseCase,
+  onClose,
+  onCreate,
+}: {
+  baseCase: Case
+  onClose: () => void
+  onCreate: (draft: {
+    source: 'manual' | 'incident_promotion'
+    title: string
+    severity: Severity
+    siteName: string
+    location: string
+    description: string
+    notifiedParties: string
+  }) => void
+}) {
+  const [source, setSource] = useState<'manual' | 'incident_promotion'>('manual')
+  const [draftSeed, setDraftSeed] = useState('')
+  const [form, setForm] = useState({
+    title: 'Unauthorized access investigation',
+    severity: 'medium' as Severity,
+    siteName: baseCase.siteName,
+    location: baseCase.location ?? 'Austin HQ · Investigation location pending',
+    description:
+      'Physical security investigation opened for access anomaly requiring evidence review, people assignment, and closure approval.',
+    notifiedParties: 'Security leadership; Site supervisor',
+  })
+
+  function draftWithAi() {
+    const seed = draftSeed.trim() || 'manual security incident'
+    const critical =
+      /server|restricted|violence|weapon|critical|unauthorized/i.test(seed)
+    setForm((prev) => ({
+      ...prev,
+      title: critical
+        ? 'Unauthorized restricted-area access investigation'
+        : 'Physical security incident investigation',
+      severity: critical ? 'critical' : 'medium',
+      description: `AI draft from intake note: ${seed}. Initial scope includes validating the incident classification, preserving relevant video/access evidence, identifying people involved, assigning owner tasks, and documenting notifications.`,
+      notifiedParties: critical
+        ? 'Security leadership; HR; Site supervisor; Legal for evidence hold'
+        : 'Security leadership; Site supervisor',
+    }))
+  }
+
+  const inputCls =
+    'mt-1 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]'
+
+  return (
+    <ModalShell
+      title="Case Intake"
+      subtitle="Create a case manually or promote an incident with fast defaults and AI-assisted drafting."
+      icon="post_add"
+      onClose={onClose}
+    >
+      <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-4">
+          <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+              Intake source
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              {[
+                ['manual', 'Manual case', 'Start with good defaults for a new investigation.'],
+                ['incident_promotion', 'Promote incident', 'Carry incident timeline, evidence, entities, and actions forward.'],
+              ].map(([key, label, desc]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSource(key as 'manual' | 'incident_promotion')}
+                  className={`rounded-lg border px-3 py-3 text-left transition-colors ${
+                    source === key
+                      ? 'border-[#7C3AED] bg-[#211B33]'
+                      : 'border-[#334155] bg-[#0F1117] hover:bg-[#1F2937]'
+                  }`}
+                >
+                  <p className="text-sm font-bold text-white">{label}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#94A3B8]">{desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+              Agentic draft
+            </p>
+            <textarea
+              rows={4}
+              value={draftSeed}
+              onChange={(event) => setDraftSeed(event.target.value)}
+              className="mt-3 w-full resize-none rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-relaxed text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+              placeholder="Paste a short intake note. Example: Contractor attempted server room access twice, HR needs review."
+            />
+            <button
+              type="button"
+              onClick={draftWithAi}
+              className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-3 text-xs font-bold text-white transition-colors hover:bg-[#1D4ED8]"
+            >
+              <Icon name="auto_awesome" size={16} />
+              Draft Case Defaults
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="text-xs font-bold text-[#CBD5E0] sm:col-span-2">
+              Case title
+              <input
+                value={form.title}
+                onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Severity
+              <select
+                value={form.severity}
+                onChange={(event) => setForm((prev) => ({ ...prev, severity: event.target.value as Severity }))}
+                className={inputCls}
+              >
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Facility
+              <input
+                value={form.siteName}
+                onChange={(event) => setForm((prev) => ({ ...prev, siteName: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0] sm:col-span-2">
+              Location
+              <input
+                value={form.location}
+                onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0] sm:col-span-2">
+              Executive intake summary
+              <textarea
+                rows={4}
+                value={form.description}
+                onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                className={`${inputCls} resize-none leading-relaxed`}
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0] sm:col-span-2">
+              Notified parties
+              <input
+                value={form.notifiedParties}
+                onChange={(event) => setForm((prev) => ({ ...prev, notifiedParties: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-[#273142] bg-[#0F1117] p-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+              Defaults applied
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {[
+                'Owner = current investigator',
+                'Stage = Open',
+                'SLA from severity',
+                'Initial task checklist',
+                'Audit event created',
+              ].map((item) => (
+                <span key={item} className="rounded-full border border-[#334155] px-2 py-0.5 text-xs text-[#CBD5E0]">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onCreate({ source, ...form })}
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#7C3AED] px-4 text-sm font-bold text-white transition-colors hover:bg-[#6D28D9]"
+          >
+            <Icon name="check_circle" size={18} />
+            {source === 'manual' ? 'Create Case' : 'Promote Incident to Case'}
+          </button>
+        </div>
+      </div>
+    </ModalShell>
+  )
+}
+
+function CaseExportModal({
+  caseData,
+  evidenceItems,
+  onClose,
+  onExport,
+}: {
+  caseData: Case
+  evidenceItems: Evidence[]
+  onClose: () => void
+  onExport: (format: string, includeEvidence: boolean) => void
+}) {
+  const [format, setFormat] = useState('Full ZIP package')
+  const [includeEvidence, setIncludeEvidence] = useState(true)
+
+  return (
+    <ModalShell
+      title="Export Case Data"
+      subtitle="Generate a defensible package with report, structured data, audit trail, custody manifest, and evidence files."
+      icon="archive"
+      onClose={onClose}
+    >
+      <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-3">
+          {['Full ZIP package', 'PDF report only', 'JSON', 'XML', 'CSV bundle'].map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setFormat(option)}
+              className={`flex min-h-12 w-full items-center justify-between rounded-lg border px-4 text-left text-sm font-bold transition-colors ${
+                format === option
+                  ? 'border-[#7C3AED] bg-[#211B33] text-white'
+                  : 'border-[#334155] bg-[#111827] text-[#CBD5E0] hover:bg-[#1F2937]'
+              }`}
+            >
+              {option}
+              {format === option && <Icon name="check_circle" size={17} className="text-[#A78BFA]" />}
+            </button>
+          ))}
+          <label className="flex items-start gap-3 rounded-lg border border-[#334155] bg-[#111827] p-4">
+            <input
+              type="checkbox"
+              checked={includeEvidence}
+              onChange={(event) => setIncludeEvidence(event.target.checked)}
+              className="mt-1 h-4 w-4"
+            />
+            <span>
+              <span className="block text-sm font-bold text-white">
+                Include attached evidence files
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-[#94A3B8]">
+                Binary files are included when available; external links remain in the manifest.
+              </span>
+            </span>
+          </label>
+        </div>
+        <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+            Package preview
+          </p>
+          <div className="mt-3 rounded-lg border border-[#273142] bg-[#0F1117] p-3 font-mono text-xs leading-relaxed text-[#CBD5E0]">
+            <p>{caseData.id}-export.zip</p>
+            <p>├─ report/case-investigation-report.pdf</p>
+            <p>├─ data/case.json</p>
+            <p>├─ data/case.xml</p>
+            <p>├─ data/timeline.csv</p>
+            <p>├─ data/evidence-manifest.csv</p>
+            <p>├─ data/chain-of-custody.csv</p>
+            <p>├─ audit/audit-trail.csv</p>
+            <p>├─ evidence/{includeEvidence ? `${evidenceItems.length} referenced items` : 'manifest only'}</p>
+            <p>└─ manifest.json</p>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <CompactMetric label="Evidence items" value={String(evidenceItems.length)} />
+            <CompactMetric label="Custody events" value={String(evidenceItems.reduce((sum, item) => sum + (item.custodyEvents?.length ?? 0), 0))} />
+            <CompactMetric label="Lifecycle stage" value={CASE_STAGE_META[caseData.lifecycleStage ?? 'under_investigation'].label} />
+            <CompactMetric label="Format" value={format} />
+          </div>
+          <button
+            type="button"
+            onClick={() => onExport(format, includeEvidence)}
+            className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#7C3AED] px-4 text-sm font-bold text-white transition-colors hover:bg-[#6D28D9]"
+          >
+            <Icon name="download" size={18} />
+            Generate Export
+          </button>
+        </div>
+      </div>
+    </ModalShell>
+  )
+}
+
+function CompactMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-[#273142] bg-[#0F1117] p-3">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">{label}</p>
+      <p className="mt-1 truncate text-sm font-bold text-white" title={value}>{value}</p>
+    </div>
+  )
+}
+
+function CaseIntegrationModal({
+  caseData,
+  evidenceItems,
+  onClose,
+  onSend,
+}: {
+  caseData: Case
+  evidenceItems: Evidence[]
+  onClose: () => void
+  onSend: (system: string, includeEvidence: boolean) => void
+}) {
+  const [system, setSystem] = useState('ServiceNow Security Incident')
+  const [includeEvidence, setIncludeEvidence] = useState(true)
+  const payload = {
+    externalSystem: system,
+    caseId: caseData.id,
+    shortDescription: caseData.title,
+    severity: caseData.severity,
+    status: CASE_STAGE_META[caseData.lifecycleStage ?? 'under_investigation'].label,
+    site: caseData.siteName,
+    evidenceCount: includeEvidence ? evidenceItems.length : 0,
+    reportTemplate: 'Physical Security Case Investigation Report',
+  }
+
+  return (
+    <ModalShell
+      title="Send Case to External System"
+      subtitle="Preview the handoff payload before creating a ServiceNow record, webhook event, email package, or JSON API export."
+      icon="ios_share"
+      onClose={onClose}
+    >
+      <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="space-y-3">
+          {[
+            'ServiceNow Security Incident',
+            'Generic Webhook',
+            'Email Package',
+            'JSON API Export',
+          ].map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setSystem(option)}
+              className={`flex min-h-12 w-full items-center justify-between rounded-lg border px-4 text-left text-sm font-bold transition-colors ${
+                system === option
+                  ? 'border-[#2563EB] bg-[#132548] text-white'
+                  : 'border-[#334155] bg-[#111827] text-[#CBD5E0] hover:bg-[#1F2937]'
+              }`}
+            >
+              {option}
+              {system === option && <Icon name="check_circle" size={17} className="text-[#60A5FA]" />}
+            </button>
+          ))}
+          <label className="flex items-start gap-3 rounded-lg border border-[#334155] bg-[#111827] p-4">
+            <input
+              type="checkbox"
+              checked={includeEvidence}
+              onChange={(event) => setIncludeEvidence(event.target.checked)}
+              className="mt-1 h-4 w-4"
+            />
+            <span>
+              <span className="block text-sm font-bold text-white">
+                Include evidence manifest and links
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-[#94A3B8]">
+                Linked VMS archive URLs and custody metadata are included. Binary file transfer is connector-dependent.
+              </span>
+            </span>
+          </label>
+        </div>
+        <div className="rounded-xl border border-[#334155] bg-[#111827] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+            Payload preview
+          </p>
+          <pre className="mt-3 max-h-72 overflow-auto rounded-lg border border-[#273142] bg-[#0F1117] p-3 text-xs leading-relaxed text-[#CBD5E0]">
+            {JSON.stringify(payload, null, 2)}
+          </pre>
+          <div className="mt-4 rounded-lg border border-[#273142] bg-[#0F1117] p-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#94A3B8]">
+              Field mapping
+            </p>
+            <div className="mt-2 space-y-1 text-xs leading-relaxed text-[#CBD5E0]">
+              <p>Agora title → short_description</p>
+              <p>Severity → priority / impact mapping</p>
+              <p>Lifecycle stage → external status</p>
+              <p>Evidence manifest → attachment or related link</p>
+              <p>Audit note → work_notes</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onSend(system, includeEvidence)}
+            className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-4 text-sm font-bold text-white transition-colors hover:bg-[#1D4ED8]"
+          >
+            <Icon name="send" size={18} />
+            Send Demo Payload
+          </button>
+        </div>
+      </div>
+    </ModalShell>
   )
 }
 
@@ -1290,12 +2562,226 @@ const EVIDENCE_ICON: Record<Evidence['type'], string> = {
   manual: 'edit_note',
 }
 
-function EvidenceTab() {
+function EvidenceTab({
+  evidenceItems,
+  onEvidenceAdd,
+}: {
+  evidenceItems: Evidence[]
+  onEvidenceAdd: (evidence: Evidence) => void
+}) {
+  const [showForm, setShowForm] = useState(false)
+  const [intakeMode, setIntakeMode] = useState<'upload' | 'link' | 'manual'>('upload')
+  const [form, setForm] = useState({
+    type: 'clip' as Evidence['type'],
+    label: '',
+    sourceSystem: 'Avigilon VMS',
+    timestamp: '',
+    retention: 'Legal hold + 1 year',
+    externalUrl: '',
+    fileName: '',
+    description: '',
+  })
+
+  function addEvidence() {
+    if (!form.label.trim()) return
+    const now = new Date().toISOString()
+    const evidence: Evidence = {
+      id: `ev-manual-${Date.now()}`,
+      type: form.type,
+      label: form.label.trim(),
+      sourceSystem: form.sourceSystem.trim() || 'Manual Intake',
+      timestamp: form.timestamp ? new Date(form.timestamp).toISOString() : now,
+      confidence: intakeMode === 'manual' ? 0.7 : 0.9,
+      retention: form.retention,
+      origin:
+        intakeMode === 'upload'
+          ? 'manual_upload'
+          : intakeMode === 'link'
+            ? 'external_link'
+            : 'manual_record',
+      fileName:
+        intakeMode === 'upload'
+          ? form.fileName.trim() || `${form.label.trim().toLowerCase().replace(/\s+/g, '-')}.mp4`
+          : undefined,
+      mimeType:
+        intakeMode === 'upload'
+          ? form.type === 'still'
+            ? 'image/jpeg'
+            : form.type === 'document'
+              ? 'application/pdf'
+              : 'video/mp4'
+          : undefined,
+      sizeBytes: intakeMode === 'upload' ? 7340032 : undefined,
+      hash: intakeMode === 'upload' ? `sha256:${Date.now().toString(16)}...demo` : undefined,
+      externalUrl: intakeMode === 'link' ? form.externalUrl.trim() : undefined,
+      uploadedBy: CURRENT_CASE_OPERATOR,
+      addedAt: now,
+      custodyEvents: [
+        {
+          id: `cust-${Date.now()}`,
+          action:
+            intakeMode === 'upload'
+              ? 'uploaded'
+              : intakeMode === 'link'
+                ? 'linked'
+                : 'created',
+          actor: CURRENT_CASE_OPERATOR,
+          timestamp: now,
+          note: form.description.trim() || 'Evidence added from case workspace intake form.',
+        },
+      ],
+    }
+    onEvidenceAdd(evidence)
+    setForm({
+      type: 'clip',
+      label: '',
+      sourceSystem: 'Avigilon VMS',
+      timestamp: '',
+      retention: 'Legal hold + 1 year',
+      externalUrl: '',
+      fileName: '',
+      description: '',
+    })
+    setShowForm(false)
+  }
+
+  const inputCls =
+    'mt-1 w-full rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]'
+
   return (
     <div>
-      <p className="mb-4 text-sm font-semibold text-[#CBD5E0]">
-        Linked Evidence · {EVIDENCE.length} items · chain of custody preserved
-      </p>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-[#CBD5E0]">
+          Linked Evidence · {evidenceItems.length} items · chain of custody preserved
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowForm((value) => !value)}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#7C3AED] px-3 text-xs font-bold text-white transition-colors hover:bg-[#6D28D9]"
+        >
+          <Icon name={showForm ? 'close' : 'add'} size={16} />
+          {showForm ? 'Cancel' : 'Add Evidence'}
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="mb-5 rounded-xl border border-[#334155] bg-[#111827] p-4">
+          <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-[#0F1117] p-1">
+            {[
+              ['upload', 'Upload'],
+              ['link', 'VMS Link'],
+              ['manual', 'Manual'],
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setIntakeMode(key as 'upload' | 'link' | 'manual')}
+                className={`min-h-9 rounded-md text-xs font-bold transition-colors ${
+                  intakeMode === key
+                    ? 'bg-[#2563EB] text-white'
+                    : 'text-[#CBD5E0] hover:bg-[#1F2937]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Evidence type
+              <select
+                value={form.type}
+                onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value as Evidence['type'] }))}
+                className={inputCls}
+              >
+                <option value="clip">Video clip</option>
+                <option value="still">Image / still</option>
+                <option value="document">Document</option>
+                <option value="access_event">Access event</option>
+                <option value="manual">Manual record</option>
+              </select>
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Source system
+              <input
+                value={form.sourceSystem}
+                onChange={(event) => setForm((prev) => ({ ...prev, sourceSystem: event.target.value }))}
+                className={inputCls}
+                placeholder="VMS, ACS, HR, Legal, Manual"
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Label
+              <input
+                value={form.label}
+                onChange={(event) => setForm((prev) => ({ ...prev, label: event.target.value }))}
+                className={inputCls}
+                placeholder="e.g. Lobby camera export 14:21-14:45"
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Evidence timestamp
+              <input
+                type="datetime-local"
+                value={form.timestamp}
+                onChange={(event) => setForm((prev) => ({ ...prev, timestamp: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+            {intakeMode === 'upload' && (
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                File name
+                <input
+                  value={form.fileName}
+                  onChange={(event) => setForm((prev) => ({ ...prev, fileName: event.target.value }))}
+                  className={inputCls}
+                  placeholder="downloaded-clip.mp4"
+                />
+              </label>
+            )}
+            {intakeMode === 'link' && (
+              <label className="text-xs font-bold text-[#CBD5E0]">
+                Archive / external URL
+                <input
+                  value={form.externalUrl}
+                  onChange={(event) => setForm((prev) => ({ ...prev, externalUrl: event.target.value }))}
+                  className={inputCls}
+                  placeholder="https://vms.example/archive/clip/..."
+                />
+              </label>
+            )}
+            <label className="text-xs font-bold text-[#CBD5E0]">
+              Retention / legal hold
+              <input
+                value={form.retention}
+                onChange={(event) => setForm((prev) => ({ ...prev, retention: event.target.value }))}
+                className={inputCls}
+              />
+            </label>
+          </div>
+          <label className="mt-3 block text-xs font-bold text-[#CBD5E0]">
+            Custody note
+            <textarea
+              rows={2}
+              value={form.description}
+              onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+              className={`${inputCls} resize-none`}
+              placeholder="How this evidence was obtained, by whom, and any handling constraints."
+            />
+          </label>
+          <button
+            type="button"
+            onClick={addEvidence}
+            disabled={!form.label.trim()}
+            className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#7C3AED] px-4 text-sm font-bold text-white transition-colors hover:bg-[#6D28D9] disabled:cursor-not-allowed disabled:bg-[#374151] disabled:text-[#94A3B8]"
+          >
+            <Icon name="add_link" size={17} />
+            Add Evidence With Custody Event
+          </button>
+        </div>
+      )}
+
       <div className="overflow-x-auto rounded-lg border border-[#273142]">
         <table className="min-w-[760px] w-full text-left text-sm">
           <thead className="bg-[#111827] text-xs text-[#9CA3AF]">
@@ -1309,7 +2795,7 @@ function EvidenceTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#273142]">
-            {EVIDENCE.map((ev) => (
+            {evidenceItems.map((ev) => (
               <tr
                 key={ev.id}
                 className="bg-[#171D29] transition-colors hover:bg-[#1D2533]"
@@ -1322,7 +2808,18 @@ function EvidenceTab() {
                   />
                 </td>
                 <td className="px-3 py-3 font-medium text-white">{ev.label}</td>
-                <td className="px-3 py-3 text-[#9CA3AF]">{ev.sourceSystem}</td>
+                <td className="px-3 py-3 text-[#9CA3AF]">
+                  <div>{ev.sourceSystem}</div>
+                  <div className="mt-1 text-xs text-[#94A3B8]">
+                    {ev.origin === 'external_link'
+                      ? 'Linked archive'
+                      : ev.origin === 'manual_upload'
+                        ? 'Manual upload'
+                        : ev.origin === 'manual_record'
+                          ? 'Manual record'
+                          : 'System retained'}
+                  </div>
+                </td>
                 <td className="px-3 py-3 font-mono text-[#94A3B8]">
                   {fmtTime(ev.timestamp)}
                 </td>
@@ -1344,9 +2841,17 @@ function EvidenceTab() {
                   </div>
                 </td>
                 <td className="px-3 py-3 text-right">
-                  <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white">
-                    View
-                  </button>
+                  <div className="flex justify-end gap-2">
+                    <button className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white">
+                      View
+                    </button>
+                    <button
+                      className="rounded-md border border-[#374151] px-2.5 py-1 text-xs font-semibold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+                      title={(ev.custodyEvents ?? []).map((c) => `${fmtDateTime(c.timestamp)} · ${c.actor}: ${c.note}`).join('\n')}
+                    >
+                      Custody {(ev.custodyEvents ?? []).length}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -12,137 +12,152 @@ interface Theme {
 
 const THEMES: Theme[] = [
   {
-    name: 'Case Continuity & Context',
+    name: 'Case Intake & Creation',
     stories: [
       {
-        story: 'Promote a resolved incident into a complete case',
+        story: 'Promote an incident into a case',
         criteria:
-          'Case inherits incident summary, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',
+          'Investigator can promote a live or resolved incident into a case that inherits incident summary, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',
+      },
+      {
+        story: 'Create a case manually when there is no source incident',
+        criteria:
+          'Authorized users can create a case from a blank or templated intake form with case type, severity, site, owner, reporting party, involved people/groups, narrative, initial evidence links, and due dates.',
+      },
+      {
+        story: 'Use AI assistance to draft initial case context',
+        criteria:
+          'AI can draft the case title, summary, initial timeline, investigative questions, recommended next steps, and report outline from incident context or manual intake fields; investigator must review and accept edits before they become official.',
       },
       {
         story: 'Read case context immediately at the top of the workspace',
         criteria:
-          'Header shows case ID, severity, status, owner, people count, site, SLA, created/updated/SLA dates, involved entity chips, tags, and campaign link without forcing the investigator into the side rail.',
+          'Header shows case ID, source, lifecycle stage, severity, owner, access group, site, people count, SLA, created/updated dates, involved entity chips, tags, and external system IDs without forcing the investigator into the side rail.',
+      },
+    ],
+  },
+  {
+    name: 'Lifecycle, Workflow & Drafting',
+    stories: [
+      {
+        story: 'Move a case through the full lifecycle',
+        criteria:
+          'Supported stages include Intake, Triage, Active Investigation, Evidence Review, Report Drafting, Approval, Closed, Reopened, and Archived; every stage change captures actor, timestamp, reason, and optional required fields.',
       },
       {
         story: 'Preserve investigation continuity across handoffs',
         criteria:
-          'Handoff summary shows what happened, what is known, what is disputed, pending actions, evidence gaps, and next owner; all updates append to case history.',
+          'Handoff summary shows what happened, what is known, what is disputed, pending actions, evidence gaps, lifecycle blockers, and next owner; all updates append to case history.',
       },
       {
-        story: 'Manage a complete case without leaving the app',
+        story: 'Track investigation tasks, decisions, and ownership',
         criteria:
-          'Summary context, timeline, evidence table, entity graph, tasks, case people, open questions, notes, AI assistant, narrative report, compliance, and executive reporting live in one workspace.',
+          'Tasks show title, owner, due date, status, external-collaborator tag, and completion action; key decisions and task completions append timeline events and can be referenced in the final report.',
+      },
+      {
+        story: 'Draft case content with AI while keeping human control',
+        criteria:
+          'Assistant answers are scoped to the case, cite evidence IDs, refuse unsupported claims, and help draft summaries, timeline language, findings, recommendations, and approval notes without publishing automatically.',
       },
     ],
   },
   {
-    name: 'Evidence Timeline & Entity Analysis',
+    name: 'Evidence Intake & Chain of Custody',
     stories: [
       {
-        story: 'Reconstruct and annotate the incident timeline',
+        story: 'Add manual evidence to the case',
         criteria:
-          'System, camera, access, agent, action, operator note, and manual events share one timeline; AI/manual/action badges are visible; timestamps are readable; gaps and contradictions can be flagged.',
+          'Investigator can upload or register documents, images, video clips, audio, witness statements, device logs, physical item records, and external URLs with source, collector, collection time, retention policy, and description.',
       },
       {
-        story: 'Review evidence with chain-of-custody',
+        story: 'Link evidence to timeline, entities, and locations',
         criteria:
-          'Each evidence item shows type, label, source system, timestamp, confidence, retention policy, related entities, and preview/clip access where applicable.',
+          'Evidence can be linked to incidents, manual events, people, groups, vehicles, credentials, doors, cameras, zones, floors, sites, tasks, findings, and report sections; links remain visible from both sides.',
       },
       {
-        story: 'Consume incident map evidence into the case',
+        story: 'Review evidence with defensible chain of custody',
         criteria:
-          'Site/floor markers, camera/device selections, detections, clips, and action review import as linked evidence with source context and chain-of-custody.',
+          'Each evidence item shows type, label, source system, timestamp, hash or integrity marker where available, custody owner, access history, transfer history, related entities, and preview/clip access where applicable.',
       },
       {
-        story: 'Explore the entity graph from evidence context',
+        story: 'Reconstruct and annotate the case timeline',
         criteria:
-          'Entity graph links people, credentials, doors, cameras, zones, sensors, vehicles, and campaigns; selecting a node exposes metadata, risk, site/zone, and relationships.',
-      },
-      {
-        story: 'Ask the case AI assistant grounded questions',
-        criteria:
-          'Assistant answers are scoped to the case, cite evidence IDs, refuse unsupported claims, and help with timeline, entities, related incidents, and next investigative steps.',
+          'System, camera, access, agent, action, operator note, manual event, evidence collection, custody transfer, approval, and export events share one timeline; AI/manual/action badges are visible and gaps or contradictions can be flagged.',
       },
     ],
   },
   {
-    name: 'People, Tasks & Collaboration',
+    name: 'Access Control & Collaboration',
     stories: [
       {
         story: 'Maintain a visible case people roster',
         criteria:
-          'Investigator can add people with role, contact details, organization, and case context; supported roles include case investigator, HR, Legal, site supervisor, witness, victim, reporting party, security officer, subject, and other; role can be changed directly from the roster.',
+          'Investigator can add people with role, contact details, organization, and case context; supported roles include case investigator, approver, HR, Legal, site supervisor, witness, victim, reporting party, security officer, subject, and other.',
       },
       {
-        story: 'Track investigation tasks and ownership',
+        story: 'Apply RBAC and case-specific access control',
         criteria:
-          'Tasks show title, owner, due date, status, external-collaborator tag, and completion action; completed tasks append a timeline event.',
+          'Case permissions combine platform RBAC with case-level access for named people and groups; users only see cases, evidence, notes, reports, and exports allowed by their role and case assignment.',
       },
       {
-        story: 'Resolve open investigative questions',
+        story: 'Grant scoped access to collaborators',
         criteria:
-          'Open questions remain visible, can be marked resolved, and resolution is logged into case history.',
+          'Investigator can invite internal groups or external collaborators to specific tasks, evidence, notes, or report sections; all views, downloads, edits, and permission changes are logged.',
       },
       {
-        story: 'Collaborate with HR, Legal, Facilities, and IT',
+        story: 'Resolve open investigative questions with accountable owners',
         criteria:
-          'External collaborator roles can be represented in the people roster and task owners; future scoped access should limit evidence visibility and log all collaborator actions.',
-      },
-      {
-        story: 'Add manual events and operator notes with case-grade provenance',
-        criteria:
-          'Manual event form captures type, timestamp, title, detail, source attribution, and timeline placement; quick notes and manual evidence remain visually distinct.',
+          'Open questions remain visible, can be assigned to people or groups, can be marked resolved with supporting evidence, and resolution is logged into case history.',
       },
     ],
   },
   {
-    name: 'Governance, Playbooks & Compliance',
+    name: 'Reports, Approvals & Export',
     stories: [
       {
-        story: 'Author and version SOPs that surface at triage',
+        story: 'Generate a physical security investigation report',
         criteria:
-          'SOP library shows ID, title, incident type, version, update date, and approval status; SOPs support draft/pending/approved lifecycle and version history.',
+          'Report template includes executive summary, incident/case background, involved parties, location/site context, timeline, evidence inventory, findings, policy/SOP references, recommendations, attachments, approvals, and signature blocks.',
       },
       {
-        story: 'Author, simulate, and deploy Playbooks',
+        story: 'Route reports for signatures and approvals',
         criteria:
-          'Playbook library supports response/deterrence types, trigger tags, simulation output, approved-only deploy gating, and deployed state.',
+          'Case owner can route draft or final reports to required approvers; approvers can approve, reject, request changes, sign, and leave timestamped comments that are retained in the audit history.',
       },
       {
-        story: 'Review violations and drive corrective actions',
+        story: 'Export the complete case package',
         criteria:
-          'Violations queue shows violation, rule, severity, person, zone, and status; investigator can accept/reject and assign corrective action owner/due date.',
+          'Authorized users can export PDF reports, ZIP evidence packages, JSON case records, XML records, and CSV tables for cases, people, tasks, timelines, evidence, custody events, approvals, and audit history.',
       },
       {
-        story: 'Maintain a defensible audit and compliance posture',
+        story: 'Keep generated reports defensible and editable',
         criteria:
-          'Manual evidence, task completion, question resolution, playbook deployment, corrective action assignment, and overrides produce auditable case history.',
+          'AI-drafted report sections cite supporting evidence, remain editable by investigators, preserve version history, and clearly distinguish draft text from approved final content.',
       },
     ],
   },
   {
-    name: 'Reporting & Intelligence',
+    name: 'Integrations & Enterprise Operations',
     stories: [
       {
-        story: 'Generate a defensible narrative report',
+        story: 'Integrate case workflow with ServiceNow',
         criteria:
-          'Report modal generates an executive summary, timeline, involved parties, open questions, recommendations, and export/edit controls using case-scoped evidence.',
+          'Cases can create, link, update, or synchronize ServiceNow records with external IDs, status mapping, assignment mapping, priority/severity mapping, comments, attachments, and audit-safe retry handling.',
       },
       {
-        story: 'Link cases to a Campaign and promote to master case',
+        story: 'Configure generic inbound and outbound integrations',
         criteria:
-          'System surfaces candidate links via shared entities; promotion creates master case with child cases; each child independently workable.',
+          'Admins can configure generic API, webhook, file drop, or message-based integrations for intake, evidence references, case updates, lifecycle events, approvals, and export delivery.',
       },
       {
-        story: 'Report enterprise risk, AI quality, and action assurance',
+        story: 'Link cases to a campaign and promote to master case',
         criteria:
-          'Executive Reporting shows open cases, active campaigns, compliance score, AI quality, risk by site, AI feedback breakdown, active campaign summary, and AI-generated executive brief.',
+          'System surfaces candidate links via shared entities, locations, incidents, signatures, and behaviors; promotion creates a master case with child cases while each child remains independently workable.',
       },
       {
-        story: 'Keep the forensic UI readable under high information density',
+        story: 'Maintain enterprise reporting over cases and investigations',
         criteria:
-          'Minimum 12px labels, high-contrast secondary text, readable inactive tabs, stronger metadata hierarchy, compact top case context, and increased timeline spacing reduce eye strain.',
+          'Executive Reporting shows open cases by lifecycle stage, aging/SLA risk, approval backlog, export activity, custody exceptions, integration failures, case outcomes, and AI drafting quality.',
       },
     ],
   },

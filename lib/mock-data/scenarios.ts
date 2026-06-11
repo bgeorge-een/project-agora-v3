@@ -563,6 +563,7 @@ export const MOCK_CASES: Case[] = [
     owner: 'J. Torres',
     siteId: 'site-austin',
     siteName: 'Austin HQ',
+    location: 'Bldg A · Floor 3 · Server Room 2B',
     createdAt: '2026-06-04T14:40:00Z',
     updatedAt: '2026-06-04T15:12:00Z',
     sla: { dueAt: '2026-06-05T14:40:00Z', breached: false },

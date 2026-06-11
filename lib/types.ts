@@ -7,9 +7,39 @@ export type AlertType = 'reactive' | 'deterrent'
 export type AlertStatus = 'enriching' | 'ready' | 'accepted' | 'rejected' | 'dismissed'
 export type IncidentStatus = 'new' | 'investigating' | 'waiting' | 'resolved' | 'closed'
 export type CaseStatus = 'new' | 'investigating' | 'waiting' | 'resolved' | 'closed' | 'reopened'
+export type CaseSource = 'incident_promotion' | 'manual' | 'external_import'
+export type CaseLifecycleStage =
+  | 'draft'
+  | 'open'
+  | 'triage'
+  | 'under_investigation'
+  | 'pending_external_input'
+  | 'pending_approval'
+  | 'closed_substantiated'
+  | 'closed_unsubstantiated'
+  | 'closed_inconclusive'
+  | 'reopened'
+  | 'archived'
 export type ViolationStatus = 'open' | 'accepted' | 'rejected' | 'closed'
 export type EntityType = 'person' | 'credential' | 'vehicle' | 'door' | 'camera' | 'zone' | 'sensor'
 export type SignalCategory = 'security' | 'environmental' | 'operational' | 'identity' | 'vehicle' | 'building_systems' | 'external_context'
+export type CasePermission =
+  | 'case.view'
+  | 'case.edit'
+  | 'case.close'
+  | 'case.reopen'
+  | 'case.manage_access'
+  | 'evidence.view'
+  | 'evidence.add'
+  | 'evidence.edit_metadata'
+  | 'evidence.remove'
+  | 'people.add'
+  | 'people.edit'
+  | 'tasks.assign'
+  | 'report.edit'
+  | 'report.approve'
+  | 'export.create'
+  | 'integration.send'
 
 // --- Signal ---
 export interface Signal {
@@ -119,6 +149,23 @@ export interface Evidence {
   confidence: number
   retention: string
   url?: string
+  origin?: 'system' | 'manual_upload' | 'external_link' | 'manual_record'
+  fileName?: string
+  mimeType?: string
+  sizeBytes?: number
+  hash?: string
+  externalUrl?: string
+  uploadedBy?: string
+  addedAt?: string
+  custodyEvents?: EvidenceCustodyEvent[]
+}
+
+export interface EvidenceCustodyEvent {
+  id: string
+  action: 'created' | 'uploaded' | 'linked' | 'viewed' | 'exported' | 'transferred' | 'retained'
+  actor: string
+  timestamp: string
+  note: string
 }
 
 // --- Timeline Event ---
@@ -140,12 +187,15 @@ export interface TimelineEvent {
 export interface Case {
   id: string
   incidentId?: string
+  source?: CaseSource
+  lifecycleStage?: CaseLifecycleStage
   title: string
   severity: Severity
   status: CaseStatus
   owner: string
   siteId: string
   siteName: string
+  location?: string
   createdAt: string
   updatedAt: string
   sla: { dueAt: string; breached: boolean }
@@ -156,6 +206,30 @@ export interface Case {
   openQuestions: string[]
   tags: string[]
   person?: PersonDetails
+  lifecycleEvents?: CaseLifecycleEvent[]
+  accessMembers?: CaseAccessMember[]
+}
+
+export interface CaseLifecycleEvent {
+  id: string
+  fromStage: CaseLifecycleStage
+  toStage: CaseLifecycleStage
+  changedBy: string
+  changedAt: string
+  reason?: string
+  approvalId?: string
+}
+
+export interface CaseAccessMember {
+  id: string
+  subjectType: 'user' | 'group'
+  subjectName: string
+  role: string
+  permissions: CasePermission[]
+  accessScope?: 'full_case' | 'evidence_only' | 'people_only' | 'tasks_only' | 'report_only'
+  expiresAt?: string
+  addedBy: string
+  addedAt: string
 }
 
 // --- Violation ---
