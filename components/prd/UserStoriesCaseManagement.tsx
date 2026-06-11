@@ -15,6 +15,11 @@ const THEMES: Theme[] = [
     name: 'Case Intake & Creation',
     stories: [
       {
+        story: 'Start from a case queue dashboard',
+        criteria:
+          'Investigator lands on a queue that shows total open cases, under-SLA cases, out-of-SLA cases, pending approvals, average open age, assignee performance, queue health, and a prioritized case list; selecting a case opens the full workspace.',
+      },
+      {
         story: 'Promote an incident into a case',
         criteria:
           'Investigator can promote a live or resolved incident into a case that inherits incident summary, map/floor context, camera/device evidence, action execution history, entities, notes, owners, open questions, and audit log; source incident remains linked.',

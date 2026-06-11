@@ -21,7 +21,7 @@ import { PersonCard } from '@/components/case/PersonCard'
 import { CameraStill } from '@/components/incident/CameraStill'
 import { CameraClipModal } from '@/components/incident/CameraClipModal'
 
-const baseCase = MOCK_CASES[0]
+const defaultCase = MOCK_CASES[0]
 
 type WorkspaceTab = 'timeline' | 'evidence' | 'graph' | 'tasks' | 'ai'
 
@@ -542,13 +542,19 @@ function fmtDateTime(iso: string) {
   })
 }
 
-export default function CaseWorkspace() {
+export default function CaseWorkspace({
+  initialCase = defaultCase,
+  onBackToQueue,
+}: {
+  initialCase?: Case
+  onBackToQueue?: () => void
+}) {
   const [tab, setTab] = useState<WorkspaceTab>('timeline')
-  const [timeline, setTimeline] = useState<TimelineEvent[]>(baseCase.timeline)
+  const [timeline, setTimeline] = useState<TimelineEvent[]>(initialCase.timeline)
   const [caseData, setCaseData] = useState<Case>({
-    ...baseCase,
-    source: 'incident_promotion',
-    lifecycleStage: 'under_investigation',
+    ...initialCase,
+    source: initialCase.source ?? 'incident_promotion',
+    lifecycleStage: initialCase.lifecycleStage ?? 'under_investigation',
     lifecycleEvents: INITIAL_LIFECYCLE_EVENTS,
     accessMembers: INITIAL_ACCESS_MEMBERS,
   })
@@ -773,6 +779,17 @@ export default function CaseWorkspace() {
       <div className="grid grid-cols-1 gap-6 min-[1800px]:grid-cols-[minmax(0,1.55fr)_minmax(380px,0.85fr)]">
         {/* ===================== LEFT COLUMN ===================== */}
         <div className="space-y-5">
+          {onBackToQueue && (
+            <button
+              type="button"
+              onClick={onBackToQueue}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#374151] px-3 text-xs font-bold text-[#CBD5E0] transition-colors hover:bg-[#1F2937] hover:text-white"
+            >
+              <Icon name="arrow_back" size={16} />
+              Back to Case Queue
+            </button>
+          )}
+
           {/* Case header card */}
           <div className="overflow-hidden rounded-xl border border-[#273142] bg-[#171D29]">
             <div className="p-4 sm:p-5">

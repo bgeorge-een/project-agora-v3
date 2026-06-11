@@ -1,20 +1,30 @@
 'use client'
 
 import { useState } from 'react'
+import type { Case } from '@/lib/types'
+import { MOCK_CASES } from '@/lib/mock-data/scenarios'
+import CaseQueueDashboard from '@/components/case/CaseQueueDashboard'
 import CaseWorkspace from '@/components/case/CaseWorkspace'
 import ComplianceDashboard from '@/components/case/ComplianceDashboard'
 import ExecutiveReporting from '@/components/case/ExecutiveReporting'
 
-type TabKey = 'workspace' | 'compliance' | 'executive'
+type TabKey = 'queue' | 'workspace' | 'compliance' | 'executive'
 
 const TABS: { key: TabKey; label: string }[] = [
+  { key: 'queue', label: 'Case Queue' },
   { key: 'workspace', label: 'Case Workspace' },
   { key: 'compliance', label: 'Compliance Dashboard' },
   { key: 'executive', label: 'Executive Reporting' },
 ]
 
 export default function CaseManagementPage() {
-  const [tab, setTab] = useState<TabKey>('workspace')
+  const [tab, setTab] = useState<TabKey>('queue')
+  const [selectedCase, setSelectedCase] = useState<Case>(MOCK_CASES[0])
+
+  function openCase(caseItem: Case) {
+    setSelectedCase(caseItem)
+    setTab('workspace')
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0F1117]">
@@ -43,7 +53,9 @@ export default function CaseManagementPage() {
                 <span>Cases</span>
                 <span className="text-[#4B5563]">/</span>
                 <span className="font-medium text-[#CBD5E0]">
-                  Case-001: Unauthorized Server Room Access
+                  {tab === 'queue'
+                    ? 'Queue Dashboard'
+                    : `${selectedCase.id}: ${selectedCase.title}`}
                 </span>
               </nav>
             </div>
@@ -80,7 +92,14 @@ export default function CaseManagementPage() {
 
       {/* Body */}
       <div className="flex-1">
-        {tab === 'workspace' && <CaseWorkspace />}
+        {tab === 'queue' && <CaseQueueDashboard onOpenCase={openCase} />}
+        {tab === 'workspace' && (
+          <CaseWorkspace
+            key={selectedCase.id}
+            initialCase={selectedCase}
+            onBackToQueue={() => setTab('queue')}
+          />
+        )}
         {tab === 'compliance' && <ComplianceDashboard />}
         {tab === 'executive' && <ExecutiveReporting />}
       </div>
