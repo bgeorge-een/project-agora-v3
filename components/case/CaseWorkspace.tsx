@@ -2596,8 +2596,30 @@ function EvidenceTab({
     retention: 'Legal hold + 1 year',
     externalUrl: '',
     fileName: '',
+    fileSize: 0,
+    mimeType: '',
     description: '',
   })
+
+  function handleFileSelect(file: File | undefined) {
+    if (!file) return
+
+    const inferredType: Evidence['type'] = file.type.startsWith('image/')
+      ? 'still'
+      : file.type.startsWith('video/')
+        ? 'clip'
+        : 'document'
+
+    setForm((prev) => ({
+      ...prev,
+      type: inferredType,
+      label: prev.label.trim() || file.name.replace(/\.[^.]+$/, ''),
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      sourceSystem: prev.sourceSystem || 'Manual Upload',
+    }))
+  }
 
   function addEvidence() {
     if (!form.label.trim()) return
@@ -2622,13 +2644,14 @@ function EvidenceTab({
           : undefined,
       mimeType:
         intakeMode === 'upload'
-          ? form.type === 'still'
-            ? 'image/jpeg'
-            : form.type === 'document'
-              ? 'application/pdf'
-              : 'video/mp4'
+          ? form.mimeType ||
+            (form.type === 'still'
+              ? 'image/jpeg'
+              : form.type === 'document'
+                ? 'application/pdf'
+                : 'video/mp4')
           : undefined,
-      sizeBytes: intakeMode === 'upload' ? 7340032 : undefined,
+      sizeBytes: intakeMode === 'upload' ? form.fileSize || 7340032 : undefined,
       hash: intakeMode === 'upload' ? `sha256:${Date.now().toString(16)}...demo` : undefined,
       externalUrl: intakeMode === 'link' ? form.externalUrl.trim() : undefined,
       uploadedBy: CURRENT_CASE_OPERATOR,
@@ -2657,6 +2680,8 @@ function EvidenceTab({
       retention: 'Legal hold + 1 year',
       externalUrl: '',
       fileName: '',
+      fileSize: 0,
+      mimeType: '',
       description: '',
     })
     setShowForm(false)
@@ -2747,15 +2772,39 @@ function EvidenceTab({
               />
             </label>
             {intakeMode === 'upload' && (
-              <label className="text-xs font-bold text-[#CBD5E0]">
-                File name
-                <input
-                  value={form.fileName}
-                  onChange={(event) => setForm((prev) => ({ ...prev, fileName: event.target.value }))}
-                  className={inputCls}
-                  placeholder="downloaded-clip.mp4"
-                />
-              </label>
+              <div className="md:col-span-2">
+                <p className="text-xs font-bold text-[#CBD5E0]">Upload file</p>
+                <label className="mt-1 flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[#475569] bg-[#0F1117] px-4 py-5 text-center transition-colors hover:border-[#A78BFA] hover:bg-[#151B26]">
+                  <input
+                    type="file"
+                    className="sr-only"
+                    accept="video/*,image/*,.pdf,.doc,.docx,.csv,.json,.xml,.txt"
+                    onChange={(event) => handleFileSelect(event.target.files?.[0])}
+                  />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#334155] bg-[#111827] text-[#A78BFA]">
+                    <Icon name="upload_file" size={22} />
+                  </span>
+                  <span className="mt-3 text-sm font-bold text-white">
+                    Choose evidence file
+                  </span>
+                  <span className="mt-1 max-w-xl text-xs leading-relaxed text-[#94A3B8]">
+                    Upload a VMS clip, image, PDF, log export, statement, or other case artifact.
+                    The prototype records metadata and custody; backend storage comes later.
+                  </span>
+                </label>
+                {form.fileName && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-[#334155] bg-[#0F1117] px-3 py-2 text-xs text-[#CBD5E0]">
+                    <Icon name="description" size={15} className="text-[#A78BFA]" />
+                    <span className="font-bold text-white">{form.fileName}</span>
+                    <span>{form.mimeType || 'unknown type'}</span>
+                    <span>
+                      {form.fileSize > 0
+                        ? `${(form.fileSize / 1_048_576).toFixed(2)} MB`
+                        : 'size pending'}
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
             {intakeMode === 'link' && (
               <label className="text-xs font-bold text-[#CBD5E0]">
