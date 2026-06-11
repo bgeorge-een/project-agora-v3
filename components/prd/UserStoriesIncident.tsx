@@ -35,6 +35,16 @@ const THEMES: Theme[] = [
     name: 'Response Execution',
     stories: [
       {
+        story: 'Track incident lifecycle during live response',
+        criteria:
+          'Incident lifecycle stages include detected, triaged, accepted, command assigned, containment, response, stabilized, monitoring, resolved, closed, and promoted to case; every transition captures actor, timestamp, and reason.',
+      },
+      {
+        story: 'Assign an incident commander and active response team',
+        criteria:
+          'Incident header shows the incident commander; response team panel tracks SOC operator, site supervisor, guard, facilities, access admin, HR, Legal, law enforcement liaison, vendor, executive stakeholder, and observer roles with status, contact, responsibility, and audit history.',
+      },
+      {
         story: 'Accept a recommended action and see implementation progress',
         criteria:
           'Recommended action opens an action execution view; each action, such as restricting a badge or dispatching a guard, shows queued/running/needs confirmation/manual required/complete state, owner, target system, and timestamp.',

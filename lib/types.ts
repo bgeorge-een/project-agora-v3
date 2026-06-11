@@ -6,6 +6,39 @@ export type Severity = 'critical' | 'high' | 'medium' | 'low'
 export type AlertType = 'reactive' | 'deterrent'
 export type AlertStatus = 'enriching' | 'ready' | 'accepted' | 'rejected' | 'dismissed'
 export type IncidentStatus = 'new' | 'investigating' | 'waiting' | 'resolved' | 'closed'
+export type IncidentLifecycleStage =
+  | 'detected'
+  | 'triaged'
+  | 'accepted'
+  | 'command_assigned'
+  | 'containment_in_progress'
+  | 'response_in_progress'
+  | 'stabilized'
+  | 'monitoring'
+  | 'resolved'
+  | 'closed'
+  | 'promoted_to_case'
+export type IncidentResponderRole =
+  | 'incident_commander'
+  | 'soc_operator'
+  | 'site_supervisor'
+  | 'guard'
+  | 'facilities'
+  | 'it_access_admin'
+  | 'hr'
+  | 'legal'
+  | 'law_enforcement_liaison'
+  | 'vendor_contact'
+  | 'executive_stakeholder'
+  | 'observer'
+export type ResponderStatus =
+  | 'assigned'
+  | 'notified'
+  | 'acknowledged'
+  | 'en_route'
+  | 'on_scene'
+  | 'completed'
+  | 'unavailable'
 export type CaseStatus = 'new' | 'investigating' | 'waiting' | 'resolved' | 'closed' | 'reopened'
 export type CaseSource = 'incident_promotion' | 'manual' | 'external_import'
 export type CaseLifecycleStage =
@@ -130,6 +163,8 @@ export interface Incident {
   title: string
   severity: Severity
   status: IncidentStatus
+  lifecycleStage?: IncidentLifecycleStage
+  incidentCommanderId?: string
   siteId: string
   siteName: string
   location: string
@@ -137,6 +172,31 @@ export interface Incident {
   owner?: string
   entityRefs: EntityRef[]
   campaignId?: string
+  responders?: IncidentResponder[]
+  lifecycleEvents?: IncidentLifecycleEvent[]
+}
+
+export interface IncidentLifecycleEvent {
+  id: string
+  fromStage: IncidentLifecycleStage
+  toStage: IncidentLifecycleStage
+  changedBy: string
+  changedAt: string
+  reason?: string
+}
+
+export interface IncidentResponder {
+  id: string
+  name: string
+  role: IncidentResponderRole
+  status: ResponderStatus
+  responsibility: string
+  contact?: string
+  team?: string
+  addedBy: string
+  addedAt: string
+  lastUpdatedAt: string
+  notes?: string
 }
 
 // --- Evidence ---

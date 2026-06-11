@@ -1,7 +1,18 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import type { Alert, AlertDetail, CorrelatedEvent, PersonDetails, Severity } from '@/lib/types'
+import type {
+  Alert,
+  AlertDetail,
+  CorrelatedEvent,
+  IncidentLifecycleEvent,
+  IncidentLifecycleStage,
+  IncidentResponder,
+  IncidentResponderRole,
+  PersonDetails,
+  ResponderStatus,
+  Severity,
+} from '@/lib/types'
 import { CameraStill } from './CameraStill'
 import { CameraClipModal } from './CameraClipModal'
 
@@ -71,6 +82,116 @@ const STATUS_META: Record<
     bg: '#0C2714',
     border: '#166534',
   },
+}
+
+const INCIDENT_STAGE_META: Record<
+  IncidentLifecycleStage,
+  { label: string; description: string; tone: string }
+> = {
+  detected: {
+    label: 'Detected',
+    description: 'Signal crossed policy threshold and became an operator-visible alert.',
+    tone: '#94A3B8',
+  },
+  triaged: {
+    label: 'Triaged',
+    description: 'Operator reviewed severity, source confidence, and immediate risk.',
+    tone: '#7DD3FC',
+  },
+  accepted: {
+    label: 'Accepted',
+    description: 'Operator accepted the incident for active response.',
+    tone: '#60A5FA',
+  },
+  command_assigned: {
+    label: 'Command Assigned',
+    description: 'Incident commander is accountable for coordination and decisions.',
+    tone: '#A78BFA',
+  },
+  containment_in_progress: {
+    label: 'Containment',
+    description: 'Physical or system actions are limiting immediate exposure.',
+    tone: '#F97316',
+  },
+  response_in_progress: {
+    label: 'Response',
+    description: 'Responders are executing assigned actions and reporting status.',
+    tone: '#FBBF24',
+  },
+  stabilized: {
+    label: 'Stabilized',
+    description: 'Immediate threat is controlled and no new escalation is observed.',
+    tone: '#34D399',
+  },
+  monitoring: {
+    label: 'Monitoring',
+    description: 'SOC is watching for recurrence before final resolution.',
+    tone: '#2DD4BF',
+  },
+  resolved: {
+    label: 'Resolved',
+    description: 'Response objective is complete; closure evidence can be reviewed.',
+    tone: '#86EFAC',
+  },
+  closed: {
+    label: 'Closed',
+    description: 'Incident is closed with required notes and response history.',
+    tone: '#CBD5E1',
+  },
+  promoted_to_case: {
+    label: 'Promoted to Case',
+    description: 'Incident record is handed off to Case Management for investigation.',
+    tone: '#C4B5FD',
+  },
+}
+
+const INCIDENT_TRANSITIONS: Record<IncidentLifecycleStage, IncidentLifecycleStage[]> = {
+  detected: ['triaged', 'accepted'],
+  triaged: ['accepted', 'closed'],
+  accepted: ['command_assigned', 'containment_in_progress'],
+  command_assigned: ['containment_in_progress', 'response_in_progress'],
+  containment_in_progress: ['response_in_progress', 'stabilized'],
+  response_in_progress: ['stabilized', 'monitoring'],
+  stabilized: ['monitoring', 'resolved'],
+  monitoring: ['resolved', 'response_in_progress'],
+  resolved: ['closed', 'promoted_to_case'],
+  closed: ['promoted_to_case'],
+  promoted_to_case: [],
+}
+
+const RESPONDER_ROLE_LABEL: Record<IncidentResponderRole, string> = {
+  incident_commander: 'Incident Commander',
+  soc_operator: 'SOC Operator',
+  site_supervisor: 'Site Supervisor',
+  guard: 'Guard / Dispatch Officer',
+  facilities: 'Facilities',
+  it_access_admin: 'IT / Access Admin',
+  hr: 'HR',
+  legal: 'Legal',
+  law_enforcement_liaison: 'Law Enforcement Liaison',
+  vendor_contact: 'Vendor / Contractor Contact',
+  executive_stakeholder: 'Executive Stakeholder',
+  observer: 'Observer',
+}
+
+const RESPONDER_STATUS_LABEL: Record<ResponderStatus, string> = {
+  assigned: 'Assigned',
+  notified: 'Notified',
+  acknowledged: 'Acknowledged',
+  en_route: 'En route',
+  on_scene: 'On scene',
+  completed: 'Completed',
+  unavailable: 'Unavailable',
+}
+
+const RESPONDER_STATUS_TONE: Record<ResponderStatus, string> = {
+  assigned: '#CBD5E1',
+  notified: '#93C5FD',
+  acknowledged: '#7DD3FC',
+  en_route: '#FBBF24',
+  on_scene: '#A78BFA',
+  completed: '#86EFAC',
+  unavailable: '#FCA5A5',
 }
 
 // ---- Confidence Ring (dark variant) ----
@@ -444,6 +565,70 @@ function TimelineRow({
 // ---- Operator Log ----
 const CURRENT_OPERATOR = 'J. Torres'
 
+function createInitialIncidentLifecycle(alert: Alert): IncidentLifecycleEvent[] {
+  return [
+    {
+      id: `life-${alert.id}-detected`,
+      fromStage: 'detected',
+      toStage: 'triaged',
+      changedBy: 'Agora Detection',
+      changedAt: alert.timestamp,
+      reason: 'Alert correlated from device, access, and camera signals.',
+    },
+    {
+      id: `life-${alert.id}-accepted`,
+      fromStage: 'triaged',
+      toStage: 'accepted',
+      changedBy: CURRENT_OPERATOR,
+      changedAt: new Date().toISOString(),
+      reason: 'Opened for live response review.',
+    },
+  ]
+}
+
+function createInitialResponders(alert: Alert): IncidentResponder[] {
+  const now = new Date().toISOString()
+  return [
+    {
+      id: `responder-${alert.id}-commander`,
+      name: CURRENT_OPERATOR,
+      role: 'incident_commander',
+      status: 'acknowledged',
+      responsibility: 'Own live response decisions, escalation, and closure readiness.',
+      contact: 'soc-command@agora.example',
+      team: 'Corporate Security',
+      addedBy: 'Shift policy',
+      addedAt: now,
+      lastUpdatedAt: now,
+      notes: 'Default commander assigned from active SOC shift.',
+    },
+    {
+      id: `responder-${alert.id}-guard`,
+      name: 'Austin Guard Dispatch',
+      role: 'guard',
+      status: alert.severity === 'critical' ? 'en_route' : 'notified',
+      responsibility: 'Intercept or observe at the affected floor/entry point.',
+      contact: 'Radio Ch. 3',
+      team: 'Site Security',
+      addedBy: CURRENT_OPERATOR,
+      addedAt: now,
+      lastUpdatedAt: now,
+    },
+    {
+      id: `responder-${alert.id}-access`,
+      name: 'Access Control Admin',
+      role: 'it_access_admin',
+      status: 'notified',
+      responsibility: 'Execute or validate badge/door access changes.',
+      contact: 'access-admin@agora.example',
+      team: 'IT Security',
+      addedBy: 'Agora Orchestration',
+      addedAt: now,
+      lastUpdatedAt: now,
+    },
+  ]
+}
+
 function getTzAbbr(date: Date): string {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/Chicago',
@@ -803,12 +988,357 @@ function ExecutionTracker({
   )
 }
 
+function IncidentLifecyclePanel({
+  stage,
+  events,
+  onStageChange,
+}: {
+  stage: IncidentLifecycleStage
+  events: IncidentLifecycleEvent[]
+  onStageChange: (stage: IncidentLifecycleStage, reason: string) => void
+}) {
+  const transitions = INCIDENT_TRANSITIONS[stage]
+  const [nextStage, setNextStage] = useState<IncidentLifecycleStage>(transitions[0] ?? stage)
+  const [reason, setReason] = useState('')
+
+  useEffect(() => {
+    setNextStage(INCIDENT_TRANSITIONS[stage][0] ?? stage)
+    setReason('')
+  }, [stage])
+
+  function submit() {
+    if (!reason.trim() || nextStage === stage) return
+    onStageChange(nextStage, reason.trim())
+  }
+
+  return (
+    <section className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="flex items-center gap-2 text-base font-bold text-white">
+            <span
+              className="material-symbols-outlined text-[#7DD3FC]"
+              aria-hidden="true"
+              style={{ fontSize: '18px', lineHeight: 1 }}
+            >
+              account_tree
+            </span>
+            Incident Lifecycle
+          </h3>
+          <p className="mt-1 text-sm leading-[1.5] text-[#94A3B8]">
+            Track live response stage changes with required rationale.
+          </p>
+        </div>
+        <span
+          className="shrink-0 rounded-full border border-[#334155] bg-[#111827] px-3 py-1 text-xs font-bold"
+          style={{ color: INCIDENT_STAGE_META[stage].tone }}
+        >
+          {INCIDENT_STAGE_META[stage].label}
+        </span>
+      </div>
+
+      <p className="mt-3 rounded-md border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-[1.5] text-[#CBD5E1]">
+        {INCIDENT_STAGE_META[stage].description}
+      </p>
+
+      {transitions.length > 0 && (
+        <div className="mt-4 rounded-md border border-[#334155] bg-[#0F1117] p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Next stage
+              <select
+                value={nextStage}
+                onChange={(event) => setNextStage(event.target.value as IncidentLifecycleStage)}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none focus:border-[#7DD3FC]"
+                aria-label="Select next incident lifecycle stage"
+              >
+                {transitions.map((transition) => (
+                  <option key={transition} value={transition}>
+                    {INCIDENT_STAGE_META[transition].label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Reason
+              <input
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#7DD3FC]"
+                placeholder="Required for incident audit trail"
+              />
+            </label>
+          </div>
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={submit}
+              disabled={!reason.trim() || nextStage === stage}
+              className="min-h-10 rounded-md bg-[#2563EB] px-4 text-sm font-bold text-white transition-all hover:bg-[#1D4ED8] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#334155] disabled:text-[#94A3B8]"
+            >
+              Apply Stage Change
+            </button>
+          </div>
+        </div>
+      )}
+
+      <ol className="mt-4 space-y-2">
+        {events.slice(-4).reverse().map((event) => (
+          <li key={event.id} className="rounded-md border border-[#334155] bg-[#0F1117] px-3 py-2">
+            <p className="text-xs font-bold text-white">
+              {INCIDENT_STAGE_META[event.fromStage].label} → {INCIDENT_STAGE_META[event.toStage].label}
+            </p>
+            <p className="mt-1 text-xs text-[#94A3B8]">
+              {formatActionTime(event.changedAt)} · {event.changedBy}
+            </p>
+            {event.reason && (
+              <p className="mt-1 text-xs leading-[1.5] text-[#CBD5E1]">{event.reason}</p>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+function ResponseTeamPanel({
+  responders,
+  commander,
+  onAddResponder,
+  onStatusChange,
+}: {
+  responders: IncidentResponder[]
+  commander?: IncidentResponder
+  onAddResponder: (responder: IncidentResponder) => void
+  onStatusChange: (id: string, status: ResponderStatus) => void
+}) {
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    role: 'guard' as IncidentResponderRole,
+    status: 'assigned' as ResponderStatus,
+    team: '',
+    contact: '',
+    responsibility: '',
+    notes: '',
+  })
+
+  function addResponder() {
+    if (!form.name.trim() || !form.responsibility.trim()) return
+    const now = new Date().toISOString()
+    onAddResponder({
+      id: `responder-${Date.now()}`,
+      name: form.name.trim(),
+      role: form.role,
+      status: form.status,
+      team: form.team.trim() || undefined,
+      contact: form.contact.trim() || undefined,
+      responsibility: form.responsibility.trim(),
+      notes: form.notes.trim() || undefined,
+      addedBy: CURRENT_OPERATOR,
+      addedAt: now,
+      lastUpdatedAt: now,
+    })
+    setForm({
+      name: '',
+      role: 'guard',
+      status: 'assigned',
+      team: '',
+      contact: '',
+      responsibility: '',
+      notes: '',
+    })
+    setShowForm(false)
+  }
+
+  return (
+    <section className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="flex items-center gap-2 text-base font-bold text-white">
+            <span
+              className="material-symbols-outlined text-[#A78BFA]"
+              aria-hidden="true"
+              style={{ fontSize: '18px', lineHeight: 1 }}
+            >
+              groups
+            </span>
+            Response Team
+          </h3>
+          <p className="mt-1 text-sm leading-[1.5] text-[#94A3B8]">
+            Commander and active responders involved in this incident.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowForm((value) => !value)}
+          className="min-h-10 shrink-0 rounded-md border border-[#64748B] px-3 text-sm font-bold text-[#E5E7EB] transition-all hover:bg-[#1F2937] active:scale-[0.98]"
+        >
+          {showForm ? 'Cancel' : 'Add Responder'}
+        </button>
+      </div>
+
+      {commander && (
+        <div className="mt-4 rounded-md border border-[#4C1D95] bg-[#1F1638] p-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#C4B5FD]">
+            Incident Commander
+          </p>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold text-white">{commander.name}</p>
+              <p className="mt-1 text-xs text-[#CBD5E1]">
+                {commander.team ?? 'Response command'} · {commander.contact ?? 'Contact not set'}
+              </p>
+            </div>
+            <span
+              className="w-fit rounded-full border border-[#334155] bg-[#111827] px-2.5 py-1 text-xs font-bold"
+              style={{ color: RESPONDER_STATUS_TONE[commander.status] }}
+            >
+              {RESPONDER_STATUS_LABEL[commander.status]}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {showForm && (
+        <div className="mt-4 rounded-md border border-[#334155] bg-[#0F1117] p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Name / group
+              <input
+                value={form.name}
+                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+                placeholder="e.g. Guard Team Bravo"
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Role
+              <select
+                value={form.role}
+                onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value as IncidentResponderRole }))}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none focus:border-[#A78BFA]"
+              >
+                {(Object.keys(RESPONDER_ROLE_LABEL) as IncidentResponderRole[]).map((role) => (
+                  <option key={role} value={role}>
+                    {RESPONDER_ROLE_LABEL[role]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Status
+              <select
+                value={form.status}
+                onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value as ResponderStatus }))}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none focus:border-[#A78BFA]"
+              >
+                {(Object.keys(RESPONDER_STATUS_LABEL) as ResponderStatus[]).map((status) => (
+                  <option key={status} value={status}>
+                    {RESPONDER_STATUS_LABEL[status]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1]">
+              Team
+              <input
+                value={form.team}
+                onChange={(event) => setForm((prev) => ({ ...prev, team: event.target.value }))}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+                placeholder="e.g. Site Security"
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1] sm:col-span-2">
+              Contact
+              <input
+                value={form.contact}
+                onChange={(event) => setForm((prev) => ({ ...prev, contact: event.target.value }))}
+                className="mt-1 min-h-10 w-full rounded-md border border-[#475569] bg-[#111827] px-3 text-sm text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+                placeholder="Radio channel, phone, email, or dispatch system"
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1] sm:col-span-2">
+              Responsibility
+              <textarea
+                value={form.responsibility}
+                onChange={(event) => setForm((prev) => ({ ...prev, responsibility: event.target.value }))}
+                rows={2}
+                className="mt-1 w-full resize-none rounded-md border border-[#475569] bg-[#111827] px-3 py-2 text-sm leading-[1.5] text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+                placeholder="What this responder is accountable for during the live response."
+              />
+            </label>
+            <label className="text-xs font-bold text-[#CBD5E1] sm:col-span-2">
+              Notes
+              <textarea
+                value={form.notes}
+                onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
+                rows={2}
+                className="mt-1 w-full resize-none rounded-md border border-[#475569] bg-[#111827] px-3 py-2 text-sm leading-[1.5] text-white outline-none placeholder:text-[#94A3B8] focus:border-[#A78BFA]"
+                placeholder="Optional context, instructions, or escalation notes."
+              />
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={addResponder}
+            disabled={!form.name.trim() || !form.responsibility.trim()}
+            className="mt-3 min-h-10 w-full rounded-md bg-[#7C3AED] px-4 text-sm font-bold text-white transition-all hover:bg-[#6D28D9] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#334155] disabled:text-[#94A3B8]"
+          >
+            Add to Response Team
+          </button>
+        </div>
+      )}
+
+      <ul className="mt-4 space-y-2">
+        {responders.map((responder) => (
+          <li key={responder.id} className="rounded-md border border-[#334155] bg-[#0F1117] p-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-white">{responder.name}</p>
+                <p className="mt-1 text-xs font-semibold text-[#94A3B8]">
+                  {RESPONDER_ROLE_LABEL[responder.role]}
+                  {responder.team ? ` · ${responder.team}` : ''}
+                </p>
+                <p className="mt-2 text-sm leading-[1.5] text-[#CBD5E1]">
+                  {responder.responsibility}
+                </p>
+                {responder.contact && (
+                  <p className="mt-1 text-xs text-[#94A3B8]">{responder.contact}</p>
+                )}
+              </div>
+              <select
+                value={responder.status}
+                onChange={(event) => onStatusChange(responder.id, event.target.value as ResponderStatus)}
+                className="min-h-10 rounded-md border border-[#475569] bg-[#111827] px-3 text-xs font-bold text-white outline-none focus:border-[#A78BFA]"
+                aria-label={`Update response status for ${responder.name}`}
+                style={{ color: RESPONDER_STATUS_TONE[responder.status] }}
+              >
+                {(Object.keys(RESPONDER_STATUS_LABEL) as ResponderStatus[]).map((status) => (
+                  <option key={status} value={status}>
+                    {RESPONDER_STATUS_LABEL[status]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 // ---- Main Drawer ----
 export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverride }: Props) {
   const [clipEvent, setClipEvent] = useState<CorrelatedEvent | null>(null)
   const [whyOpen, setWhyOpen] = useState(false)
   const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
   const [noteText, setNoteText] = useState('')
+  const initialLifecycleEvents = useMemo(() => createInitialIncidentLifecycle(alert), [alert])
+  const initialResponders = useMemo(() => createInitialResponders(alert), [alert])
+  const [incidentStage, setIncidentStage] = useState<IncidentLifecycleStage>('accepted')
+  const [lifecycleEvents, setLifecycleEvents] = useState<IncidentLifecycleEvent[]>(initialLifecycleEvents)
+  const [responders, setResponders] = useState<IncidentResponder[]>(initialResponders)
   const actionPlanKey = useMemo(
     () =>
       [
@@ -831,6 +1361,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   const actionJustificationId = `action-justification-${alert.id}`
   const completedActionCount = executionActions.filter((action) => action.status === 'complete').length
   const allActionsComplete = executionStarted && executionActions.length > 0 && completedActionCount === executionActions.length
+  const incidentCommander = responders.find((responder) => responder.role === 'incident_commander')
 
   const allItems: TimelineItem[] = [
     ...detail.correlatedEvents.map((e) => ({ kind: 'event' as const, data: e })),
@@ -879,6 +1410,61 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     ])
   }
 
+  function addLifecycleTransition(nextStage: IncidentLifecycleStage, reason: string) {
+    const previousStage = incidentStage
+    const changedAt = new Date().toISOString()
+    setIncidentStage(nextStage)
+    setLifecycleEvents((prev) => [
+      ...prev,
+      {
+        id: `life-${Date.now()}`,
+        fromStage: previousStage,
+        toStage: nextStage,
+        changedBy: CURRENT_OPERATOR,
+        changedAt,
+        reason,
+      },
+    ])
+    addSystemReceipt(
+      `Incident lifecycle changed: ${INCIDENT_STAGE_META[previousStage].label} → ${INCIDENT_STAGE_META[nextStage].label}. ${reason}`
+    )
+  }
+
+  function addResponder(responder: IncidentResponder) {
+    setResponders((prev) => {
+      const withoutCommander =
+        responder.role === 'incident_commander'
+          ? prev.filter((item) => item.role !== 'incident_commander')
+          : prev
+      return [...withoutCommander, responder]
+    })
+    addSystemReceipt(
+      `${responder.name} added as ${RESPONDER_ROLE_LABEL[responder.role]} — ${responder.responsibility}`
+    )
+    if (responder.role === 'incident_commander') {
+      addLifecycleTransition('command_assigned', `${responder.name} assigned as incident commander.`)
+    }
+  }
+
+  function updateResponderStatus(id: string, status: ResponderStatus) {
+    const responder = responders.find((item) => item.id === id)
+    if (!responder || responder.status === status) return
+    setResponders((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status,
+              lastUpdatedAt: new Date().toISOString(),
+            }
+          : item
+      )
+    )
+    addSystemReceipt(
+      `${responder.name} status changed: ${RESPONDER_STATUS_LABEL[responder.status]} → ${RESPONDER_STATUS_LABEL[status]}.`
+    )
+  }
+
   function updateExecutionAction(id: string, patch: Partial<ExecutionAction>) {
     setExecutionActions((prev) =>
       prev.map((action) =>
@@ -913,6 +1499,9 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       },
     ])
     setExecutionStarted(true)
+    if (incidentStage === 'accepted' || incidentStage === 'command_assigned') {
+      addLifecycleTransition('containment_in_progress', 'Recommended response actions accepted and execution started.')
+    }
   }
 
   function handleOverride() {
@@ -944,7 +1533,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   useEffect(() => {
     setExecutionActions(initialExecutionActions)
     setExecutionStarted(false)
-  }, [actionPlanKey, initialExecutionActions])
+    setIncidentStage('accepted')
+    setLifecycleEvents(initialLifecycleEvents)
+    setResponders(initialResponders)
+  }, [actionPlanKey, initialExecutionActions, initialLifecycleEvents, initialResponders])
 
   useEffect(() => {
     if (!executionStarted) return
@@ -1053,6 +1645,11 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       agentSummary: detail.agentSummary,
       correlatedEvents: detail.correlatedEvents,
       executionActions,
+      incidentLifecycle: {
+        currentStage: incidentStage,
+        events: lifecycleEvents,
+      },
+      responseTeam: responders,
       operatorLog,
     }
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
@@ -1102,6 +1699,31 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
             <h2 className="min-w-0 text-lg font-bold leading-tight text-white">{alert.title}</h2>
+            <span
+              className="flex shrink-0 items-center gap-1 rounded-full border border-[#334155] bg-[#111827] px-3 py-1 text-sm font-bold"
+              style={{ color: INCIDENT_STAGE_META[incidentStage].tone }}
+            >
+              <span
+                className="material-symbols-outlined"
+                aria-hidden="true"
+                style={{ fontSize: '14px', lineHeight: 1 }}
+              >
+                account_tree
+              </span>
+              {INCIDENT_STAGE_META[incidentStage].label}
+            </span>
+            {incidentCommander && (
+              <span className="flex min-w-0 shrink-0 items-center gap-1 rounded-full border border-[#4C1D95] bg-[#1F1638] px-3 py-1 text-sm font-bold text-[#C4B5FD]">
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: '14px', lineHeight: 1 }}
+                >
+                  military_tech
+                </span>
+                Commander: {incidentCommander.name}
+              </span>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -1373,6 +1995,19 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   actions={executionActions}
                   started={executionStarted}
                   onManualComplete={handleManualComplete}
+                />
+
+                <IncidentLifecyclePanel
+                  stage={incidentStage}
+                  events={lifecycleEvents}
+                  onStageChange={addLifecycleTransition}
+                />
+
+                <ResponseTeamPanel
+                  responders={responders}
+                  commander={incidentCommander}
+                  onAddResponder={addResponder}
+                  onStatusChange={updateResponderStatus}
                 />
 
                 {/* Alternatives */}
