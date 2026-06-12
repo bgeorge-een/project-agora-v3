@@ -2,14 +2,16 @@
 
 import { useState } from 'react'
 import ResponseView from '@/components/incident/ResponseView'
+import SupervisorView from '@/components/incident/SupervisorView'
 import MonitorView from '@/components/incident/MonitorView'
 import MapView from '@/components/incident/MapView'
 import InsightsView from '@/components/incident/InsightsView'
 
-type ViewTab = 'response' | 'monitor' | 'map' | 'insights'
+type ViewTab = 'response' | 'supervisor' | 'monitor' | 'map' | 'insights'
 
 const TABS: { id: ViewTab; label: string }[] = [
   { id: 'response', label: 'Response View' },
+  { id: 'supervisor', label: 'Supervisor View' },
   { id: 'monitor', label: 'Monitor View' },
   { id: 'map', label: 'Map View' },
   { id: 'insights', label: 'Insights' },
@@ -112,6 +114,7 @@ export default function IncidentManagementPage() {
       {/* Active view */}
       <div className="px-3 py-4 sm:px-5 xl:px-6 xl:py-6">
         {tab === 'response' && <ResponseView highContrast={highContrast} />}
+        {tab === 'supervisor' && <SupervisorView />}
         {tab === 'monitor' && <MonitorView />}
         {tab === 'map' && <MapView />}
         {tab === 'insights' && <InsightsView />}

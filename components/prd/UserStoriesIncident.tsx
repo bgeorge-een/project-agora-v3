@@ -15,6 +15,21 @@ const THEMES: Theme[] = [
     name: 'SOC Triage & Focus',
     stories: [
       {
+        story: 'Supervise the live incident intake queue across the GSOC',
+        criteria:
+          'GSOC supervisor view shows open incident count, unassigned critical incidents, SLA-at-risk incidents, breached SLAs, average claim time, available operators, oldest unclaimed incident, and a prioritized queue sorted by unassigned critical, SLA risk, missing first action, severity, and age.',
+      },
+      {
+        story: 'Assign or claim unowned incidents before SLA risk escalates',
+        criteria:
+          'Supervisor can filter by severity and ownership state, review unassigned critical incidents, claim an incident, assign it to an available operator, see owner/lifecycle/SLA/first-action status, and open the incident directly into the response workspace.',
+      },
+      {
+        story: 'Monitor operator workload before assigning more incidents',
+        criteria:
+          'Supervisor workload panel shows operator availability, assigned count, critical count, average first-action time, and last activity so critical incidents are assigned to operators with capacity.',
+      },
+      {
         story: 'Triage a live alert queue without losing critical focus',
         criteria:
           'Critical alerts remain expanded; lower-severity groups are collapsible; each incident card shows severity, incident type, location, local time, elapsed time, sources, confidence, and a solid Respond/Open action.',
