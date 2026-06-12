@@ -620,11 +620,11 @@ function CameraPreviewGallery({
           className="min-h-9 w-fit rounded-md border border-[#475569] px-3 text-xs font-bold text-[#E5E7EB] transition-all hover:bg-[#1F2937] active:scale-[0.98]"
           aria-expanded={showMore}
         >
-          {fetching ? 'Fetching frames...' : showMore ? 'Hide more frames' : 'View more frames'}
+          {fetching ? 'Fetching...' : showMore ? 'Hide frames' : 'Fetch +/-10s'}
         </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
         {frames.map((frame) => (
           <FrameCard
             key={frame.id}
@@ -643,7 +643,7 @@ function CameraPreviewGallery({
           <p className="mb-2 text-xs font-semibold text-[#CBD5E1]">
             Archive context · 10 seconds before/after key frame
           </p>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
             {contextFrames.map((frame) => (
               <FrameCard
                 key={frame.id}
@@ -718,11 +718,11 @@ function FrameCard({
           </p>
         )}
       </div>
-      <div className="mt-2 grid grid-cols-3 gap-1.5">
+      <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
         <button
           type="button"
           onClick={() => onOpenClip(event, frame)}
-          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+          className="min-h-8 rounded border border-[#475569] px-2 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
         >
           Clip
         </button>
@@ -730,14 +730,14 @@ function FrameCard({
           type="button"
           onClick={() => onPreserveFrame(event, frame)}
           disabled={preserved || frame.status === 'unavailable'}
-          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+          className="min-h-8 rounded border border-[#475569] px-2 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
         >
           {preserved ? 'Saved' : 'Preserve'}
         </button>
         <button
           type="button"
           onClick={() => onOpenLive(event)}
-          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+          className="min-h-8 rounded border border-[#475569] px-2 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
         >
           Live
         </button>
@@ -1300,6 +1300,65 @@ function ExecutionTracker({
   )
 }
 
+function SecondaryDisclosure({
+  title,
+  icon,
+  summary,
+  badge,
+  badgeTone = '#CBD5E1',
+  defaultOpen = false,
+  children,
+}: {
+  title: string
+  icon: string
+  summary: string
+  badge?: string
+  badgeTone?: string
+  defaultOpen?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="group rounded-lg border border-[#334155] bg-[#151B26]"
+    >
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="material-symbols-outlined shrink-0 text-[#94A3B8]"
+            aria-hidden="true"
+            style={{ fontSize: '18px', lineHeight: 1 }}
+          >
+            {icon}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-white">{title}</p>
+            <p className="truncate text-xs leading-[1.4] text-[#94A3B8]">{summary}</p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {badge && (
+            <span
+              className="rounded-full border border-[#334155] bg-[#0F1117] px-2.5 py-1 text-xs font-bold"
+              style={{ color: badgeTone }}
+            >
+              {badge}
+            </span>
+          )}
+          <span
+            className="material-symbols-outlined text-[#94A3B8] transition-transform group-open:rotate-180"
+            aria-hidden="true"
+            style={{ fontSize: '20px', lineHeight: 1 }}
+          >
+            expand_more
+          </span>
+        </div>
+      </summary>
+      <div className="border-t border-[#334155] p-4">{children}</div>
+    </details>
+  )
+}
+
 function IncidentLifecyclePanel({
   stage,
   events,
@@ -1324,32 +1383,8 @@ function IncidentLifecyclePanel({
   }
 
   return (
-    <section className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="flex items-center gap-2 text-base font-bold text-white">
-            <span
-              className="material-symbols-outlined text-[#7DD3FC]"
-              aria-hidden="true"
-              style={{ fontSize: '18px', lineHeight: 1 }}
-            >
-              account_tree
-            </span>
-            Incident Lifecycle
-          </h3>
-          <p className="mt-1 text-sm leading-[1.5] text-[#94A3B8]">
-            Track live response stage changes with required rationale.
-          </p>
-        </div>
-        <span
-          className="shrink-0 rounded-full border border-[#334155] bg-[#111827] px-3 py-1 text-xs font-bold"
-          style={{ color: INCIDENT_STAGE_META[stage].tone }}
-        >
-          {INCIDENT_STAGE_META[stage].label}
-        </span>
-      </div>
-
-      <p className="mt-3 rounded-md border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-[1.5] text-[#CBD5E1]">
+    <div>
+      <p className="rounded-md border border-[#334155] bg-[#0F1117] px-3 py-2 text-sm leading-[1.5] text-[#CBD5E1]">
         {INCIDENT_STAGE_META[stage].description}
       </p>
 
@@ -1409,7 +1444,7 @@ function IncidentLifecyclePanel({
           </li>
         ))}
       </ol>
-    </section>
+    </div>
   )
 }
 
@@ -1464,23 +1499,8 @@ function ResponseTeamPanel({
   }
 
   return (
-    <section className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="flex items-center gap-2 text-base font-bold text-white">
-            <span
-              className="material-symbols-outlined text-[#A78BFA]"
-              aria-hidden="true"
-              style={{ fontSize: '18px', lineHeight: 1 }}
-            >
-              groups
-            </span>
-            Response Team
-          </h3>
-          <p className="mt-1 text-sm leading-[1.5] text-[#94A3B8]">
-            Commander and active responders involved in this incident.
-          </p>
-        </div>
+    <div>
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={() => setShowForm((value) => !value)}
@@ -1636,7 +1656,7 @@ function ResponseTeamPanel({
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -2093,10 +2113,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         </div>
 
         {/* Body */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] xl:overflow-hidden">
+        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto 2xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] 2xl:overflow-hidden">
           {/* LEFT — Evidence */}
           <div
-            className="min-w-0 border-b border-[#334155] p-4 sm:p-6 xl:min-h-0 xl:overflow-y-auto xl:border-b-0 xl:border-r"
+            className="order-2 min-w-0 border-t border-[#334155] p-4 sm:p-6 2xl:order-1 2xl:min-h-0 2xl:overflow-y-auto 2xl:border-r 2xl:border-t-0"
             style={{ scrollbarGutter: 'stable' }}
           >
             <p className="mb-2 break-words text-sm font-medium text-[#CBD5E1]">
@@ -2285,61 +2305,47 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
 
           {/* RIGHT — NBA + SOP + Actions */}
           <div
-            className="min-w-0 p-4 sm:p-6 xl:min-h-0 xl:overflow-y-auto"
+            className="order-1 min-w-0 p-4 sm:p-6 2xl:order-2 2xl:min-h-0 2xl:overflow-y-auto"
             style={{ scrollbarGutter: 'stable' }}
           >
             {nba ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {/* NBA header */}
-                <div className="flex items-start gap-4 border-b border-[#334155] pb-5">
-                  <ConfidenceRing value={nba.confidence} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="material-symbols-outlined text-[#38BDF8]"
-                        aria-hidden="true"
-                        style={{ fontSize: '18px', lineHeight: 1 }}
-                      >
-                        smart_toy
-                      </span>
-                      <h3 className="text-base font-bold text-white">
-                        Next Best Action
-                      </h3>
+                <div className="rounded-lg border border-[#334155] bg-[#151B26] p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="material-symbols-outlined text-[#38BDF8]"
+                          aria-hidden="true"
+                          style={{ fontSize: '18px', lineHeight: 1 }}
+                        >
+                          smart_toy
+                        </span>
+                        <h3 className="text-base font-bold text-white">
+                          Next Best Action
+                        </h3>
+                      </div>
+                      <p className="mt-1 text-sm leading-[1.5] text-[#D1D5DB]">
+                        {detail.person.type === 'known' ? detail.person.name : detail.person.label}
+                        {' '}· {detail.correlatedEvents.length} correlated events
+                      </p>
                     </div>
-                    <p className="mt-2 text-sm leading-[1.5] text-[#D1D5DB]">
-                      Contextualized with{' '}
-                      {detail.person.type === 'known'
-                        ? detail.person.name
-                        : detail.person.label}{' '}
-                      · {detail.correlatedEvents.length} correlated events
-                    </p>
+                    <div className="flex w-fit items-center gap-2 rounded-full border border-[#166534] bg-[#0C2714] px-3 py-1.5 text-sm font-bold text-[#86EFAC]">
+                      <span className="text-base leading-none">{Math.round(nba.confidence * 100)}%</span>
+                      <span className="text-xs uppercase tracking-wide text-[#BBF7D0]">confidence</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Recommended action */}
-                <section>
-                  <h4 className="mb-2 text-sm font-semibold text-[#94A3B8]">
+                <section className="rounded-lg border border-[#334155] bg-[#151B26] p-4">
+                  <h4 className="text-sm font-semibold text-[#94A3B8]">
                     Recommended Action
                   </h4>
-                  <button
-                    onClick={handleAccept}
-                    disabled={executionStarted}
-                    role="button"
-                    aria-label={
-                      executionStarted
-                        ? `Recommendation accepted: ${nba.recommendedAction}`
-                        : `Accept recommended action: ${nba.recommendedAction}`
-                    }
-                    aria-describedby={actionJustificationId}
-                    aria-keyshortcuts="Meta+Enter Control+Enter"
-                    className={`min-h-[52px] w-full max-w-4xl rounded-lg px-4 py-3 text-left text-sm font-bold leading-[1.5] text-white transition-all ${
-                      executionStarted
-                        ? 'cursor-default border border-[#334155] bg-[#1F2937] text-[#D1D5DB]'
-                        : 'bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98]'
-                    }`}
-                  >
-                    {executionStarted ? 'Recommendation accepted' : nba.recommendedAction}
-                  </button>
+                  <p className="mt-2 rounded-md border border-[#1D4ED8] bg-[#172554] px-3 py-2 text-sm font-bold leading-[1.5] text-white">
+                    {nba.recommendedAction}
+                  </p>
                   <p id={actionJustificationId} className="mt-2 text-sm font-medium leading-[1.5] text-[#CBD5E1]">
                     {nba.rationale}
                   </p>
@@ -2351,25 +2357,48 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                   onManualComplete={handleManualComplete}
                 />
 
-                <IncidentLifecyclePanel
-                  stage={incidentStage}
-                  events={lifecycleEvents}
-                  onStageChange={addLifecycleTransition}
-                />
+                <SecondaryDisclosure
+                  title="Incident Lifecycle"
+                  icon="account_tree"
+                  summary="Stage changes, rationale, and transition history"
+                  badge={INCIDENT_STAGE_META[incidentStage].label}
+                  badgeTone={INCIDENT_STAGE_META[incidentStage].tone}
+                >
+                  <IncidentLifecyclePanel
+                    stage={incidentStage}
+                    events={lifecycleEvents}
+                    onStageChange={addLifecycleTransition}
+                  />
+                </SecondaryDisclosure>
 
-                <ResponseTeamPanel
-                  responders={responders}
-                  commander={incidentCommander}
-                  onAddResponder={addResponder}
-                  onStatusChange={updateResponderStatus}
-                />
+                <SecondaryDisclosure
+                  title="Response Team"
+                  icon="groups"
+                  summary={
+                    incidentCommander
+                      ? `Commander ${incidentCommander.name} · ${responders.length} responders`
+                      : `${responders.length} responders assigned`
+                  }
+                  badge={`${responders.length}`}
+                  badgeTone="#C4B5FD"
+                >
+                  <ResponseTeamPanel
+                    responders={responders}
+                    commander={incidentCommander}
+                    onAddResponder={addResponder}
+                    onStatusChange={updateResponderStatus}
+                  />
+                </SecondaryDisclosure>
 
                 {/* Alternatives */}
                 {nba.alternatives.length > 0 && (
-                  <section>
-                    <h4 className="mb-2 text-sm font-semibold text-[#94A3B8]">
-                      Alternatives
-                    </h4>
+                  <SecondaryDisclosure
+                    title="Alternatives"
+                    icon="alt_route"
+                    summary="Secondary response options if the recommendation is not appropriate"
+                    badge={`${nba.alternatives.length}`}
+                    badgeTone="#E5E7EB"
+                  >
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {nba.alternatives.map((alt) => (
                         <button
@@ -2381,12 +2410,18 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                         </button>
                       ))}
                     </div>
-                  </section>
+                  </SecondaryDisclosure>
                 )}
 
                 {/* SOP */}
                 {sop && (
-                  <div className="rounded-lg border border-[#334155] bg-[#151B26] p-5">
+                  <SecondaryDisclosure
+                    title="SOP Checklist"
+                    icon="checklist"
+                    summary={sop.title}
+                    badge={`${sop.steps.length} steps`}
+                    badgeTone="#FCD34D"
+                  >
                     <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-[#FCD34D]">
                       <span
                         className="material-symbols-outlined"
@@ -2410,81 +2445,91 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                         </li>
                       ))}
                     </ol>
-                  </div>
+                  </SecondaryDisclosure>
                 )}
 
                 {/* Two-tier execution */}
-                <div className="grid grid-cols-1 gap-3">
-                  {nba.autoExecuteActions.length > 0 && (
-                    <div className="rounded-lg border border-[#166534] bg-[#0C2714] p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#34D399]">
-                        <span
-                          className="material-symbols-outlined"
-                          aria-hidden="true"
-                          style={{ fontSize: '16px', lineHeight: 1 }}
-                        >
-                          check_circle
-                        </span>
-                        Auto-executes on accept:
-                      </p>
-                      <ul className="space-y-1">
-                        {nba.autoExecuteActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#86EFAC]">
+                {(nba.autoExecuteActions.length > 0 || nba.gatedActions.length > 0) && (
+                  <SecondaryDisclosure
+                    title="Execution Policy"
+                    icon="policy"
+                    summary="Auto-executed and approval-gated actions"
+                    badge={`${nba.autoExecuteActions.length + nba.gatedActions.length}`}
+                    badgeTone="#93C5FD"
+                  >
+                    <div className="grid grid-cols-1 gap-3">
+                      {nba.autoExecuteActions.length > 0 && (
+                        <div className="rounded-lg border border-[#166534] bg-[#0C2714] p-3">
+                          <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#34D399]">
                             <span
-                              className="material-symbols-outlined text-[#22C55E]"
+                              className="material-symbols-outlined"
                               aria-hidden="true"
                               style={{ fontSize: '16px', lineHeight: 1 }}
                             >
                               check_circle
                             </span>
-                            {a}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                            Auto-executes on accept:
+                          </p>
+                          <ul className="space-y-1">
+                            {nba.autoExecuteActions.map((a) => (
+                              <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#86EFAC]">
+                                <span
+                                  className="material-symbols-outlined text-[#22C55E]"
+                                  aria-hidden="true"
+                                  style={{ fontSize: '16px', lineHeight: 1 }}
+                                >
+                                  check_circle
+                                </span>
+                                {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                  {nba.gatedActions.length > 0 && (
-                    <div className="rounded-lg border border-[#7F1D1D] bg-[#2D1515] p-3">
-                      <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#FFB4AE]">
-                        <span
-                          className="material-symbols-outlined"
-                          aria-hidden="true"
-                          style={{ fontSize: '16px', lineHeight: 1 }}
-                        >
-                          lock
-                        </span>
-                        Requires your approval:
-                      </p>
-                      <ul className="space-y-1">
-                        {nba.gatedActions.map((a) => (
-                          <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#FFB4AE]">
+                      {nba.gatedActions.length > 0 && (
+                        <div className="rounded-lg border border-[#7F1D1D] bg-[#2D1515] p-3">
+                          <p className="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#FFB4AE]">
                             <span
-                              className="material-symbols-outlined text-[#EF4444]"
+                              className="material-symbols-outlined"
                               aria-hidden="true"
                               style={{ fontSize: '16px', lineHeight: 1 }}
                             >
                               lock
                             </span>
-                            {a}
-                          </li>
-                        ))}
-                      </ul>
+                            Requires your approval:
+                          </p>
+                          <ul className="space-y-1">
+                            {nba.gatedActions.map((a) => (
+                              <li key={a} className="flex items-center gap-2 text-sm leading-[1.5] text-[#FFB4AE]">
+                                <span
+                                  className="material-symbols-outlined text-[#EF4444]"
+                                  aria-hidden="true"
+                                  style={{ fontSize: '16px', lineHeight: 1 }}
+                                >
+                                  lock
+                                </span>
+                                {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </SecondaryDisclosure>
+                )}
 
                 {/* Action footer */}
-                <footer className="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-[#334155] bg-[#0F1117]/95 px-4 py-4 backdrop-blur transform-gpu will-change-transform sm:-mx-6 sm:-mb-6 sm:px-6 sm:py-5">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="order-2 text-xs text-[#94A3B8] sm:order-1">
+                <footer className="rounded-lg border border-[#334155] bg-[#151B26] p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <p className="order-2 max-w-xs text-xs leading-[1.5] text-[#94A3B8] lg:order-1">
                       Every action is logged with attribution
                     </p>
-                    <div className="order-1 flex flex-col gap-2 sm:order-2 sm:flex-row sm:justify-end">
+                    <div className="order-1 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:order-2 lg:flex lg:justify-end">
                       <button
                         onClick={handleOverride}
                         aria-label="Override AI recommendation with reason"
-                        className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg border border-[#64748B] px-4 text-sm font-semibold text-[#E5E7EB] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98] sm:w-auto sm:min-w-[13rem]"
+                        className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg border border-[#64748B] px-4 text-sm font-semibold text-[#E5E7EB] transition-all hover:bg-[#1F2937] hover:text-white active:scale-[0.98] lg:w-auto"
                       >
                         <span
                           className="material-symbols-outlined"
@@ -2507,7 +2552,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                         }
                         aria-describedby={actionJustificationId}
                         aria-keyshortcuts="Meta+Enter Control+Enter"
-                        className={`flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-all sm:w-auto sm:min-w-[17rem] ${
+                        className={`flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-all lg:w-auto ${
                           executionStarted && !allActionsComplete
                             ? 'cursor-not-allowed border border-[#334155] bg-[#1F2937] text-[#94A3B8]'
                             : 'bg-[#1D4ED8] text-white hover:bg-[#2563EB] active:scale-[0.98]'
