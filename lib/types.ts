@@ -385,9 +385,39 @@ export interface ChatMessage {
 // --- Incident Detail (correlated evidence view) ---
 export type SceneType = 'parking' | 'lobby' | 'hallway' | 'elevator' | 'exterior' | 'restricted'
 
+export type CameraFrameHighlightType =
+  | 'approach'
+  | 'key_frame'
+  | 'loitering'
+  | 'access_attempt'
+  | 'departure'
+  | 'tailgate'
+  | 'vehicle'
+  | 'door_forcing'
+  | 'survey'
+  | 'movement'
+
+export type CameraFrameSource = 'live_buffer' | 'archive' | 'recorded'
+export type CameraFrameStatus = 'preview_only' | 'preserved' | 'degraded' | 'unavailable'
+
+export interface CameraPreviewFrame {
+  id: string
+  timestamp: string
+  label: string
+  description: string
+  sceneType?: SceneType
+  highlightType: CameraFrameHighlightType
+  source: CameraFrameSource
+  status: CameraFrameStatus
+  isKeyFrame?: boolean
+  confidence?: number
+  offsetSeconds?: number
+}
+
 export interface CameraPreview {
   channel: string
   sceneType: SceneType
+  frames?: CameraPreviewFrame[]
 }
 
 export interface CorrelatedEvent {

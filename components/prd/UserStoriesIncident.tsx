@@ -90,6 +90,16 @@ const THEMES: Theme[] = [
           'Timeline presents access, camera, agent, manual, and action events; camera stills/clips, badge denial reason, source count, and evidence provenance are visible.',
       },
       {
+        story: 'Evaluate camera-captured patterns without opening live view first',
+        criteria:
+          'Camera timeline events show a responsive three-frame key evidence strip with before/key/after context, AI key-frame label, timestamp, source, preview-vs-preserved status, open clip, open live, and preserve actions.',
+      },
+      {
+        story: 'Fetch additional camera context around a key frame',
+        criteria:
+          'Operator can expand a camera event to fetch archive context frames from roughly 5-10 seconds before and after the selected key frame; degraded or unavailable preview states remain visible instead of silently disappearing.',
+      },
+      {
         story: 'Open live camera view with recent context',
         criteria:
           'Clicking a camera opens live view when online; recent detections/events, stream health, recording status, coverage area, and linked incident context remain visible.',

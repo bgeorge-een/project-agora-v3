@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import type {
   Alert,
   AlertDetail,
+  CameraPreviewFrame,
   CorrelatedEvent,
   IncidentLifecycleEvent,
   IncidentLifecycleStage,
@@ -436,16 +437,331 @@ const EVENT_ICON: Record<CorrelatedEvent['type'], string> = {
   agent: 'psychology',
 }
 
+type ClipSelection = {
+  event: CorrelatedEvent
+  frame?: CameraPreviewFrame
+}
+
+const FRAME_STATUS_META: Record<CameraPreviewFrame['status'], { label: string; tone: string }> = {
+  preview_only: { label: 'Preview only', tone: '#CBD5E1' },
+  preserved: { label: 'Preserved', tone: '#86EFAC' },
+  degraded: { label: 'Degraded', tone: '#FCD34D' },
+  unavailable: { label: 'Unavailable', tone: '#FCA5A5' },
+}
+
+const FRAME_SOURCE_LABEL: Record<CameraPreviewFrame['source'], string> = {
+  live_buffer: 'Live buffer',
+  archive: 'Archive',
+  recorded: 'Recorded',
+}
+
+const HIGHLIGHT_LABEL: Record<CameraPreviewFrame['highlightType'], string> = {
+  approach: 'Approach',
+  key_frame: 'Key frame',
+  loitering: 'Loitering',
+  access_attempt: 'Access attempt',
+  departure: 'Departure',
+  tailgate: 'Tailgate',
+  vehicle: 'Vehicle',
+  door_forcing: 'Door force',
+  survey: 'Survey',
+  movement: 'Movement',
+}
+
+function framePatternForEvent(event: CorrelatedEvent): {
+  first: CameraPreviewFrame['highlightType']
+  key: CameraPreviewFrame['highlightType']
+  third: CameraPreviewFrame['highlightType']
+  labels: [string, string, string]
+} {
+  const lower = `${event.location} ${event.detail}`.toLowerCase()
+  if (lower.includes('tailgate') || lower.includes('followed')) {
+    return { first: 'approach', key: 'tailgate', third: 'movement', labels: ['Approach', 'Tailgate', 'Interior movement'] }
+  }
+  if (lower.includes('vehicle') || lower.includes('truck') || lower.includes('sedan') || lower.includes('parking')) {
+    return { first: 'vehicle', key: 'approach', third: 'movement', labels: ['Vehicle arrival', 'Subject exit', 'Path to entry'] }
+  }
+  if (lower.includes('forcing') || lower.includes('handle') || lower.includes('door')) {
+    return { first: 'approach', key: 'door_forcing', third: 'departure', labels: ['Approach', 'Door force', 'After attempt'] }
+  }
+  if (lower.includes('survey') || lower.includes('paused') || lower.includes('watchlist')) {
+    return { first: 'approach', key: 'survey', third: 'departure', labels: ['Approach', 'Entry survey', 'Still outside'] }
+  }
+  if (lower.includes('linger') || lower.includes('loiter')) {
+    return { first: 'approach', key: 'loitering', third: 'departure', labels: ['Arrival', 'Loitering', 'Exit path'] }
+  }
+  if (lower.includes('depart') || lower.includes('leaving')) {
+    return { first: 'loitering', key: 'departure', third: 'movement', labels: ['Before exit', 'Departure', 'Corridor clear'] }
+  }
+  return { first: 'approach', key: 'key_frame', third: 'departure', labels: ['Before', 'Key frame', 'After'] }
+}
+
+function getCameraPreviewFrames(event: CorrelatedEvent): CameraPreviewFrame[] {
+  if (event.cameraPreview?.frames?.length) return event.cameraPreview.frames
+  if (!event.cameraPreview) return []
+
+  const pattern = framePatternForEvent(event)
+  const sceneType = event.cameraPreview.sceneType
+  return [
+    {
+      id: `${event.id}-frame-before`,
+      timestamp: event.ts,
+      label: pattern.labels[0],
+      description: `Context before: ${event.detail}`,
+      sceneType,
+      highlightType: pattern.first,
+      source: 'recorded',
+      status: 'preview_only',
+      offsetSeconds: -5,
+    },
+    {
+      id: `${event.id}-frame-key`,
+      timestamp: event.ts,
+      label: pattern.labels[1],
+      description: event.detail,
+      sceneType,
+      highlightType: pattern.key,
+      source: 'recorded',
+      status: 'preview_only',
+      isKeyFrame: true,
+      confidence: event.agentFlag ? 91 : 86,
+      offsetSeconds: 0,
+    },
+    {
+      id: `${event.id}-frame-after`,
+      timestamp: event.ts,
+      label: pattern.labels[2],
+      description: `Context after: ${event.detail}`,
+      sceneType,
+      highlightType: pattern.third,
+      source: 'recorded',
+      status: 'preview_only',
+      offsetSeconds: 5,
+    },
+  ]
+}
+
+function getContextFrames(event: CorrelatedEvent): CameraPreviewFrame[] {
+  const preview = event.cameraPreview
+  if (!preview) return []
+  const pattern = framePatternForEvent(event)
+  const offsets = [-10, -7, -3, 3, 7, 10]
+  return offsets.map((offset, index) => {
+    const before = offset < 0
+    return {
+      id: `${event.id}-context-${offset}`,
+      timestamp: event.ts,
+      label: before ? `${Math.abs(offset)}s before` : `${offset}s after`,
+      description: before
+        ? `Archive context before key frame: ${event.detail}`
+        : `Archive context after key frame: ${event.detail}`,
+      sceneType: preview.sceneType,
+      highlightType: before ? pattern.first : pattern.third,
+      source: 'archive',
+      status: index === 1 && preview.channel === 'E2' ? 'degraded' : 'preview_only',
+      offsetSeconds: offset,
+    }
+  })
+}
+
+function CameraPreviewGallery({
+  event,
+  preservedFrameIds,
+  onOpenClip,
+  onPreserveFrame,
+  onOpenLive,
+}: {
+  event: CorrelatedEvent
+  preservedFrameIds: Set<string>
+  onOpenClip: (event: CorrelatedEvent, frame?: CameraPreviewFrame) => void
+  onPreserveFrame: (event: CorrelatedEvent, frame: CameraPreviewFrame) => void
+  onOpenLive: (event: CorrelatedEvent) => void
+}) {
+  const [showMore, setShowMore] = useState(false)
+  const [fetching, setFetching] = useState(false)
+  const frames = getCameraPreviewFrames(event)
+  const contextFrames = showMore ? getContextFrames(event) : []
+
+  function fetchMoreFrames() {
+    if (showMore) {
+      setShowMore(false)
+      return
+    }
+    setFetching(true)
+    window.setTimeout(() => {
+      setShowMore(true)
+      setFetching(false)
+    }, 350)
+  }
+
+  if (!event.cameraPreview || frames.length === 0) return null
+
+  return (
+    <div className="mt-3 rounded-lg border border-[#334155] bg-[#0F1117] p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#93C5FD]">
+            <span
+              className="material-symbols-outlined"
+              aria-hidden="true"
+              style={{ fontSize: '14px', lineHeight: 1 }}
+            >
+              photo_library
+            </span>
+            Camera key frames
+          </p>
+          <p className="mt-1 text-xs leading-[1.5] text-[#94A3B8]">
+            Three-frame pattern: before, key frame, and after. Expand to fetch archive context around the key frame.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={fetchMoreFrames}
+          className="min-h-9 w-fit rounded-md border border-[#475569] px-3 text-xs font-bold text-[#E5E7EB] transition-all hover:bg-[#1F2937] active:scale-[0.98]"
+          aria-expanded={showMore}
+        >
+          {fetching ? 'Fetching frames...' : showMore ? 'Hide more frames' : 'View more frames'}
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {frames.map((frame) => (
+          <FrameCard
+            key={frame.id}
+            event={event}
+            frame={frame}
+            preserved={preservedFrameIds.has(frame.id)}
+            onOpenClip={onOpenClip}
+            onPreserveFrame={onPreserveFrame}
+            onOpenLive={onOpenLive}
+          />
+        ))}
+      </div>
+
+      {showMore && (
+        <div className="mt-3 border-t border-[#334155] pt-3">
+          <p className="mb-2 text-xs font-semibold text-[#CBD5E1]">
+            Archive context · 10 seconds before/after key frame
+          </p>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {contextFrames.map((frame) => (
+              <FrameCard
+                key={frame.id}
+                event={event}
+                frame={frame}
+                compact
+                preserved={preservedFrameIds.has(frame.id)}
+                onOpenClip={onOpenClip}
+                onPreserveFrame={onPreserveFrame}
+                onOpenLive={onOpenLive}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FrameCard({
+  event,
+  frame,
+  preserved,
+  compact = false,
+  onOpenClip,
+  onPreserveFrame,
+  onOpenLive,
+}: {
+  event: CorrelatedEvent
+  frame: CameraPreviewFrame
+  preserved: boolean
+  compact?: boolean
+  onOpenClip: (event: CorrelatedEvent, frame?: CameraPreviewFrame) => void
+  onPreserveFrame: (event: CorrelatedEvent, frame: CameraPreviewFrame) => void
+  onOpenLive: (event: CorrelatedEvent) => void
+}) {
+  const status = preserved ? 'preserved' : frame.status
+  const sceneType = frame.sceneType ?? event.cameraPreview?.sceneType ?? 'hallway'
+  const statusMeta = FRAME_STATUS_META[status]
+
+  return (
+    <article className="min-w-0 rounded-md border border-[#334155] bg-[#151B26] p-2">
+      <CameraStill
+        channel={event.cameraPreview?.channel ?? 'Camera'}
+        sceneType={sceneType}
+        location={event.location}
+        timestamp={frame.timestamp}
+        label={frame.label}
+        highlightType={frame.highlightType}
+        isKeyFrame={frame.isKeyFrame}
+        status={status}
+        className="aspect-video w-full"
+        onClick={() => onOpenClip(event, frame)}
+      />
+      <div className="mt-2 min-w-0">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <p className="truncate text-xs font-bold text-white">{frame.label}</p>
+          <span
+            className="shrink-0 rounded-full border border-[#334155] bg-[#0F1117] px-1.5 py-0.5 text-[10px] font-bold"
+            style={{ color: statusMeta.tone }}
+          >
+            {statusMeta.label}
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+          {HIGHLIGHT_LABEL[frame.highlightType]} · {FRAME_SOURCE_LABEL[frame.source]}
+          {typeof frame.confidence === 'number' ? ` · ${frame.confidence}%` : ''}
+        </p>
+        {!compact && (
+          <p className="mt-1 line-clamp-2 text-xs leading-[1.45] text-[#CBD5E1]">
+            {frame.description}
+          </p>
+        )}
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5">
+        <button
+          type="button"
+          onClick={() => onOpenClip(event, frame)}
+          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+        >
+          Clip
+        </button>
+        <button
+          type="button"
+          onClick={() => onPreserveFrame(event, frame)}
+          disabled={preserved || frame.status === 'unavailable'}
+          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937] disabled:cursor-not-allowed disabled:text-[#94A3B8]"
+        >
+          {preserved ? 'Saved' : 'Preserve'}
+        </button>
+        <button
+          type="button"
+          onClick={() => onOpenLive(event)}
+          className="min-h-8 rounded border border-[#475569] px-1 text-[11px] font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+        >
+          Live
+        </button>
+      </div>
+    </article>
+  )
+}
+
 function TimelineRow({
   event,
   dateTime,
   isLast,
   onOpenClip,
+  preservedFrameIds,
+  onPreserveFrame,
+  onOpenLive,
 }: {
   event: CorrelatedEvent
   dateTime: string
   isLast: boolean
-  onOpenClip: (e: CorrelatedEvent) => void
+  onOpenClip: (event: CorrelatedEvent, frame?: CameraPreviewFrame) => void
+  preservedFrameIds: Set<string>
+  onPreserveFrame: (event: CorrelatedEvent, frame: CameraPreviewFrame) => void
+  onOpenLive: (event: CorrelatedEvent) => void
 }) {
   const denied = event.type === 'access' && event.granted === false
   const isAgent = event.type === 'agent'
@@ -541,20 +857,16 @@ function TimelineRow({
                 )}
               </div>
               <p className="mt-1 text-sm leading-relaxed text-[#CBD5E1]">{event.detail}</p>
-            </div>
-
-            {/* Inline camera thumbnail */}
-            {event.cameraPreview && (
-              <div className="w-24 shrink-0 sm:w-[100px]">
-                <CameraStill
-                  channel={event.cameraPreview.channel}
-                  sceneType={event.cameraPreview.sceneType}
-                  location={event.location}
-                  timestamp={event.ts}
-                  onClick={() => onOpenClip(event)}
+              {event.cameraPreview && (
+                <CameraPreviewGallery
+                  event={event}
+                  preservedFrameIds={preservedFrameIds}
+                  onOpenClip={onOpenClip}
+                  onPreserveFrame={onPreserveFrame}
+                  onOpenLive={onOpenLive}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1330,7 +1642,7 @@ function ResponseTeamPanel({
 
 // ---- Main Drawer ----
 export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverride }: Props) {
-  const [clipEvent, setClipEvent] = useState<CorrelatedEvent | null>(null)
+  const [clipSelection, setClipSelection] = useState<ClipSelection | null>(null)
   const [whyOpen, setWhyOpen] = useState(false)
   const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
   const [noteText, setNoteText] = useState('')
@@ -1339,6 +1651,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   const [incidentStage, setIncidentStage] = useState<IncidentLifecycleStage>('accepted')
   const [lifecycleEvents, setLifecycleEvents] = useState<IncidentLifecycleEvent[]>(initialLifecycleEvents)
   const [responders, setResponders] = useState<IncidentResponder[]>(initialResponders)
+  const [preservedFrameIds, setPreservedFrameIds] = useState<Set<string>>(() => new Set())
   const actionPlanKey = useMemo(
     () =>
       [
@@ -1408,6 +1721,27 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         author: 'Agora Orchestration',
       },
     ])
+  }
+
+  function openCameraClip(event: CorrelatedEvent, frame?: CameraPreviewFrame) {
+    setClipSelection({ event, frame })
+  }
+
+  function preserveCameraFrame(event: CorrelatedEvent, frame: CameraPreviewFrame) {
+    if (frame.status === 'unavailable') return
+    setPreservedFrameIds((prev) => {
+      if (prev.has(frame.id)) return prev
+      const next = new Set(prev)
+      next.add(frame.id)
+      return next
+    })
+    addSystemReceipt(
+      `Camera frame preserved: ${event.cameraPreview?.channel ?? event.location} · ${frame.label} · ${frame.timestamp}.`
+    )
+  }
+
+  function openLiveCamera(event: CorrelatedEvent) {
+    addSystemReceipt(`Live camera requested from incident timeline: ${event.location}.`)
   }
 
   function addLifecycleTransition(nextStage: IncidentLifecycleStage, reason: string) {
@@ -1536,6 +1870,8 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     setIncidentStage('accepted')
     setLifecycleEvents(initialLifecycleEvents)
     setResponders(initialResponders)
+    setPreservedFrameIds(new Set())
+    setClipSelection(null)
   }, [actionPlanKey, initialExecutionActions, initialLifecycleEvents, initialResponders])
 
   useEffect(() => {
@@ -1630,6 +1966,20 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   }
 
   function exportEvidence() {
+    const cameraPreviewFrames = detail.correlatedEvents
+      .filter((event) => event.cameraPreview)
+      .map((event) => ({
+        eventId: event.id,
+        channel: event.cameraPreview?.channel,
+        location: event.location,
+        keyFrames: getCameraPreviewFrames(event).map((frame) => ({
+          ...frame,
+          status: preservedFrameIds.has(frame.id) ? 'preserved' : frame.status,
+        })),
+        preservedFrameIds: getCameraPreviewFrames(event)
+          .filter((frame) => preservedFrameIds.has(frame.id))
+          .map((frame) => frame.id),
+      }))
     const payload = {
       exportedAt: new Date().toISOString(),
       alert: {
@@ -1644,6 +1994,7 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
       person: detail.person,
       agentSummary: detail.agentSummary,
       correlatedEvents: detail.correlatedEvents,
+      cameraPreviewFrames,
       executionActions,
       incidentLifecycle: {
         currentStage: incidentStage,
@@ -1874,7 +2225,10 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
                           event={item.data}
                           dateTime={eventDateTime(alert.timestamp, item.data.ts)}
                           isLast={isLast}
-                          onOpenClip={setClipEvent}
+                          onOpenClip={openCameraClip}
+                          preservedFrameIds={preservedFrameIds}
+                          onPreserveFrame={preserveCameraFrame}
+                          onOpenLive={openLiveCamera}
                         />
                       )
                     } else {
@@ -2204,14 +2558,14 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
         </div>
       </div>
 
-      {clipEvent && clipEvent.cameraPreview && (
+      {clipSelection && clipSelection.event.cameraPreview && (
         <CameraClipModal
-          channel={clipEvent.cameraPreview.channel}
-          sceneType={clipEvent.cameraPreview.sceneType}
-          location={clipEvent.location}
-          timestamp={clipEvent.ts}
-          detail={clipEvent.detail}
-          onClose={() => setClipEvent(null)}
+          channel={clipSelection.event.cameraPreview.channel}
+          sceneType={clipSelection.frame?.sceneType ?? clipSelection.event.cameraPreview.sceneType}
+          location={clipSelection.event.location}
+          timestamp={clipSelection.frame?.timestamp ?? clipSelection.event.ts}
+          detail={clipSelection.frame?.description ?? clipSelection.event.detail}
+          onClose={() => setClipSelection(null)}
         />
       )}
     </div>

@@ -82,7 +82,7 @@ const THEMES: Theme[] = [
       {
         story: 'Review evidence with defensible chain of custody',
         criteria:
-          'Each evidence item shows type, label, source system, timestamp, hash or integrity marker where available, custody owner, access history, transfer history, related entities, and preview/clip access where applicable.',
+          'Each evidence item shows type, label, source system, timestamp, hash or integrity marker where available, custody owner, access history, transfer history, related entities, preview/clip access, preserved camera key frames, and preview-only context where applicable.',
       },
       {
         story: 'Reconstruct and annotate the case timeline',
