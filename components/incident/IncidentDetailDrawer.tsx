@@ -877,18 +877,18 @@ function TimelineRow({
 // ---- Operator Log ----
 const CURRENT_OPERATOR = 'J. Torres'
 
-function createInitialIncidentLifecycle(alert: Alert): IncidentLifecycleEvent[] {
+function createInitialIncidentLifecycle(alertId: string, alertTimestamp: string): IncidentLifecycleEvent[] {
   return [
     {
-      id: `life-${alert.id}-detected`,
+      id: `life-${alertId}-detected`,
       fromStage: 'detected',
       toStage: 'triaged',
       changedBy: 'Agora Detection',
-      changedAt: alert.timestamp,
+      changedAt: alertTimestamp,
       reason: 'Alert correlated from device, access, and camera signals.',
     },
     {
-      id: `life-${alert.id}-accepted`,
+      id: `life-${alertId}-accepted`,
       fromStage: 'triaged',
       toStage: 'accepted',
       changedBy: CURRENT_OPERATOR,
@@ -898,11 +898,11 @@ function createInitialIncidentLifecycle(alert: Alert): IncidentLifecycleEvent[] 
   ]
 }
 
-function createInitialResponders(alert: Alert): IncidentResponder[] {
+function createInitialResponders(alertId: string, severity: Severity): IncidentResponder[] {
   const now = new Date().toISOString()
   return [
     {
-      id: `responder-${alert.id}-commander`,
+      id: `responder-${alertId}-commander`,
       name: CURRENT_OPERATOR,
       role: 'incident_commander',
       status: 'acknowledged',
@@ -915,10 +915,10 @@ function createInitialResponders(alert: Alert): IncidentResponder[] {
       notes: 'Default commander assigned from active SOC shift.',
     },
     {
-      id: `responder-${alert.id}-guard`,
+      id: `responder-${alertId}-guard`,
       name: 'Austin Guard Dispatch',
       role: 'guard',
-      status: alert.severity === 'critical' ? 'en_route' : 'notified',
+      status: severity === 'critical' ? 'en_route' : 'notified',
       responsibility: 'Intercept or observe at the affected floor/entry point.',
       contact: 'Radio Ch. 3',
       team: 'Site Security',
@@ -927,7 +927,7 @@ function createInitialResponders(alert: Alert): IncidentResponder[] {
       lastUpdatedAt: now,
     },
     {
-      id: `responder-${alert.id}-access`,
+      id: `responder-${alertId}-access`,
       name: 'Access Control Admin',
       role: 'it_access_admin',
       status: 'notified',
@@ -1666,8 +1666,14 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
   const [whyOpen, setWhyOpen] = useState(false)
   const [operatorLog, setOperatorLog] = useState<OperatorEntry[]>([])
   const [noteText, setNoteText] = useState('')
-  const initialLifecycleEvents = useMemo(() => createInitialIncidentLifecycle(alert), [alert])
-  const initialResponders = useMemo(() => createInitialResponders(alert), [alert])
+  const initialLifecycleEvents = useMemo(
+    () => createInitialIncidentLifecycle(alert.id, alert.timestamp),
+    [alert.id, alert.timestamp]
+  )
+  const initialResponders = useMemo(
+    () => createInitialResponders(alert.id, alert.severity),
+    [alert.id, alert.severity]
+  )
   const [incidentStage, setIncidentStage] = useState<IncidentLifecycleStage>('accepted')
   const [lifecycleEvents, setLifecycleEvents] = useState<IncidentLifecycleEvent[]>(initialLifecycleEvents)
   const [responders, setResponders] = useState<IncidentResponder[]>(initialResponders)
@@ -1892,6 +1898,8 @@ export function IncidentDetailDrawer({ alert, detail, onClose, onAccept, onOverr
     setResponders(initialResponders)
     setPreservedFrameIds(new Set())
     setClipSelection(null)
+    setOperatorLog([])
+    setNoteText('')
   }, [actionPlanKey, initialExecutionActions, initialLifecycleEvents, initialResponders])
 
   useEffect(() => {
