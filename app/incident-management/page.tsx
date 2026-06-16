@@ -6,6 +6,7 @@ import SupervisorView from '@/components/incident/SupervisorView'
 import MonitorView from '@/components/incident/MonitorView'
 import MapView from '@/components/incident/MapView'
 import InsightsView from '@/components/incident/InsightsView'
+import { MOCK_ALERTS } from '@/lib/mock-data/scenarios'
 
 type ViewTab = 'response' | 'supervisor' | 'monitor' | 'map' | 'insights'
 
@@ -23,6 +24,12 @@ export default function IncidentManagementPage() {
   const [tab, setTab] = useState<ViewTab>('response')
   const [site, setSite] = useState('Austin HQ')
   const [highContrast, setHighContrast] = useState(false)
+  const siteAlerts = MOCK_ALERTS.filter((alert) => alert.siteName === site)
+  const criticalCount = siteAlerts.filter((alert) => alert.severity === 'critical').length
+  const highCount = siteAlerts.filter((alert) => alert.severity === 'high').length
+  const enrichingCount = siteAlerts.filter((alert) => alert.status === 'enriching').length
+  const slaRiskCount = site === 'Austin HQ' ? 2 : site === 'Cedar Park Warehouse' ? 1 : 0
+  const unassignedCriticalCount = site === 'Austin HQ' ? 1 : 0
 
   return (
     <div
@@ -57,6 +64,7 @@ export default function IncidentManagementPage() {
               </select>
               <span
                 className="material-symbols-outlined pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                aria-hidden="true"
                 style={{ fontSize: '18px', lineHeight: 1 }}
               >
                 expand_more
@@ -82,6 +90,50 @@ export default function IncidentManagementPage() {
             >
               High Contrast
             </button>
+          </div>
+        </div>
+
+        <div className="border-t border-[#273142] px-4 py-3 sm:px-5 xl:px-6">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-[repeat(6,minmax(0,1fr))_auto]">
+            {[
+              { label: 'Open', value: siteAlerts.length, tone: '#E5E7EB' },
+              { label: 'Critical', value: criticalCount, tone: '#FF453A' },
+              { label: 'High', value: highCount, tone: '#FCD34D' },
+              { label: 'Unassigned Critical', value: unassignedCriticalCount, tone: '#FFB4AE' },
+              { label: 'SLA Risk', value: slaRiskCount, tone: '#FCD34D' },
+              { label: 'Enriching', value: enrichingCount, tone: '#93C5FD' },
+            ].map((metric) => (
+              <div key={metric.label} className="rounded-lg border border-[#273142] bg-[#111827] px-3 py-2">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-[#94A3B8]">{metric.label}</p>
+                <p className="mt-1 text-lg font-black leading-none" style={{ color: metric.tone }}>
+                  {metric.value}
+                </p>
+              </div>
+            ))}
+            <div className="col-span-2 flex gap-2 md:col-span-4 xl:col-span-1 xl:justify-end">
+              <button
+                type="button"
+                onClick={() => setTab('supervisor')}
+                className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-bold transition-colors xl:flex-none ${
+                  tab === 'supervisor'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'border border-[#374151] bg-[#111827] text-[#D1D5DB] hover:bg-[#1F2937]'
+                }`}
+              >
+                Supervisor
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab('monitor')}
+                className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-bold transition-colors xl:flex-none ${
+                  tab === 'monitor'
+                    ? 'bg-[#2563EB] text-white'
+                    : 'border border-[#374151] bg-[#111827] text-[#D1D5DB] hover:bg-[#1F2937]'
+                }`}
+              >
+                Monitor
+              </button>
+            </div>
           </div>
         </div>
 

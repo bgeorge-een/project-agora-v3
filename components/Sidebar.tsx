@@ -59,7 +59,13 @@ export default function Sidebar() {
                     : 'text-[#CBD5E0] hover:bg-[#1E2D42]/60 hover:text-white'
                 }`}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontSize: 20, lineHeight: 1 }}
+                >
+                  {item.icon}
+                </span>
                 <span className="hidden 2xl:inline">{item.label}</span>
               </Link>
             )
@@ -88,7 +94,13 @@ export default function Sidebar() {
                   : 'text-[#CBD5E0] hover:bg-[#1E2D42]/60 hover:text-white'
               }`}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
+              <span
+                className="material-symbols-outlined"
+                aria-hidden="true"
+                style={{ fontSize: 20, lineHeight: 1 }}
+              >
+                {item.icon}
+              </span>
               <span>{item.shortLabel}</span>
             </Link>
           )

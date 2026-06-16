@@ -77,7 +77,9 @@ function AlertCard({
   alert,
   selected,
   resolution,
+  onAccept,
   onReview,
+  onOverride,
   highContrast = false,
 }: AlertCardProps) {
   const isDeterrent = alert.type === 'deterrent'
@@ -85,7 +87,6 @@ function AlertCard({
   const confidence = alert.nba ? Math.round(alert.nba.confidence * 100) : null
   const criticalUnacknowledged = alert.severity === 'critical' && !resolution
   const detailItems = [
-    alert.location,
     `Local ${formatLocalTime(alert.ageSeconds)}`,
     formatElapsed(alert.ageSeconds),
     `${alert.sources.length} sources`,
@@ -94,7 +95,7 @@ function AlertCard({
 
   return (
     <div
-      className={`soc-surface rounded-lg border p-5 transition-colors ${
+      className={`soc-surface rounded-lg border p-3 transition-colors sm:p-4 ${
         criticalUnacknowledged ? 'critical-unacknowledged' : ''
       } ${
         selected
@@ -107,9 +108,9 @@ function AlertCard({
       }`}
       style={{ borderLeft: `5px solid ${selected ? '#60A5FA' : meta.rail}` }}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center gap-2 text-base leading-none">
+          <div className="mb-1.5 flex items-center gap-2 text-sm leading-none">
             <span className="font-extrabold" style={{ color: meta.text }}>
               {meta.label}
             </span>
@@ -117,25 +118,53 @@ function AlertCard({
               {isDeterrent ? 'Deterrent' : 'Reactive'}
             </span>
           </div>
-          <h3 className="text-base font-semibold leading-[1.5] text-[#F8FAFC]">
+          <h3 className="text-sm font-semibold leading-[1.3] text-[#F8FAFC]">
             {alert.title}
           </h3>
-          <p className="soc-muted mt-2 text-sm leading-[1.5] text-[#D1D5DB]">
-            Incident Detail: {detailItems.filter(Boolean).join(' · ')}
-          </p>
+          <div className="soc-muted mt-2 flex flex-wrap items-center gap-1.5 text-sm leading-[1.4] text-[#D1D5DB]">
+            <button
+              type="button"
+              onClick={() => onReview(alert)}
+              className="rounded border border-[#334155] bg-[#0F1117] px-2 py-1 text-left text-xs font-bold text-[#BFDBFE] transition-colors hover:border-[#60A5FA]"
+            >
+              {alert.location}
+            </button>
+            {detailItems.filter(Boolean).map((item) => (
+              <span key={item} className="rounded border border-[#334155] bg-[#0F1117] px-2 py-1 text-xs font-semibold text-[#CBD5E1]">
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
-        <button
-          onClick={() => onReview(alert)}
-          className={`min-h-12 w-full shrink-0 rounded-md px-5 text-sm font-bold transition-colors sm:w-auto ${
-            selected
-              ? 'bg-[#243B55] text-[#BFDBFE]'
-              : alert.severity === 'critical'
-                ? 'bg-[#FF453A] text-black hover:bg-[#FF6B61]'
-                : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
-          }`}
-        >
-          {selected ? 'Selected' : alert.severity === 'critical' ? 'Respond' : 'Open'}
-        </button>
+        <div className="grid w-full grid-cols-3 gap-2 sm:w-auto sm:min-w-[17rem]">
+          <button
+            type="button"
+            onClick={() => onAccept(alert)}
+            className="min-h-10 rounded-md border border-[#64748B] px-2 text-xs font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+          >
+            Ack
+          </button>
+          <button
+            type="button"
+            onClick={() => onOverride(alert)}
+            className="min-h-10 rounded-md border border-[#64748B] px-2 text-xs font-bold text-[#E5E7EB] transition-colors hover:bg-[#1F2937]"
+          >
+            Override
+          </button>
+          <button
+            type="button"
+            onClick={() => onReview(alert)}
+            className={`min-h-10 rounded-md px-3 text-xs font-black transition-colors ${
+              selected
+                ? 'bg-[#243B55] text-[#BFDBFE]'
+                : alert.severity === 'critical'
+                  ? 'bg-[#FF453A] text-black hover:bg-[#FF6B61]'
+                  : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
+            }`}
+          >
+            {selected ? 'Selected' : alert.severity === 'critical' ? 'Dispatch' : 'Open'}
+          </button>
+        </div>
       </div>
 
       {resolution && (
@@ -250,7 +279,7 @@ export default function ResponseView({
       {/* LEFT — Alert Queue */}
       <div className="space-y-4">
         <div
-          className={`soc-surface rounded-xl border p-5 ${
+          className={`soc-surface rounded-xl border p-4 ${
             highContrast ? 'border-[#64748B] bg-black' : 'border-[#273142] bg-[#171D29]'
           }`}
         >
@@ -268,7 +297,7 @@ export default function ResponseView({
             )}
           </div>
           {criticalCount > 0 && (
-            <div className="mt-4 rounded-lg border border-[#7F1D1D]/70 bg-[#180D0D] px-4 py-3 text-sm leading-[1.5] text-[#FECACA]">
+            <div className="mt-3 rounded-lg border border-[#7F1D1D]/70 bg-[#180D0D] px-3 py-2 text-sm leading-[1.45] text-[#FECACA]">
               Keep attention on critical alerts first. Lower severity groups stay collapsed until needed.
             </div>
           )}
@@ -325,7 +354,7 @@ export default function ResponseView({
               </button>
 
               {(isCritical || isOpen) && (
-                <div className="mt-4 space-y-5">
+                <div className="mt-2 space-y-2">
                   {list.length === 0 ? (
                     <p className="px-3 py-2 text-sm text-[#9CA3AF]">
                       No {meta.label.toLowerCase()} alerts.
