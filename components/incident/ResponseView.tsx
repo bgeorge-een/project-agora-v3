@@ -162,7 +162,7 @@ function AlertCard({
                   : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
             }`}
           >
-            {selected ? 'Selected' : alert.severity === 'critical' ? 'Dispatch' : 'Open'}
+            {selected ? 'Selected' : 'Open'}
           </button>
         </div>
       </div>
