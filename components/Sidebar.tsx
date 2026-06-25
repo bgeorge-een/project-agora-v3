@@ -14,6 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/', icon: 'home_app_logo', label: 'Overview', shortLabel: 'Overview' },
   { href: '/incident-management', icon: 'bolt', label: 'Real-time Incident Mgmt', shortLabel: 'Incident' },
   { href: '/case-management', icon: 'manage_search', label: 'Case Management', shortLabel: 'Cases' },
+  { href: '/who-we-serve', icon: 'groups', label: 'Who We Serve', shortLabel: 'ICP' },
 ]
 
 export default function Sidebar() {
@@ -78,7 +79,7 @@ export default function Sidebar() {
       </aside>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-[#243349] bg-[#172130]/98 px-2 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.28)] backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-[#243349] bg-[#172130]/98 px-2 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.28)] backdrop-blur lg:hidden"
         aria-label="Primary navigation"
       >
         {NAV_ITEMS.map((item) => {
