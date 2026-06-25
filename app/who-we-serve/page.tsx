@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import QualifyingFilter from '@/components/icp/QualifyingFilter'
 
 export const metadata: Metadata = {
   title: 'Who We Serve — Project Agora V3',
@@ -9,6 +10,7 @@ export default function WhoWeServePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <WhoWeServeHero />
+      <QualifyingFilter />
     </div>
   )
 }
