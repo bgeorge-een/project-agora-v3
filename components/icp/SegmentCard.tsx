@@ -103,7 +103,7 @@ export default function SegmentCard({ segment, sectionBg = '#FFFFFF' }: Props) {
 
             {/* Tier 3 — Disqualifiers */}
             <div>
-              <MicroLabel>⊘ Disqualifiers</MicroLabel>
+              <MicroLabel><span aria-hidden="true">⊘</span> Disqualifiers</MicroLabel>
               <div className="mt-2 flex flex-wrap gap-2">
                 {segment.disqualifiers.map((d, i) => (
                   <span
@@ -141,7 +141,7 @@ export default function SegmentCard({ segment, sectionBg = '#FFFFFF' }: Props) {
                     }
                     title={ex.reason}
                   >
-                    {ex.status === 'in' ? '● ' : '○ '}
+                    <span aria-hidden="true">{ex.status === 'in' ? '● ' : '○ '}</span>
                     {ex.name}
                   </span>
                 ))}
