@@ -4,6 +4,8 @@ import TargetingMatrix from '@/components/icp/TargetingMatrix'
 import StickySubNav from '@/components/icp/StickySubNav'
 import SegmentCard from '@/components/icp/SegmentCard'
 import HypothesisCard from '@/components/icp/HypothesisCard'
+import TamCards from '@/components/icp/TamCards'
+import OpenQuestions from '@/components/icp/OpenQuestions'
 import { SEGMENTS, HYPOTHESES } from '@/lib/icp/data'
 
 export const metadata: Metadata = {
@@ -61,6 +63,8 @@ export default function WhoWeServePage() {
       <SegmentCard segment={SEGMENTS[1]} sectionBg="#F8FAFC" />
       <SegmentCard segment={SEGMENTS[2]} />
       <HypothesesSection />
+      <TamCards />
+      <OpenQuestions />
     </div>
   )
 }
