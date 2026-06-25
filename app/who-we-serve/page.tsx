@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import QualifyingFilter from '@/components/icp/QualifyingFilter'
 import TargetingMatrix from '@/components/icp/TargetingMatrix'
+import StickySubNav from '@/components/icp/StickySubNav'
 
 export const metadata: Metadata = {
   title: 'Who We Serve — Project Agora V3',
@@ -11,6 +12,7 @@ export default function WhoWeServePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <WhoWeServeHero />
+      <StickySubNav />
       <QualifyingFilter />
       <TargetingMatrix />
     </div>
