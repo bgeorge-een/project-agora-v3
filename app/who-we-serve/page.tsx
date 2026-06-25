@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import QualifyingFilter from '@/components/icp/QualifyingFilter'
 import TargetingMatrix from '@/components/icp/TargetingMatrix'
 import StickySubNav from '@/components/icp/StickySubNav'
+import SegmentCard from '@/components/icp/SegmentCard'
+import { SEGMENTS } from '@/lib/icp/data'
 
 export const metadata: Metadata = {
   title: 'Who We Serve — Project Agora V3',
@@ -15,6 +17,9 @@ export default function WhoWeServePage() {
       <StickySubNav />
       <QualifyingFilter />
       <TargetingMatrix />
+      <SegmentCard segment={SEGMENTS[0]} />
+      <SegmentCard segment={SEGMENTS[1]} sectionBg="#F8FAFC" />
+      <SegmentCard segment={SEGMENTS[2]} />
     </div>
   )
 }
